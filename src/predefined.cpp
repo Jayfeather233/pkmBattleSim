@@ -1,5 +1,8 @@
 #include "places.hpp"
 #include "menu.hpp"
+#include "skills.hpp"
+
+#include <vector>
 
 std::vector<region> regis;
 std::vector<places> plcs;
@@ -12,7 +15,7 @@ void init_predefs()
     // these should be loaded from file
     regis.push_back((region){"alolan", "a place called alolan"});
 
-    plcs.push_back((places){"1st road", "the 1st road", &regis[0], std::vector<places *>(), std::vector<std::pair<pkm_base, float>>()});
+    plcs.push_back((places){"1st road", "the 1st road", &regis[0], 5, std::vector<places *>(), std::vector<std::pair<pkm_base, float>>()});
 
     pkm_info_maper.push_back((pkm_info){"empty", 0, nullptr});
     pkm_info_maper.push_back((pkm_info){

@@ -17,6 +17,10 @@ public:
     std::vector<std::string> (*get_choose_set)(
         player &p); // call to get item list
 
+    text_menu(){
+        father = nullptr;
+    }
+
     text_menu(std::string titlex, std::string choose_textx,
               std::vector<text_menu *> optionsx, bool is_choosex,
               void (*actionx)(player &p), void (*choose_cbx)(player &p, int id),
@@ -25,6 +29,7 @@ public:
           is_choose(is_choosex), action(actionx), choose_cb(choose_cbx),
           get_choose_set(get_choose_setx)
     {
+        father = nullptr;
     }
 
     void add_option(text_menu *p)

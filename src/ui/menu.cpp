@@ -58,20 +58,20 @@ text_menu *init_item_menu()
     return p;
 }
 
-text_menu *init_pkm_menu()
-{
-    text_menu *p = new text_menu("pokemon menu", "pokemon menu", {}, false,
-                                 nullptr, nullptr, nullptr);
-    p->add_option(init_pkm_choose_menu());
-    p->add_option(init_item_menu());
-    return p;
-}
+// text_menu *init_pkm_menu()
+// {
+//     text_menu *p = new text_menu("pokemon menu", "pokemon menu", {}, false,
+//                                  nullptr, nullptr, nullptr);
+//     p->add_option(init_pkm_choose_menu());
+//     p->add_option(init_item_menu());
+//     return p;
+// }
 
 text_menu *init_player_menu()
 {
     text_menu *p = new text_menu("player menu", "player menu", {}, false,
                                  nullptr, nullptr, nullptr);
-    p->add_option(init_pkm_menu());
+    p->add_option(init_pkm_choose_menu());
     p->add_option(init_item_menu());
     return p;
 }

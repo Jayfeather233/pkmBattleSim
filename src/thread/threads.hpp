@@ -1,5 +1,7 @@
 #pragma once
 
+#include "menu.hpp"
+
 #include <atomic>
 #include <cstdint>
 #include <iostream>
@@ -8,6 +10,8 @@
 class singleplayerthread {
 public:
     uint64_t user_id;
+    text_menu *now_memu;
+    player p;
 #ifdef QQBOT
     msg_meta conf;
     std::atomic<bool> sig_ipt;
@@ -27,7 +31,15 @@ public:
 #endif
     }
 
-    void run() {}
+    void run() {
+        now_memu = &root_menu;
+        // output2user(now_memu->to_string());
+        
+        while(1){
+            output2user(now_memu->to_string());
+            now_memu = now_memu->get_nxt_menu(p, get_next_int());
+        }
+    }
 
 #ifdef QQBOT
     std::string get_user_input()

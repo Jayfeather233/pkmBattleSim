@@ -13,7 +13,7 @@ struct pkm_info {
 };
 
 extern std::vector<pkm_info> pkm_info_maper;
-pkm_info *get_pkm_info(int id) { return &pkm_info_maper[id]; }
+pkm_info *get_pkm_info(int id);
 
 class pkm_base {
 public:
@@ -25,7 +25,7 @@ public:
 
 extern std::vector<pkm_base> pkm_list;
 
-float get_nature_rate(int nature) { return 1.0; }
+float get_nature_rate(int nature);
 
 class pkm : public pkm_base {
 public:
