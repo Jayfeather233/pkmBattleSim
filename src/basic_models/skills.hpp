@@ -61,3 +61,4 @@ public:
 
 // predefined skills
 extern std::vector<base_skill> skill_list;
+void init_skills();

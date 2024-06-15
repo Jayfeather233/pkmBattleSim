@@ -8,7 +8,7 @@
 struct pkm_info {
     std::string name;
     int id;
-    u_char *image;
+    u_char *pkm_image;
     std::vector<int> skills_can_learn;
 };
 
@@ -21,6 +21,13 @@ public:
         species_points; // 种族值是反映不同种类宝可梦之间各项能力大致情况的数值
     element_types typ[2];
     int id;
+
+    pkm_base();
+
+    pkm_base(base6 sp, std::array<element_types, 2> et, int idx);
+    pkm_base(base6 sp, element_types et[2], int idx);
+    pkm_base(const pkm_base &u);
+    pkm_base(const pkm_base &&u);
 };
 
 extern std::vector<pkm_base> pkm_list;
@@ -30,7 +37,7 @@ float get_nature_rate(int nature);
 class pkm : public pkm_base {
 public:
     std::string name;
-    u_char gender;
+    gender gend;
     u_char level;
     int exp_need; // need to grant level
     int exp_curr; // current exp
@@ -55,23 +62,15 @@ public:
         char affected_evasionrate;
     } bstate;
 
-    void refresh_stat()
-    {
-        stat.hp =
-            (int)((species_points.hp * 2 + IV.hp + (float)base_points.hp / 4) *
-                      level / 100.0 +
-                  10 + level);
+    pkm(const pkm_base &pb, const std::string &namex, gender gen, u_char levelx,
+        int exp_needx, int exp_currx, base6 IVx, base6 bp, u_char fship,
+        battle_status bs, int skillx[4], int naturex, int hpred, bool is_sh);
 
-#define gst(a)                                                                 \
-    (int)(((species_points.a * 2 + IV.a + (float)base_points.a / 4) * level /  \
-               100.0 +                                                         \
-           5) *                                                                \
-          get_nature_rate(nature))
-        stat.atk = gst(atk);
-        stat.stk = gst(stk);
-        stat.df = gst(df);
-        stat.sdf = gst(sdf);
-        stat.spd = gst(spd);
-#undef gst
-    }
+    pkm(const pkm_base &pb, const std::string &namex, gender gen, u_char levelx,
+        int exp_needx, int exp_currx, base6 IVx, base6 bp, u_char fship,
+        battle_status bs, std::array<int, 4> skillx, int naturex, int hpred,
+        bool is_sh);
+
+    void refresh_stat();
+    void refresh_bstate();
 };

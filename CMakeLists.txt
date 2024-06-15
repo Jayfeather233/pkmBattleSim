@@ -9,10 +9,12 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories("./src/basic_models")
 include_directories("./src/thread")
 include_directories("./src/ui")
+include_directories("./src/utils")
 
 aux_source_directory(./src/basic_models BM_SOURCES)
 aux_source_directory(./src/thread TH_SOURCES)
 aux_source_directory(./src/ui UI_SOURCES)
+aux_source_directory(./src/utils UTILS_SOURCES)
 aux_source_directory(./src MAIN_SOURCES)
 
 # Set the mode you want (e.g., Mode1 or Mode2)
@@ -42,7 +44,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstandalone-debug")
 endif()
 
-add_executable(${PROJECT_NAME}  ${BM_SOURCES} ${TH_SOURCES} ${UI_SOURCES} ${MAIN_SOURCES})
+add_executable(${PROJECT_NAME}  ${BM_SOURCES} ${TH_SOURCES} ${UI_SOURCES} ${UTILS_SOURCES} ${MAIN_SOURCES})
 
 add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
 add_definitions( -DMAGICKCORE_HDRI_ENABLE=1 )

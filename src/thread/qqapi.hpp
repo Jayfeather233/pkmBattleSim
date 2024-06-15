@@ -35,5 +35,4 @@ public:
     std::string help() {}
 };
 
-#else
 #endif

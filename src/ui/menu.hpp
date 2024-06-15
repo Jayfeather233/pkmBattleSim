@@ -17,62 +17,19 @@ public:
     std::vector<std::string> (*get_choose_set)(
         player &p); // call to get item list
 
-    text_menu(){
-        father = nullptr;
-    }
+    text_menu();
 
     text_menu(std::string titlex, std::string choose_textx,
               std::vector<text_menu *> optionsx, bool is_choosex,
-              void (*actionx)(player &p), void (*choose_cbx)(player &p, int id),
-              std::vector<std::string> (*get_choose_setx)(player &p))
-        : title(titlex), choose_text(choose_textx), options(optionsx),
-          is_choose(is_choosex), action(actionx), choose_cb(choose_cbx),
-          get_choose_set(get_choose_setx)
-    {
-        father = nullptr;
-    }
+              void (*actionx)(player &p) = nullptr,
+              void (*choose_cbx)(player &p, int id) = nullptr,
+              std::vector<std::string> (*get_choose_setx)(player &p) = nullptr);
 
-    void add_option(text_menu *p)
-    {
-        p->father = this;
-        this->options.push_back(p);
-    }
+    void add_option(text_menu *p);
 
-    std::string to_string()
-    {
-        std::string ret;
-        if (title.length() != 0) {
-            ret += title + '\n';
-        }
-        int cnt = 0;
-        for (auto it : options) {
-            ret += std::to_string(cnt) + ". " + it->choose_text + '\n';
-            cnt++;
-        }
-        ret += std::to_string(cnt) + ". back";
-        return ret;
-    }
+    std::string to_string();
 
-    text_menu *get_nxt_menu(player &p, int id)
-    {
-        if (0 <= id && id < options.size()) {
-            if (options[id]->action != nullptr) {
-                options[id]->action(p);
-            }
-            return options[id];
-        }
-        else {
-            if (father != nullptr) {
-                if (father->action != nullptr) {
-                    father->action(p);
-                }
-                return father;
-            }
-            else {
-                return this;
-            }
-        }
-    }
+    text_menu *get_nxt_menu(player &p, int id);
 };
 
 extern text_menu root_menu;

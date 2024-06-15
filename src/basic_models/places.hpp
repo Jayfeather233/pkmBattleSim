@@ -23,9 +23,10 @@ public:
                      // required to continue to next place
     // can go to where
     std::vector<places *> neighbors;
-    // what pkm can come across
-    std::vector<std::pair<pkm_base, float>> pkms;
+    // what pkm can come across, <pkm_id, chances>
+    std::vector<std::pair<int, float>> pkms;
+    int id;
 };
 
 extern std::vector<region> regis;
-extern std::vector<places> plcs;
+extern std::vector<places> placs;

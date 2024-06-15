@@ -6,7 +6,7 @@
 class player {
 public:
     int badge;
-    pkm party_pkm[6];
+    std::vector<pkm> party_pkm;
     std::vector<pkm> chest_pkm;
     // items
     places *pls;
@@ -14,4 +14,7 @@ public:
 
     // menu_choose_item
     int menu_choose_pokemon;
+
+    void save(const std::string &filepath);
+    static player load(const std::string &filepath);
 };

@@ -2,6 +2,8 @@
 
 #include "menu.hpp"
 
+#include "menu.hpp"
+
 #include <atomic>
 #include <cstdint>
 #include <iostream>
@@ -10,6 +12,8 @@
 class singleplayerthread {
 public:
     uint64_t user_id;
+    text_menu *now_memu;
+    player p;
     text_menu *now_memu;
     player p;
 #ifdef QQBOT
@@ -29,12 +33,11 @@ public:
 #ifdef QQBOT
         this->conf = (msg_meta){"private", user_id, 0, 0, ptr};
 #endif
+        this->p = player::load("./config/pkm/"+std::to_string(user_id)+".json");
+        this->now_memu = &root_menu;
     }
 
     void run() {
-        now_memu = &root_menu;
-        // output2user(now_memu->to_string());
-        
         while(1){
             output2user(now_memu->to_string());
             now_memu = now_memu->get_nxt_menu(p, get_next_int());
@@ -92,6 +95,9 @@ public:
         }
     }
 #endif
+    void save(){
+        this->p.save("./config/pkm/"+std::to_string(user_id)+".json");
+    }
 };
 
 #ifdef QQBOT
