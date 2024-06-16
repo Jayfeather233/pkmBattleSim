@@ -14,8 +14,6 @@ public:
     uint64_t user_id;
     text_menu *now_memu;
     player p;
-    text_menu *now_memu;
-    player p;
 #ifdef QQBOT
     msg_meta conf;
     std::atomic<bool> sig_ipt;
