@@ -8,24 +8,24 @@
 struct base6 {
     // health point, attak, special attack,
     // defence, special defence, speed
-    int hp, atk, stk, df, sdf, spd;
+    int hp, atk, df, stk, sdf, spd;
 };
 
 base6 operator+(const base6 &a, const base6 &b);
 
 base6 operator+=(base6 &a, const base6 &b);
 
-enum element_types { EMPTY=0, PLAIN, FIRE, WATER, GRASS };
+enum element_types { EMPTY=0, PLAIN, FIRE, WATER, GRASS, POISON, FIGHT, FLY, ELEC, GROUND, PSYCHIC, ROCK, ICE, BUG, DRAGON, GHOST, DARK, STEEL, FAIRY };
+element_types str2et(const std::string &s);
 
 // from, to, types Compatibility
-extern float eff_table[20][20];
 extern float eff_table[20][20];
 
 enum battle_status {
     NORMAL,
     SLEEP,
     ELECT,
-    POISON,
+    POISONED,
 };
 
 enum battle_position {

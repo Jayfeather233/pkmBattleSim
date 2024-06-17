@@ -10,6 +10,16 @@ std::vector<int> Ja2Vec(const Json::Value &Ja)
     return ret;
 }
 
+std::vector<std::pair<int,int>> Ja2VecP(const Json::Value &Ja)
+{
+    std::vector<std::pair<int,int>> ret;
+    for (Json::Value it : Ja) {
+        ret.push_back(std::make_pair(it["level"].asInt(), it["skill_id"].asInt()));
+    }
+    return ret;
+}
+
+
 std::vector<std::pair<int, float>> Ja2Vec2(const Json::Value &Ja)
 {
     std::vector<std::pair<int, float>> ret;
@@ -27,17 +37,54 @@ base6 J2base6(const Json::Value &J)
     };
 }
 
-pkm_base J2pkm_base(const Json::Value &J)
-{
-    return pkm_base(J2base6(J["sp"]),
-                    {static_cast<element_types>(J["tp"][0].asInt()),
-                     static_cast<element_types>(J["tp"][1].asInt())},
-                    J["id"].asInt());
+element_types J2et(const Json::Value &J){
+    try{
+        return static_cast<element_types>(J.asInt());
+    } catch (...){
+        return str2et(J.asString());
+    }
+}
+
+pkm_base J2pkm_base(const Json::Value &J) {
+    // Extract species_points
+    base6 sp = J2base6(J["sp"]);
+
+    // Extract element_types
+    std::array<element_types, 2> et = {
+        J2et(J["tp"][0]),
+        J2et(J["tp"][1])
+    };
+
+    // Extract poss_abilities
+    std::vector<std::pair<int, float>> abilities;
+    for (const auto& ability : J["poss_abilities"]) {
+        abilities.push_back(std::make_pair(ability["id"].asInt(), ability["poss"].asFloat()));
+    }
+
+    // Extract aquire_base_point
+    base6 abp = J2base6(J["aquire_base_point"]);
+
+    // Create and return the pkm_base object
+    return pkm_base(
+        J["name"].asString(),
+        sp,
+        et,
+        J["id"].asInt(),
+        J["category"].asString(),
+        abilities,
+        J["height"].asFloat(),
+        J["weight"].asFloat(),
+        static_cast<u_char>(J["catch_rate"].asUInt()),
+        J["gender_ratio"].asInt(),
+        abp,
+        static_cast<u_char>(J["exp_acc_speed"].asUInt()),
+        J["base_exp"].asInt()
+    );
 }
 
 pkm J2pkm(const Json::Value &J)
 {
-    return pkm(pkm_base(J2pkm_base(J)), J["name"].asString(),
+    return pkm(pkm_list[J["id"].asInt()], J["name"].asString(),
                static_cast<gender>(J["gender"].asInt()), J["level"].asInt(),
                J["exp_need"].asInt(), J["exp_curr"].asInt(), J2base6(J["IV"]),
                J2base6(J["bp"]), J["friendship"].asInt(),
@@ -67,21 +114,9 @@ Json::Value base62J(const base6 &b)
     return J;
 }
 
-Json::Value pkm_base2J(const pkm_base &p)
-{
-    Json::Value J;
-    J["sp"] = base62J(p.species_points);
-    Json::Value tp(Json::arrayValue);
-    tp.append(static_cast<int>(p.typ[0]));
-    tp.append(static_cast<int>(p.typ[1]));
-    J["tp"] = tp;
-    J["id"] = p.id;
-    return J;
-}
-
 Json::Value pkm2J(const pkm &p)
 {
-    Json::Value J = pkm_base2J(p);
+    Json::Value J;
     J["name"] = p.name;
     J["gender"] = static_cast<int>(p.gend);
     J["level"] = p.level;

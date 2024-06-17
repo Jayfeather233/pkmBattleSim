@@ -6,31 +6,55 @@
 #include <string>
 
 struct pkm_info {
-    std::string name;
     int id;
     u_char *pkm_image;
-    std::vector<int> skills_can_learn;
+    std::vector<std::pair<int, int>> skills_can_learn; // level - skill_id
 };
 
 extern std::vector<pkm_info> pkm_info_maper;
 pkm_info *get_pkm_info(int id);
+int get_next_level_exp(u_char eas, u_char level);
 
 class pkm_base {
 public:
+    std::string base_name;
     base6
         species_points; // 种族值是反映不同种类宝可梦之间各项能力大致情况的数值
     element_types typ[2];
+    std::string category;            // what-what pokemon
+    std::vector<std::pair<int, float>> poss_abilities; // 可能的特性, id - possibility
+    float height, weight;
+    u_char catch_rate;
+    int gender_ratio; // male will be ratio/8, no gender will be -1
+    // int monster_type; // 蛋群 well, just cancel this limit
+    base6 aquire_base_point; // the base_point you get when defeat
+    u_char exp_acc_speed; // https://wiki.52poke.com/wiki/%E7%BB%8F%E9%AA%8C%E5%80%BC
+                          // 0-fastest 5-slowest
+    int base_exp; // 基础经验值用于对战后经验值获得计算
     int id;
 
+    // Default constructor
     pkm_base();
 
-    pkm_base(base6 sp, std::array<element_types, 2> et, int idx);
-    pkm_base(base6 sp, element_types et[2], int idx);
+    // Parameterized constructor 1
+    pkm_base(const std::string &nm, base6 sp, std::array<element_types, 2> et, int idx,
+             const std::string &cat, const std::vector<std::pair<int, float>> &abilities, float h, float w,
+             u_char cr, int gr, base6 abp, u_char eas, int bexp);
+
+    // Parameterized constructor 2
+    pkm_base(const std::string &nm, base6 sp, element_types et[2], int idx,
+             const std::string &cat, const std::vector<std::pair<int, float>> &abilities, float h, float w,
+             u_char cr, int gr, base6 abp, u_char eas, int bexp);
+
+    // Copy constructor
     pkm_base(const pkm_base &u);
-    pkm_base(const pkm_base &&u);
+
+    // Move constructor
+    pkm_base(pkm_base &&u);
 };
 
 extern std::vector<pkm_base> pkm_list;
+extern std::vector<int> first_pkm_list;
 
 float get_nature_rate(int nature);
 
@@ -51,7 +75,7 @@ public:
     battle_status bstatus; // status aquired in battle (like been poison)
     int skills[4];         // skill_list[skills]
     int nature; // 性格于第三世代引入的宝可梦的一种特征。一共存在25种性格。
-    base6 stat;
+    base6 stat; // calculated basic stat
     int hpreduced;
     bool is_shiny;
     // battle_item
@@ -73,4 +97,7 @@ public:
 
     void refresh_stat();
     void refresh_bstate();
+
+    static pkm create_pkm(const pkm_base &p, const std::string &nm, bool gen,
+                          u_char level);
 };

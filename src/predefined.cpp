@@ -12,6 +12,7 @@ std::vector<region> regis;
 std::vector<places> placs;
 std::vector<pkm_info> pkm_info_maper;
 std::vector<pkm_base> pkm_list;
+std::vector<int> first_pkm_list;
 
 void init_pkm(std::string filepath)
 {
@@ -22,8 +23,8 @@ void init_pkm(std::string filepath)
         pkm_list.push_back(J2pkm_base(item));
 
         pkm_info_maper.push_back((pkm_info){
-            item["name"].asString(), item["id"].asInt(),
-            readImage(item["image"].asString()), Ja2Vec(item["ava_skills"])});
+            item["id"].asInt(),
+            readImage(item["image"].asString()), Ja2VecP(item["ava_skills"])});
     }
 }
 

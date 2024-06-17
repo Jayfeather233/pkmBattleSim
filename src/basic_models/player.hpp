@@ -3,6 +3,8 @@
 #include "pkm.hpp"
 #include "places.hpp"
 
+#include <functional>
+
 class player {
 public:
     int badge;
@@ -11,6 +13,8 @@ public:
     // items
     places *pls;
     int money;
+    std::function<std::string()> get_user_input;
+    std::function<void(const std::string&)> output2user;
 
     // menu_choose_item
     int menu_choose_pokemon;

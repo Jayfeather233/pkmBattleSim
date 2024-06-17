@@ -22,13 +22,13 @@ Json::Value string_to_json(const std::string &str);
 image readImage(std::string filepath);
 
 std::vector<int> Ja2Vec(const Json::Value &Ja);
+std::vector<std::pair<int,int>> Ja2VecP(const Json::Value &Ja);
 std::vector<std::pair<int, float>> Ja2Vec2(const Json::Value &Ja);
 base6 J2base6(const Json::Value &J);
-pkm_base J2pkm_base(const Json::Value &J);
+pkm_base J2pkm_base(const Json::Value &J); // only used in init pkm_base, other times using: pkm_list[id]
 pkm J2pkm(const Json::Value &J);
 std::vector<pkm> Ja2pkm(const Json::Value &Ja);
 
 Json::Value base62J(const base6 &b);
-Json::Value pkm_base2J(const pkm_base &p);
 Json::Value pkm2J(const pkm &p);
 Json::Value pkm2Ja(const std::vector<pkm> &vp);

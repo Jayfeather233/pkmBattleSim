@@ -20,8 +20,9 @@ public:
     text_menu();
 
     text_menu(std::string titlex, std::string choose_textx,
-              std::vector<text_menu *> optionsx, bool is_choosex,
+              std::vector<text_menu *> optionsx,
               void (*actionx)(player &p) = nullptr,
+              bool is_choosex = false,
               void (*choose_cbx)(player &p, int id) = nullptr,
               std::vector<std::string> (*get_choose_setx)(player &p) = nullptr);
 
@@ -33,5 +34,6 @@ public:
 };
 
 extern text_menu root_menu;
+extern text_menu first_pkm_choose_menu;
 
 void menu_init();

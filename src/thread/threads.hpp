@@ -31,12 +31,23 @@ public:
 #ifdef QQBOT
         this->conf = (msg_meta){"private", user_id, 0, 0, ptr};
 #endif
-        this->p = player::load("./config/pkm/"+std::to_string(user_id)+".json");
+        this->p =
+            player::load("./config/pkm/" + std::to_string(user_id) + ".json");
         this->now_memu = &root_menu;
+        this->p.get_user_input = [this]() { return this->get_user_input(); };
+        this->p.output2user = [this](std::string s) {
+            return this->output2user(s);
+        };
+        if (this->p.party_pkm.size() == 0) {
+            choose_init_pkm();
+        }
     }
 
-    void run() {
-        while(1){
+    void choose_init_pkm() {}
+
+    void run()
+    {
+        while (1) {
             output2user(now_memu->to_string());
             now_memu = now_memu->get_nxt_menu(p, get_next_int());
         }
@@ -93,8 +104,9 @@ public:
         }
     }
 #endif
-    void save(){
-        this->p.save("./config/pkm/"+std::to_string(user_id)+".json");
+    void save()
+    {
+        this->p.save("./config/pkm/" + std::to_string(user_id) + ".json");
     }
 };
 
