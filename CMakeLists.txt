@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 
 project(pbs)
 
-add_definitions(-DUSE_OPENSSL)
+# add_definitions(-DUSE_OPENSSL)
 
 # find_package(OpenSSL REQUIRED)
 find_package(fmt REQUIRED)
@@ -48,18 +48,18 @@ endif()
 
 add_executable(${PROJECT_NAME}  ${BM_SOURCES} ${TH_SOURCES} ${UI_SOURCES} ${UTILS_SOURCES} ${MAIN_SOURCES})
 
-add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
-add_definitions( -DMAGICKCORE_HDRI_ENABLE=1 )
+# add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
+# add_definitions( -DMAGICKCORE_HDRI_ENABLE=1 )
 # find_package(ImageMagick COMPONENTS Magick++ MagickWand MagickCore REQUIRED)
 # include_directories(${ImageMagick_INCLUDE_DIRS})
 # target_link_libraries(${PROJECT_NAME} PUBLIC ${ImageMagick_LIBRARIES})
 
 find_package(jsoncpp REQUIRED)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${JSONCPP_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} PUBLIC zip)
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -lcurl)
+# target_link_libraries(${PROJECT_NAME} PUBLIC zip)
+# TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -lcurl)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -ljsoncpp)
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -pthread)
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -lm)
+# TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -pthread)
+# TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -lm)
 # target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENSSL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
