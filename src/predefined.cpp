@@ -20,6 +20,9 @@ void init_pkm(std::string filepath)
     pkm_info_maper.push_back((pkm_info){});
     Json::Value J = string_to_json(readfile(filepath, "[]"));
     for (Json::Value item : J) {
+        if (pkm_list.size() != item["id"].asInt()){
+            std::cout<<"Warning: pkm order in json file is not the id order."<<std::endl;
+        }
         pkm_list.push_back(J2pkm_base(item));
 
         pkm_info_maper.push_back((pkm_info){
@@ -59,4 +62,6 @@ void init_predefs()
     init_places("./data/pkm/place.json");
 
     menu_init();
+
+    first_pkm_list.push_back(1);
 }

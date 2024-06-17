@@ -16,6 +16,9 @@ public:
     std::function<std::string()> get_user_input;
     std::function<void(const std::string&)> output2user;
 
+    std::function<bool()> is_op;
+    std::function<bool()> is_inner;
+
     // menu_choose_item
     int menu_choose_pokemon;
 

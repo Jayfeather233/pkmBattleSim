@@ -12,7 +12,7 @@
 class singleplayerthread {
 public:
     uint64_t user_id;
-    text_menu *now_memu;
+    text_menu *main_memu;
     player p;
 #ifdef QQBOT
     msg_meta conf;
@@ -33,23 +33,32 @@ public:
 #endif
         this->p =
             player::load("./config/pkm/" + std::to_string(user_id) + ".json");
-        this->now_memu = &root_menu;
+        this->main_memu = root_menu;
         this->p.get_user_input = [this]() { return this->get_user_input(); };
         this->p.output2user = [this](std::string s) {
             return this->output2user(s);
         };
+        this->p.is_inner = [this](){return false;};
+        this->p.is_op = [this](){return false;};
         if (this->p.party_pkm.size() == 0) {
             choose_init_pkm();
         }
     }
 
-    void choose_init_pkm() {}
+    void choose_init_pkm() {
+        text_menu * px = first_pkm_choose_menu;
+        while (px != root_menu) {
+            output2user(px->to_string(p));
+            px = px->get_nxt_menu(p, get_next_int());
+        }
+        save();
+    }
 
     void run()
     {
         while (1) {
-            output2user(now_memu->to_string());
-            now_memu = now_memu->get_nxt_menu(p, get_next_int());
+            output2user(main_memu->to_string(p));
+            main_memu = main_memu->get_nxt_menu(p, get_next_int());
         }
     }
 

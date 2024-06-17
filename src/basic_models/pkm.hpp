@@ -59,8 +59,12 @@ extern std::vector<int> first_pkm_list;
 float get_nature_rate(int nature);
 
 class pkm : public pkm_base {
-public:
+private:
     std::string name;
+public:
+    std::string get_name() const{
+        return name.length() == 0 ? base_name : name;
+    }
     gender gend;
     u_char level;
     int exp_need; // need to grant level

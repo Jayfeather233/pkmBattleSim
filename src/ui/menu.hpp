@@ -28,12 +28,12 @@ public:
 
     void add_option(text_menu *p);
 
-    std::string to_string();
+    std::string to_string(player &p);
 
     text_menu *get_nxt_menu(player &p, int id);
 };
 
-extern text_menu root_menu;
-extern text_menu first_pkm_choose_menu;
+extern text_menu *root_menu;
+extern text_menu *first_pkm_choose_menu;
 
 void menu_init();

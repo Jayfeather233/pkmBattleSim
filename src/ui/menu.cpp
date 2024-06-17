@@ -1,14 +1,17 @@
 #include "menu.hpp"
 
-#include <fmt/core.h>
 #include "random.hpp"
+#include <fmt/core.h>
 
-std::string name_pkm(player &p, bool gender){
-    p.output2user(fmt::format("想给{:s}起名字吗？\n0. Yes\n1. No", gender ? "她" : "他"));
-    if(p.get_user_input() == "0"){
+std::string name_pkm(player &p, bool gender)
+{
+    p.output2user(
+        fmt::format("想给{:s}起名字吗？\n0. Yes\n1. No", gender ? "她" : "他"));
+    if (p.get_user_input() == "0") {
         p.output2user(fmt::format("请输入名字："));
         return p.get_user_input();
-    } else {
+    }
+    else {
         return "";
     }
 }
@@ -36,16 +39,24 @@ void text_menu::add_option(text_menu *p)
     this->options.push_back(p);
 }
 
-std::string text_menu::to_string()
+std::string text_menu::to_string(player &p)
 {
     std::string ret;
     if (title.length() != 0) {
         ret += title + '\n';
     }
     int cnt = 0;
-    for (auto it : options) {
-        ret += std::to_string(cnt) + ". " + it->choose_text + '\n';
-        cnt++;
+    if (is_choose) {
+        for (auto it : get_choose_set(p)) {
+            ret += std::to_string(cnt) + ". " + it + '\n';
+            cnt++;
+        }
+    }
+    else {
+        for (auto it : options) {
+            ret += std::to_string(cnt) + ". " + it->choose_text + '\n';
+            cnt++;
+        }
     }
     ret += std::to_string(cnt) + ". back";
     return ret;
@@ -53,7 +64,28 @@ std::string text_menu::to_string()
 
 text_menu *text_menu::get_nxt_menu(player &p, int id)
 {
-    if (0 <= id && id < options.size()) {
+    if (id < 0) {
+        p.output2user("ni gan ma~~haha aiyo");
+        return this;
+    }
+    if (is_choose) {
+        if (id < get_choose_set(p).size()) {
+            if (choose_cb != nullptr) {
+                choose_cb(p, id);
+            }
+            if (options[0]->action != nullptr) {
+                options[0]->action(p);
+            }
+            return options[0];
+        }
+        else {
+            if (father->action != nullptr) {
+                father->action(p);
+            }
+            return father;
+        }
+    }
+    if (id < options.size()) {
         if (options[id]->action != nullptr) {
             options[id]->action(p);
         }
@@ -72,7 +104,7 @@ text_menu *text_menu::get_nxt_menu(player &p, int id)
     }
 }
 
-text_menu root_menu;
+text_menu *root_menu;
 
 void set_choose_pkm(player &p, int id) { p.menu_choose_pokemon = id; }
 void set_choose_ch_pkm(player &p, int id) { p.menu_choose_pokemon = id + 6; }
@@ -80,9 +112,9 @@ void set_choose_ch_pkm(player &p, int id) { p.menu_choose_pokemon = id + 6; }
 std::vector<std::string> get_player_party_pkm_name_list(player &p)
 {
     std::vector<std::string> ret;
-    for (int i = 0; i < 6; i++) {
-        if (p.party_pkm[i].id != 0) {
-            ret.push_back(p.party_pkm[i].name);
+    for (auto pk : p.party_pkm) {
+        if (pk.id != 0) {
+            ret.push_back(pk.get_name());
         }
     }
     return ret;
@@ -92,7 +124,7 @@ std::vector<std::string> get_player_chest_pkm_name_list(player &p)
     std::vector<std::string> ret;
     for (auto it : p.chest_pkm) {
         if (it.id != 0) {
-            ret.push_back(it.name);
+            ret.push_back(it.get_name());
         }
     }
     return ret;
@@ -106,12 +138,12 @@ text_menu *init_pkm_afterchoose_menu()
 text_menu *init_party_pkm_menu()
 {
     return new text_menu("choose a pokemon", "choose a party pokemon",
-                         {/* interactive options */}, nullptr, true,
+                         {init_pkm_afterchoose_menu()}, nullptr, true,
                          set_choose_pkm, get_player_party_pkm_name_list);
 }
 text_menu *init_chest_pkm_menu()
 {
-    return new text_menu("choose a pokemon", "choose a party pokemon",
+    return new text_menu("choose a pokemon", "choose a chest pokemon",
                          {/* interactive options */}, nullptr, true,
                          set_choose_ch_pkm, get_player_chest_pkm_name_list);
 }
@@ -157,14 +189,9 @@ text_menu *init_places_menu()
         {/* move, meet wild pkm, meet wild trainer, meet gym*/});
 }
 
-void menu_init()
-{
-    root_menu =
-        *new text_menu("", "", {init_player_menu(), init_places_menu()});
-    // add manually because of the action pointer;
-}
+////// Main menu(up), first pkm choose menu(down)
 
-text_menu first_pkm_choose_menu;
+text_menu *first_pkm_choose_menu;
 
 std::vector<std::string> get_init_pkm_list(player &p)
 {
@@ -192,15 +219,25 @@ void choose_first_pkm_action(player &p)
     if (p.party_pkm.size() < 6) {
         bool gen = get_random(2);
         p.party_pkm.push_back(
-            pkm::create_pkm(pkm_list[first_pkm_list[p.menu_choose_pokemon]], name_pkm(p, gen), gen, 5));
+            pkm::create_pkm(pkm_list[first_pkm_list[p.menu_choose_pokemon]],
+                            name_pkm(p, gen), gen, 5));
     }
 }
 
-void pkm_ch_init()
+void pkm_ch_init(text_menu *f)
 {
     first_pkm_choose_menu =
-        *new text_menu("Choose your init pkm", "", {}, nullptr, true,
-                       set_choose_pkm, get_init_pkm_list);
-    first_pkm_choose_menu.add_option(
-        choose_confirm_menu(&first_pkm_choose_menu, choose_first_pkm_action));
+        new text_menu("Choose your init pkm", "", {}, nullptr, true,
+                      set_choose_pkm, get_init_pkm_list);
+    first_pkm_choose_menu->add_option(
+        choose_confirm_menu(first_pkm_choose_menu, choose_first_pkm_action));
+    first_pkm_choose_menu->father = f;
+    first_pkm_choose_menu->options[0]->options[0]->father = f;
+}
+
+void menu_init()
+{
+    root_menu = new text_menu("", "", {init_player_menu(), init_places_menu()});
+    pkm_ch_init(root_menu);
+    // add manually because of the action pointer;
 }

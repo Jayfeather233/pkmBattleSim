@@ -117,7 +117,8 @@ Json::Value base62J(const base6 &b)
 Json::Value pkm2J(const pkm &p)
 {
     Json::Value J;
-    J["name"] = p.name;
+    J["id"] = p.id;
+    J["name"] = p.get_name();
     J["gender"] = static_cast<int>(p.gend);
     J["level"] = p.level;
     J["exp_need"] = p.exp_need;

@@ -168,6 +168,7 @@ pkm pkm::create_pkm(const pkm_base &p, const std::string &nm, bool gen,
                     u_char level)
 {
     auto skills = get_pkm_init_skills(p, level);
+    while(skills.size() < 4) skills.push_back(0);
     return pkm(p, nm, static_cast<gender>(gen), level, get_next_level_exp(p.exp_acc_speed, level), 0, random_base6(32), (base6){0, 0, 0, 0, 0, 0}, 70, battle_status::NORMAL,
     {skills[0], skills[1], skills[2], skills[3]}, get_random(25), 0, get_random(4096) == 0);
 }
