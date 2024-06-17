@@ -4,4 +4,4 @@ Need everything
 
 https://pokeapi.co/
 
-Need library: fmt
+Need libraries: fmt, jsoncpp
