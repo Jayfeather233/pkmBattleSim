@@ -128,7 +128,7 @@ std::vector<text_menu*> Ja2text_menu(const Json::Value &Ja){
 text_menu* J2text_menu(const Json::Value &J){
     text_menu *p = new text_menu(J["title"].asString(), J["choose_text"].asString(),
     Ja2text_menu(J["options"]));
-    if(J.isMember("uid")) p->set_uid(J["uid"].asInt());
+    if(J.isMember("uid")) p->set_uid(J["uid"].asString());
     if(J.isMember("action")){
         std::string act_type = J["action"].asString();
         if(act_type == "clear"){

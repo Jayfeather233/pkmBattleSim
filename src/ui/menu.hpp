@@ -7,7 +7,7 @@
 
 class text_menu {
 private:
-    int uid;
+    std::string uid;
 public:
     std::string title;
     std::string choose_text; // display at father manu's option list
@@ -26,14 +26,14 @@ public:
     std::vector<std::string> (*get_choose_set)(
         player &p); // call to get item list
 
-    bool set_uid(int u);
+    bool set_uid(std::string u);
     text_menu();
 
     text_menu(std::string titlex, std::string choose_textx,
               std::vector<text_menu *> optionsx,
               void (*actionx)(player &p) = nullptr, bool is_choosex = false,
               void (*choose_cbx)(player &p, int id) = nullptr,
-              std::vector<std::string> (*get_choose_setx)(player &p) = nullptr, int uidx=0);
+              std::vector<std::string> (*get_choose_setx)(player &p) = nullptr, std::string uidx="");
 
     void add_option(text_menu *p);
     void add_app_option(const std::string &typ, text_menu *p);
@@ -46,7 +46,7 @@ public:
 
 extern text_menu *root_menu;
 extern text_menu *first_pkm_choose_menu;
-extern std::map<int, std::map<std::string, std::vector<text_menu*>>> app_menu_mapper;
-extern std::map<int, text_menu*> text_menu_mapper;
+extern std::map<std::string, std::map<std::string, std::vector<text_menu*>>> app_menu_mapper;
+extern std::map<std::string, text_menu*> text_menu_mapper;
 
 void menu_init();

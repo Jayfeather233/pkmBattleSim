@@ -13,7 +13,7 @@ std::vector<places> placs;
 std::vector<pkm_info> pkm_info_maper;
 std::vector<pkm_base> pkm_list;
 std::vector<int> first_pkm_list;
-std::map<int, text_menu *> text_menu_mapper;
+std::map<std::string, text_menu *> text_menu_mapper;
 std::map<std::string, std::vector<std::string>> action_text;
 
 void init_pkm(std::string filepath)
@@ -70,7 +70,7 @@ J:{
 }
 }
 */
-std::vector<std::pair<text_menu *, int>> father_setter;
+std::vector<std::pair<text_menu *, std::string>> father_setter;
 void app_menu_init(const std::string &rt_dir)
 {
     for (const auto &entry : std::filesystem::directory_iterator(rt_dir)) {
@@ -80,10 +80,10 @@ void app_menu_init(const std::string &rt_dir)
                 for (auto uidx : J[typ].getMemberNames()) {
                     for (auto it : J[typ][uidx]) {
                         text_menu *p = J2text_menu(it);
-                        app_menu_mapper[std::stoi(uidx)][typ].push_back(p);
+                        app_menu_mapper[uidx][typ].push_back(p);
                         if (it.isMember("father"))
                             father_setter.push_back(
-                                std::make_pair(p, it["father"].asInt()));
+                                std::make_pair(p, it["father"].asString()));
                     }
                 }
             }

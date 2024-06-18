@@ -3,7 +3,7 @@
 #include "random.hpp"
 #include <fmt/core.h>
 
-std::map<int, std::map<std::string, std::vector<text_menu *>>> app_menu_mapper;
+std::map<std::string, std::map<std::string, std::vector<text_menu *>>> app_menu_mapper;
 
 std::string name_pkm(player &p, bool gender)
 {
@@ -25,7 +25,7 @@ text_menu::text_menu(std::string titlex, std::string choose_textx,
                      void (*actionx)(player &p), bool is_choosex,
                      void (*choose_cbx)(player &p, int id),
                      std::vector<std::string> (*get_choose_setx)(player &p),
-                     int uidx)
+                     std::string uidx)
     : title(titlex), choose_text(choose_textx), options(optionsx),
       is_choose(is_choosex), action(actionx), choose_cb(choose_cbx),
       get_choose_set(get_choose_setx)
@@ -35,14 +35,14 @@ text_menu::text_menu(std::string titlex, std::string choose_textx,
         px->father = this;
     }
     need_back = true;
-    if (uid != 0) {
+    if (uid.length() != 0) {
         set_uid(uidx);
     }
 }
 
-bool text_menu::set_uid(int u)
+bool text_menu::set_uid(std::string u)
 {
-    if (uid != 0) {
+    if (uid.length() != 0) {
         text_menu_mapper.erase(uid);
     }
     if (text_menu_mapper.find(u) != text_menu_mapper.end()) {
@@ -50,7 +50,7 @@ bool text_menu::set_uid(int u)
         return false;
     }
     uid = u;
-    if(uid == 0) return true;
+    if(uid.length() == 0) return true;
     text_menu_mapper[u] = this;
     return true;
 }
@@ -192,7 +192,7 @@ std::vector<std::string> get_player_chest_pkm_name_list(player &p)
 text_menu *init_pkm_afterchoose_menu()
 {
     text_menu *p = new text_menu("做什么呢？", "", {/* interactive options */});
-    p->set_uid(1);
+    p->set_uid("1");
     return p;
 }
 
@@ -213,7 +213,7 @@ text_menu *init_pkm_choose_menu()
 {
     text_menu *p= new text_menu("选择一个宝可梦", "选择宝可梦",
                          {init_party_pkm_menu(), init_chest_pkm_menu()});
-    p->set_uid(2);
+    p->set_uid("2");
     return p;
 }
 
