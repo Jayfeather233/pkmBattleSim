@@ -1,15 +1,5 @@
 #include "skills.hpp"
-
-void replaceAll(std::string &str, const std::string &from,
-                const std::string &to)
-{
-    size_t startPos = 0;
-    while ((startPos = str.find(from, startPos)) != std::string::npos) {
-        str.replace(startPos, from.length(), to);
-        startPos += to.length(); // In case 'to' contains 'from', like replacing
-                                 // 'x' with 'yx'
-    }
-}
+#include "utils.hpp"
 
 std::string get_hitdesc(const base_skill &mv, const pkm &self, const pkm &other)
 {

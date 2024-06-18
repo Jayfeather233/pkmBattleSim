@@ -1,5 +1,21 @@
 #include "utils.hpp"
 #include "pkm.hpp"
+#include "texts.hpp"
+
+Json::Value set2Ja(const std::set<std::string> &s){
+    Json::Value Ja(Json::arrayValue);
+    for(auto it:s){
+        Ja.append(it);
+    }
+    return Ja;
+}
+std::set<std::string> Ja2set(const Json::Value &Ja){
+    std::set<std::string> ret;
+    for(auto it:Ja){
+        ret.insert(it.asString());
+    }
+    return ret;
+}
 
 std::vector<int> Ja2Vec(const Json::Value &Ja)
 {
@@ -102,6 +118,47 @@ std::vector<pkm> Ja2pkm(const Json::Value &Ja)
     }
     return ret;
 }
+std::vector<text_menu*> Ja2text_menu(const Json::Value &Ja){
+    std::vector<text_menu*> ret;
+    for (auto it:Ja){
+        ret.push_back(J2text_menu(it));
+    }
+    return ret;
+}
+text_menu* J2text_menu(const Json::Value &J){
+    text_menu *p = new text_menu(J["title"].asString(), J["choose_text"].asString(),
+    Ja2text_menu(J["options"]));
+    if(J.isMember("uid")) p->set_uid(J["uid"].asInt());
+    if(J.isMember("action")){
+        std::string act_type = J["action"].asString();
+        if(act_type == "clear"){
+            p->action = [](player &p){
+                pkm *u;
+                if(p.menu_choose_pokemon > 6){
+                    u = &p.chest_pkm[p.menu_choose_pokemon-6];
+                } else {
+                    u = &p.party_pkm[p.menu_choose_pokemon];
+                }
+                u->bstatus = battle_status::NORMAL;
+                p.output2user(get_action_text("clear", *u));
+            };
+        } else {
+            p->action = [act_type](player &p){
+                pkm *u;
+                if(p.menu_choose_pokemon > 6){
+                    u = &p.chest_pkm[p.menu_choose_pokemon-6];
+                } else {
+                    u = &p.party_pkm[p.menu_choose_pokemon];
+                }
+                p.output2user(get_action_text(act_type, *u));
+            };
+        }
+    }
+    // TODO
+    return p;
+}
+
+
 Json::Value base62J(const base6 &b)
 {
     Json::Value J(Json::arrayValue);

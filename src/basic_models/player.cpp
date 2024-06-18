@@ -8,9 +8,13 @@ void player::save(const std::string &filepath){
     J["chest_pkm"] = pkm2Ja(this->chest_pkm);
     J["pls"] = this->pls->id;
     J["money"] = this->money;
+    Json::Value J2;
+    J2["type"] = set2Ja(st.user_types);
+    J2["enable"] = set2Ja(st.user_enables);
+    J["settings"] = J2;
     writefile(filepath, J.toStyledString(), false);
 }
 player player::load(const std::string &filepath){
-    Json::Value J = string_to_json(readfile(filepath, "{\"badge\":0,\"party_pkm\":[],\"chest_pkm\":[],\"pls\":0,\"money\":0}"));
-    return (player){J["badge"].asInt(), Ja2pkm(J["party_pkm"]), Ja2pkm(J["chest_pkm"]), &placs[J["pls"].asInt()], J["money"].asInt(), nullptr, nullptr, nullptr, nullptr, -1};
+    Json::Value J = string_to_json(readfile(filepath, "{\"badge\":0,\"party_pkm\":[],\"chest_pkm\":[],\"pls\":0,\"money\":0, \"settings\":{\"type\":[],\"enable\":[]}}"));
+    return player(J["badge"].asInt(), Ja2pkm(J["party_pkm"]), Ja2pkm(J["chest_pkm"]), &placs[J["pls"].asInt()], J["money"].asInt(), nullptr, nullptr, nullptr, settings(Ja2set(J["settings"]["type"]), Ja2set(J["settings"]["enable"])));
 }

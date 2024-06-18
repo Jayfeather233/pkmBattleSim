@@ -31,9 +31,6 @@ public:
     }
 };
 
-void replaceAll(std::string &str, const std::string &from,
-                const std::string &to);
-
 // the description after using a skill
 // like: $1 use scratch, hit $2.
 // Need to split this, into:

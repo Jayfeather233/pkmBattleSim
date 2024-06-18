@@ -26,27 +26,26 @@ public:
     }
 #endif
     singleplayerthread(uint64_t user_id, void *ptr = nullptr)
+        : user_id(user_id),
+          p(player::load("./config/pkm/" + std::to_string(user_id) + ".json"))
     {
-        this->user_id = user_id;
 #ifdef QQBOT
         this->conf = (msg_meta){"private", user_id, 0, 0, ptr};
 #endif
-        this->p =
-            player::load("./config/pkm/" + std::to_string(user_id) + ".json");
         this->main_memu = root_menu;
         this->p.get_user_input = [this]() { return this->get_user_input(); };
         this->p.output2user = [this](std::string s) {
             return this->output2user(s);
         };
-        this->p.is_inner = [this](){return false;};
-        this->p.is_op = [this](){return false;};
+        this->p.is_op = [this]() { return false; };
         if (this->p.party_pkm.size() == 0) {
             choose_init_pkm();
         }
     }
 
-    void choose_init_pkm() {
-        text_menu * px = first_pkm_choose_menu;
+    void choose_init_pkm()
+    {
+        text_menu *px = first_pkm_choose_menu;
         while (px != root_menu) {
             output2user(px->to_string(p));
             px = px->get_nxt_menu(p, get_next_int());
@@ -72,7 +71,11 @@ public:
         return ipt;
     }
 
-    void output2user(const std::string &s) { conf.p->cq_send(s, conf); }
+    void output2user(const std::string &s)
+    {
+        if (s.length() > 0)
+            conf.p->cq_send(s, conf);
+    }
 
     int get_next_int(std::string text = "")
     {
@@ -96,7 +99,11 @@ public:
         return ret;
     }
 
-    void output2user(const std::string &s) { std::cout << s << std::endl; }
+    void output2user(const std::string &s)
+    {
+        if (s.length() > 0)
+            std::cout << s << std::endl;
+    }
 
     int get_next_int(std::string text = "")
     {
