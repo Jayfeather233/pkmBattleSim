@@ -10,3 +10,18 @@ void replaceAll(std::string &str, const std::string &from,
                                  // 'x' with 'yx'
     }
 }
+
+int get_next_int(player &p, std::string text)
+{
+    if (text.length()) {
+        text = "\n" + text;
+    }
+    while (1) {
+        try {
+            return std::stoi(p.get_user_input());
+        }
+        catch (...) {
+            p.output2user("invalid input." + text);
+        }
+    }
+}

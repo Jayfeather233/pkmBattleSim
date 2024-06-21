@@ -1,5 +1,7 @@
 #include "basic.hpp"
 
+#include <iostream>
+
 float eff_table[20][20] = {
     // EXMPTY PLAIN  FIRE  WATER  GRASS  POISON  FIGHT  FLY   ELEC  GROUND  PSYCHIC  ROCK  ICE   BUG   DRAGON  GHOST  DARK  STEEL  FAIRY
     {1.0,     1.0,   1.0,  1.0,   1.0,   1.0,    1.0,   1.0,  1.0,  1.0,    1.0,     1.0,  1.0,  1.0,  1.0,    1.0,   1.0,  1.0,   1.0},  // empty
@@ -89,6 +91,7 @@ element_types str2et(const std::string &s) {
     } else if (lowerCaseS == "fairy" || lowerCaseS == "fa") {
         return element_types::FAIRY;
     } else {
+        std::cout<<"[WARNING] unrecognizable type: "<<lowerCaseS<<std::endl;
         return element_types::EMPTY; // Default case if no match is found
     }
 }

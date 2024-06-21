@@ -12,4 +12,14 @@
 
 extern std::map<std::string, std::vector<std::string>> action_text;
 
-std::string get_action_text(const std::string &typ, const pkm &p);
+std::string get_action_text(const std::string &typ, player &pl); // action in text_menu
+
+std::string get_skill_text(const pkm &p1, const pkm &p2, int skill_id);
+
+std::string get_entry_text(const pkm &p, int type); // entry type
+
+std::string battle_start_text(); // what
+
+std::string pkm_faint_text();
+
+std::string battle_end_text();

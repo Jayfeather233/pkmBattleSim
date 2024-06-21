@@ -30,7 +30,7 @@ void init_pkm(std::string filepath)
 
         pkm_info_maper.push_back((pkm_info){item["id"].asInt(),
                                             readImage(item["image"].asString()),
-                                            Ja2VecP(item["ava_skills"])});
+                                            Ja2VecP(item["ava_skills"]),Ja2VecS(item["ava_skills_machine"])});
     }
 }
 

@@ -11,22 +11,16 @@ public:
     std::set<std::string> user_types;
     std::set<std::string> user_enables;
 
-    bool is_type(const std::string &tp)
-    {
-        return user_types.find(tp) != user_types.end() &&
-               user_enables.find(tp) != user_enables.end();
-    }
+    bool is_type(const std::string &tp) const;
 
-    settings() {}
-    settings(const std::set<std::string> &ut, const std::set<std::string> &ue)
-        : user_types(ut), user_enables(ue)
-    {
-    }
+    settings();
+    settings(const std::set<std::string> &ut, const std::set<std::string> &ue);
 };
 
 class player {
 public:
-    int badge;
+    int badge; // >=0 is a player, =-1 is a wild pkm, =-2 is a trainer
+    std::string name;
     std::vector<pkm> party_pkm;
     std::vector<pkm> chest_pkm;
     // items
@@ -37,20 +31,19 @@ public:
     std::function<void(const std::string &)> output2user;
 
     std::function<bool()> is_op;
-    bool is_type(const std::string &tp) { return st.is_type(tp); }
+    bool is_type(const std::string &tp) const;
 
     // menu_choose_item
     int menu_choose_pokemon;
 
-    player(int bad, std::vector<pkm> pp, std::vector<pkm> cp, places *pl,
-           int mon, std::function<std::string()> gui,
+    bool sig_save;
+
+    pkm *get_choose_pkm();
+
+    player(int bad, std::string name, std::vector<pkm> pp, std::vector<pkm> cp,
+           places *pl, int mon, std::function<std::string()> gui,
            std::function<void(const std::string &)> opu,
-           std::function<bool()> iop, settings sts = settings())
-        : badge(bad), party_pkm(pp), chest_pkm(cp), pls(pl), money(mon),
-          st(sts), get_user_input(gui), output2user(opu), is_op(iop),
-          menu_choose_pokemon(-1)
-    {
-    }
+           std::function<bool()> iop, settings sts = settings());
 
     void save(const std::string &filepath);
     static player load(const std::string &filepath);

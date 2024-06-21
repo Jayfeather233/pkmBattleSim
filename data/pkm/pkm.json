@@ -3,9 +3,10 @@
         "name": "妙蛙种子",
         "id": 1,
         "sp": [45, 49, 49, 65, 65, 45],
-        "tp": ["grass", "posion"],
+        "tp": ["grass", "poison"],
         "image": "",
-        "ava_skills": [{"level":5, "skill_id":1}],
+        "ava_skills": [{"level":5, "skill":1}],
+        "ava_skills_machine": [],
         "poss_abilities": [{"id": 0, "poss": 0.0}],
         "aquire_base_point": [0, 0, 0, 1, 0, 0],
         "category": "种子宝可梦",
@@ -14,6 +15,7 @@
         "catch_rate": 45,
         "gender_ratio": 7,
         "exp_acc_speed": 3,
-        "base_exp": 64
+        "base_exp": 64,
+        "poss_items": [{"id":0, "poss":1.0}]
     }
 ]

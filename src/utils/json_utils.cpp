@@ -26,11 +26,28 @@ std::vector<int> Ja2Vec(const Json::Value &Ja)
     return ret;
 }
 
-std::vector<std::pair<int,int>> Ja2VecP(const Json::Value &Ja)
+std::vector<std::pair<int,std::string>> Ja2VecP(const Json::Value &Ja)
 {
-    std::vector<std::pair<int,int>> ret;
+    std::vector<std::pair<int,std::string>> ret;
     for (Json::Value it : Ja) {
-        ret.push_back(std::make_pair(it["level"].asInt(), it["skill_id"].asInt()));
+        ret.push_back(std::make_pair(it["level"].asInt(), it["skill"].asString()));
+    }
+    return ret;
+}
+std::vector<std::pair<int,float>> Ja2VecPo(const Json::Value &Ja)
+{
+    std::vector<std::pair<int,float>> ret;
+    for (Json::Value it : Ja) {
+        ret.push_back(std::make_pair(it["id"].asInt(), it["poss"].asFloat()));
+    }
+    return ret;
+}
+
+std::vector<std::string> Ja2VecS(const Json::Value &Ja)
+{
+    std::vector<std::string> ret;
+    for (Json::Value it : Ja) {
+        ret.push_back(it.asString());
     }
     return ret;
 }
@@ -94,7 +111,8 @@ pkm_base J2pkm_base(const Json::Value &J) {
         J["gender_ratio"].asInt(),
         abp,
         static_cast<u_char>(J["exp_acc_speed"].asUInt()),
-        J["base_exp"].asInt()
+        J["base_exp"].asInt(),
+        Ja2VecPo(J["poss_items"])
     );
 }
 
@@ -105,10 +123,12 @@ pkm J2pkm(const Json::Value &J)
                J["exp_need"].asInt(), J["exp_curr"].asInt(), J2base6(J["IV"]),
                J2base6(J["bp"]), J["friendship"].asInt(),
                static_cast<battle_status>(J["battle_status"].asInt()),
-               {J["skill"][0].asInt(), J["skill"][1].asInt(),
-                J["skill"][2].asInt(), J["skill"][3].asInt()},
+               {J["skill"][0].asString(), J["skill"][1].asString(),
+                J["skill"][2].asString(), J["skill"][3].asString()},
+               {J["used_pp"][0].asInt(), J["used_pp"][1].asInt(),
+                J["used_pp"][2].asInt(), J["used_pp"][3].asInt()},
                J["nature"].asInt(), J["hpreduced"].asInt(),
-               J["is_shiny"].asBool());
+               J["is_shiny"].asBool(), J["carry_item"].asInt(), J["ability"].asInt());
 }
 std::vector<pkm> Ja2pkm(const Json::Value &Ja)
 {
@@ -133,24 +153,12 @@ text_menu* J2text_menu(const Json::Value &J){
         std::string act_type = J["action"].asString();
         if(act_type == "clear"){
             p->action = [](player &p){
-                pkm *u;
-                if(p.menu_choose_pokemon > 6){
-                    u = &p.chest_pkm[p.menu_choose_pokemon-6];
-                } else {
-                    u = &p.party_pkm[p.menu_choose_pokemon];
-                }
-                u->bstatus = battle_status::NORMAL;
-                p.output2user(get_action_text("clear", *u));
+                p.get_choose_pkm()->bstatus = battle_status::NORMAL;
+                p.output2user(get_action_text("clear", p));
             };
         } else {
             p->action = [act_type](player &p){
-                pkm *u;
-                if(p.menu_choose_pokemon > 6){
-                    u = &p.chest_pkm[p.menu_choose_pokemon-6];
-                } else {
-                    u = &p.party_pkm[p.menu_choose_pokemon];
-                }
-                p.output2user(get_action_text(act_type, *u));
+                p.output2user(get_action_text(act_type, p));
             };
         }
     }
@@ -189,9 +197,15 @@ Json::Value pkm2J(const pkm &p)
         skill.append(p.skills[i]);
     }
     J["skill"] = skill;
+    Json::Value upp(Json::arrayValue);
+    for (int i = 0; i < 4; ++i) {
+        upp.append(p.used_pp[i]);
+    }
+    J["used_pp"] = upp;
     J["nature"] = p.nature;
     J["hpreduced"] = p.hpreduced;
     J["is_shiny"] = p.is_shiny;
+    J["carry_item"] = p.carried_item;
     return J;
 }
 

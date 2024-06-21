@@ -4,6 +4,8 @@
 
 #include <cctype>
 #include <random>
+#include <utility>
+#include <vector>
 
 using u32 = uint_least32_t;
 using engine = std::mt19937;
@@ -32,6 +34,42 @@ inline size_t get_random(size_t maxi)
     return uni_dis(generator);
 }
 
-inline base6 random_base6(int maxi){
-    return (base6){get_random(maxi), get_random(maxi), get_random(maxi), get_random(maxi), get_random(maxi), get_random(maxi)};
+inline base6 random_base6(int maxi)
+{
+    return (base6){get_random(maxi), get_random(maxi), get_random(maxi),
+                   get_random(maxi), get_random(maxi), get_random(maxi)};
+}
+
+template <typename T>
+T get_possi_random(const std::vector<std::pair<T, float>> &vec)
+{
+    std::uniform_real_distribution<float> uni_dis =
+        std::uniform_real_distribution<float>(0, 1);
+    float prob = uni_dis(generator);
+    for (auto it : vec) {
+        if (prob <= it.second) {
+            return it.first;
+        }
+        else {
+            prob -= it.second;
+        }
+    }
+    return T();
+}
+
+template <typename T>
+size_t get_possi_random_(const std::vector<std::pair<T, float>> &vec)
+{
+    std::uniform_real_distribution<float> uni_dis =
+        std::uniform_real_distribution<float>(0, 1);
+    float prob = uni_dis(generator);
+    for (size_t i = 0; i < vec.size(); ++i) {
+        if (prob <= vec[i].second) {
+            return i;
+        }
+        else {
+            prob -= vec[i].second;
+        }
+    }
+    return 0;
 }
