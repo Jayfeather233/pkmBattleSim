@@ -2,8 +2,8 @@
 
 #include <fmt/core.h>
 
-std::string get_action_text(const std::string &typ, player &p1){
-    const pkm *p = p1.get_choose_pkm();
+std::string get_action_text(const std::string &typ, const player &p1){
+    const pkm *p = p1.get_choose_pkm_const();
     auto it = action_text.find(typ);
     if(it == action_text.end()){
         return fmt::format("action_text for {} not found.", typ);

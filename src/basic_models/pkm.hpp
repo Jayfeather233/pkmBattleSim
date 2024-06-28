@@ -8,9 +8,9 @@
 struct pkm_info {
     int id;
     u_char *pkm_image;
-    std::vector<std::pair<int, std::string>>
+    std::vector<std::pair<int, int>>
         skills_can_learn; // level - skill_id
-    std::vector<std::string> skills_can_learn_bymachine;
+    std::vector<int> skills_can_learn_bymachine;
 };
 
 extern std::vector<pkm_info> pkm_info_maper;
@@ -89,7 +89,7 @@ public:
         base_points; // aquired throuth battle
                      // 基础点数是击败宝可梦后，除了经验值外可以获得的另一项数值
     u_char friendship;
-    std::string skills[4]; // skill_list[skills]
+    size_t skills[4]; // skill_list[skills]
     int used_pp[4];
     int nature; // 性格于第三世代引入的宝可梦的一种特征。一共存在25种性格。
     base6 stat; // calculated basic stat
@@ -103,16 +103,21 @@ public:
         base6 affected; // like been reduced defence
         char affected_hitrate;
         char affected_evasionrate;
+
+        struct hitted_by{
+            int las_hit_damage;
+            int las_hit_id;
+        } hb;
     } bstate;
 
     pkm(const pkm_base &pb, const std::string &namex, gender gen, u_char levelx,
         int exp_needx, int exp_currx, base6 IVx, base6 bp, u_char fship,
-        battle_status bs, std::string skillx[4], int used_ppx[4], int naturex,
+        battle_status bs, size_t skillx[4], int used_ppx[4], int naturex,
         int hpred, bool is_sh, int caritem, int abi);
 
     pkm(const pkm_base &pb, const std::string &namex, gender gen, u_char levelx,
         int exp_needx, int exp_currx, base6 IVx, base6 bp, u_char fship,
-        battle_status bs, std::array<std::string, 4> skillx,
+        battle_status bs, std::array<size_t, 4> skillx,
         std::array<int, 4> used_ppx, int naturex, int hpred, bool is_sh,
         int caritem, int abi);
 

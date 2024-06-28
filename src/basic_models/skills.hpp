@@ -14,35 +14,25 @@ public:
     std::string desc;
     char affect_range;
     char hitrate;
+    move_target tgt;
     u_char pp;
     virtual void affect(pkm &self, pkm &p) {}
     base_skill(size_t uid, const std::string nm, const std::string ds, char ar,
-               char hr, u_char pp)
-        : uid(uid), name(nm), desc(ds), affect_range(ar), hitrate(hr), pp(pp)
+               char hr, u_char pp, move_target tgx)
+        : uid(uid), name(nm), desc(ds), affect_range(ar), hitrate(hr), pp(pp), tgt(tgx)
     {
     }
     base_skill(const base_skill &bs)
         : uid(bs.uid), name(bs.name), desc(bs.desc),
-          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp)
+          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp), tgt(bs.tgt)
     {
     }
     base_skill(const base_skill &&bs)
         : uid(bs.uid), name(bs.name), desc(bs.desc),
-          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp)
+          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp), tgt(bs.tgt)
     {
     }
 };
-
-// the description after using a skill
-// like: $1 use scratch, hit $2.
-// Need to split this, into:
-//     use skill: $1 use scratch
-//     skill hit: hit $2
-//     hit result: very useful
-std::string get_hitdesc(const base_skill &mv, const pkm &self,
-                        const pkm &other);
-
-bool can_affected(const base_skill &mv, battle_position bp);
 
 // like reduce the defence something
 class aff_move : public base_skill {
@@ -63,7 +53,7 @@ public:
           aff_evasionrate(aff_eva)
     {
     }
-    aff_move() : base_skill(0, "", "", 0, 0, 0) {}
+    aff_move() : base_skill(0, "", "", 0, 0, 0, static_cast<move_target>(0)) {}
 };
 
 // just attack
@@ -104,10 +94,10 @@ public:
                        app));
     }
 
-    atk_move(size_t uid, const std::string nm, const std::string ds, char ar, char hr, u_char pp, 
+    atk_move(size_t uid, const std::string nm, const std::string ds, char ar, char hr, u_char pp, move_target tgx,
              element_types et, bool son, u_char atkx, bool easy_cri,
              side_effect w)
-        : base_skill(uid, nm, ds, ar, hr, pp), tp(et), sp_or_norm(son), atk(atkx),
+        : base_skill(uid, nm, ds, ar, hr, pp, tgx), tp(et), sp_or_norm(son), atk(atkx),
           is_easy_critical(easy_cri), se(w)
     {
     }

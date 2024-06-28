@@ -57,6 +57,7 @@ extern std::map<std::string, std::map<std::string, std::vector<text_menu *>>>
     app_menu_mapper;
 extern std::map<std::string, text_menu *> text_menu_mapper;
 extern text_menu *player_name_init_menu;
+extern text_menu *battle_menu;
 
 void menu_init();
 

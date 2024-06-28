@@ -48,14 +48,27 @@ bool player::is_type(const std::string &tp) const { return st.is_type(tp); }
 
 pkm *player::get_choose_pkm()
 {
-    if (menu_choose_pokemon > 6) {
-        return chest_pkm.size() > menu_choose_pokemon - 6
-                   ? &chest_pkm[menu_choose_pokemon - 6]
+    if (mt.menu_choose_pokemon > 6) {
+        return chest_pkm.size() > mt.menu_choose_pokemon - 6
+                   ? &chest_pkm[mt.menu_choose_pokemon - 6]
                    : &chest_pkm[0];
     }
     else {
-        return party_pkm.size() > menu_choose_pokemon
-                   ? &party_pkm[menu_choose_pokemon]
+        return party_pkm.size() > mt.menu_choose_pokemon
+                   ? &party_pkm[mt.menu_choose_pokemon]
+                   : &party_pkm[0];
+    }
+}
+const pkm *player::get_choose_pkm_const() const
+{
+    if (mt.menu_choose_pokemon > 6) {
+        return chest_pkm.size() > mt.menu_choose_pokemon - 6
+                   ? &chest_pkm[mt.menu_choose_pokemon - 6]
+                   : &chest_pkm[0];
+    }
+    else {
+        return party_pkm.size() > mt.menu_choose_pokemon
+                   ? &party_pkm[mt.menu_choose_pokemon]
                    : &party_pkm[0];
     }
 }
@@ -67,7 +80,7 @@ player::player(int bad, std::string name, std::vector<pkm> pp,
                std::function<bool()> iop, settings sts)
     : badge(bad), name(name), party_pkm(pp), chest_pkm(cp), pls(pl), money(mon),
       st(sts), get_user_input(gui), output2user(opu), is_op(iop),
-      menu_choose_pokemon(-1)
+      mt{-1}
 {
     sig_save = false;
 }

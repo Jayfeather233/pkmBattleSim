@@ -96,10 +96,10 @@ int get_next_level_exp(u_char eas, u_char level)
             return 0.02 * level3 * int((level + 64) / 2);
     }
 }
-std::vector<std::string> get_pkm_init_skills(const pkm_base &p, int level)
+std::vector<size_t> get_pkm_init_skills(const pkm_base &p, int level)
 {
     pkm_info *pi = get_pkm_info(p.id);
-    std::vector<std::string> ret;
+    std::vector<size_t> ret;
     for (int i = pi->skills_can_learn.size() - 1; i >= 0; i--) {
         if (pi->skills_can_learn[i].first <= level) {
             ret.push_back(pi->skills_can_learn[i].second);
@@ -113,7 +113,7 @@ std::vector<std::string> get_pkm_init_skills(const pkm_base &p, int level)
 
 pkm::pkm(const pkm_base &pb, const std::string &namex, gender gen,
          u_char levelx, int exp_needx, int exp_currx, base6 IVx, base6 bp,
-         u_char fship, battle_status bs, std::string skillx[4], int used_ppx[4],
+         u_char fship, battle_status bs, size_t skillx[4], int used_ppx[4],
          int naturex, int hpred, bool is_sh, int caritem, int abi)
     : pkm_base(pb), name(namex), gend(gen), level(levelx), exp_need(exp_needx),
       exp_curr(exp_currx), IV(IVx), base_points(bp), friendship(fship),
@@ -134,7 +134,7 @@ pkm::pkm(const pkm_base &pb, const std::string &namex, gender gen,
 
 pkm::pkm(const pkm_base &pb, const std::string &namex, gender gen,
          u_char levelx, int exp_needx, int exp_currx, base6 IVx, base6 bp,
-         u_char fship, battle_status bs, std::array<std::string, 4> skillx,
+         u_char fship, battle_status bs, std::array<size_t, 4> skillx,
          std::array<int, 4> used_ppx, int naturex, int hpred, bool is_sh,
          int caritem, int abi)
     : pkm_base(pb), name(namex), gend(gen), level(levelx), exp_need(exp_needx),

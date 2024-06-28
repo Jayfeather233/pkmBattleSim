@@ -10,11 +10,6 @@
 //     return dd;
 // }
 
-bool can_affected(const base_skill &mv, battle_position bp)
-{
-    return (mv.affect_range & (1 << bp));
-}
-
 std::vector<base_skill> skill_list;
 
 void init_skills()

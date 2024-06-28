@@ -31,6 +31,14 @@ std::string text_menu::get_title(const player &p) const
 {
     std::string s = this->title;
     replaceAll(s, "$u", p.name);
+    if(p.mt.menu_choose_pokemon != -1){
+        if(p.mt.menu_choose_pokemon < 6){
+            replaceAll(s, "$1", p.get_choose_pkm_const()->get_name());
+        }
+        else{
+
+        }
+    }
     return s;
 }
 
@@ -215,9 +223,9 @@ const text_menu *text_menu::get_nxt_menu(player &p, int id) const
 
 text_menu *root_menu;
 
-void set_choose_pkm(player &p, int id) { p.menu_choose_pokemon = id; }
-void set_choose_ch_pkm(player &p, int id) { p.menu_choose_pokemon = id + 6; }
-void reset_choose_ch_pkm(player &p) { p.menu_choose_pokemon = -1; };
+void set_choose_pkm(player &p, int id) { p.mt.menu_choose_pokemon = id; }
+void set_choose_ch_pkm(player &p, int id) { p.mt.menu_choose_pokemon = id + 6; }
+void reset_choose_ch_pkm(player &p) { p.mt.menu_choose_pokemon = -1; };
 
 std::vector<std::string> get_player_party_pkm_name_list(const player &p)
 {
@@ -333,7 +341,7 @@ void choose_first_pkm_action(player &p)
     if (p.party_pkm.size() < 6) {
         bool gen = get_random(2);
         p.party_pkm.push_back(
-            pkm::create_pkm(pkm_list[first_pkm_list[p.menu_choose_pokemon]],
+            pkm::create_pkm(pkm_list[first_pkm_list[p.mt.menu_choose_pokemon]],
                             name_pkm(p, gen), gen, 5));
     }
 }
@@ -372,9 +380,16 @@ void player_name_init_menu_init(text_menu *f)
         new text_menu("欢迎来到宝可梦的世界！", "", {choose_name_menu(f)});
 }
 
+text_menu *battle_menu;
+void init_battle_menu(const text_menu *f){
+
+}
+
 void menu_init()
 {
     root_menu = new text_menu("", "", {init_player_menu(), init_places_menu()});
     pkm_ch_init(root_menu);
+    init_battle_menu(root_menu);
     // add manually because of the action pointer;
 }
+

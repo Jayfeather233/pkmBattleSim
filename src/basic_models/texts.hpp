@@ -12,7 +12,7 @@
 
 extern std::map<std::string, std::vector<std::string>> action_text;
 
-std::string get_action_text(const std::string &typ, player &pl); // action in text_menu
+std::string get_action_text(const std::string &typ, const player &p1); // action in text_menu
 
 std::string get_skill_text(const pkm &p1, const pkm &p2, int skill_id);
 

@@ -33,12 +33,15 @@ public:
     std::function<bool()> is_op;
     bool is_type(const std::string &tp) const;
 
-    // menu_choose_item
-    int menu_choose_pokemon;
+    struct menu_temp{
+        // menu_choose_item
+        int menu_choose_pokemon;
+    } mt;
 
     bool sig_save;
 
     pkm *get_choose_pkm();
+    const pkm *get_choose_pkm_const() const;
 
     player(int bad, std::string name, std::vector<pkm> pp, std::vector<pkm> cp,
            places *pl, int mon, std::function<std::string()> gui,

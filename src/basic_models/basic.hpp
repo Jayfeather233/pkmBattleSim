@@ -15,7 +15,27 @@ base6 operator+(const base6 &a, const base6 &b);
 
 base6 operator+=(base6 &a, const base6 &b);
 
-enum element_types { EMPTY=0, PLAIN, FIRE, WATER, GRASS, POISON, FIGHT, FLY, ELEC, GROUND, PSYCHIC, ROCK, ICE, BUG, DRAGON, GHOST, DARK, STEEL, FAIRY };
+enum element_types {
+    EMPTY = 0,
+    PLAIN,
+    FIRE,
+    WATER,
+    GRASS,
+    POISON,
+    FIGHT,
+    FLY,
+    ELEC,
+    GROUND,
+    PSYCHIC,
+    ROCK,
+    ICE,
+    BUG,
+    DRAGON,
+    GHOST,
+    DARK,
+    STEEL,
+    FAIRY
+};
 element_types str2et(const std::string &s);
 
 // from, to, types Compatibility
@@ -28,18 +48,31 @@ enum battle_status {
     POISONED,
 };
 
-enum battle_position {
-    SELF,  // self
-    OPPO,  // the one opposite
-    OURS,  // other pkm on our side
-    THEIR, // other pkm on opposite
-    AROUND // pkm around self
+enum move_target {
+    SPECIFIC, // 镜面反射
+    ANY_OPPO,
+    ANY_ALLY,
+    USER_FIELD,
+    UESR_OR_AROUND_ALLY,
+    OPPO_FIELD,
+    USER,
+    RANDOM_OPPO,
+    ALL_OPPO,
+    SELECTED_OPPO,
+    ENTIRE_FIELD,
+    USER_AND_ALL_ALLY,
+    ALL_ALLY,
+    ALL,
+    ALL_FAINT
 };
 
-enum gender {
-    MALE,
-    FEMALE,
-    NONE
-};
+enum gender { MALE, FEMALE, NONE };
 
 void init_predefs();
+
+enum field_status{
+    NO_FIELD
+};
+enum weather_status{
+    CLEAR
+};
