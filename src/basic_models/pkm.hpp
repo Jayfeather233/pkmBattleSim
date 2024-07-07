@@ -11,6 +11,7 @@ struct pkm_info {
     std::vector<std::pair<int, int>>
         skills_can_learn; // level - skill_id
     std::vector<int> skills_can_learn_bymachine;
+    std::vector<std::pair<int, float> > item_poss_carry;
 };
 
 extern std::vector<pkm_info> pkm_info_maper;
@@ -92,12 +93,12 @@ public:
     size_t skills[4]; // skill_list[skills]
     int used_pp[4];
     int nature; // 性格于第三世代引入的宝可梦的一种特征。一共存在25种性格。
-    base6 stat; // calculated basic stat
-    int hpreduced;
     bool is_shiny;
     int carried_item;
     int ability; // poss_abilities[ability]
 
+    base6 stat; // calculated basic stat
+    int hpreduced;
     battle_status bstatus; // status aquired in battle (like been poison)
     struct battle_st {
         base6 affected; // like been reduced defence

@@ -36,6 +36,9 @@ public:
     struct menu_temp{
         // menu_choose_item
         int menu_choose_pokemon;
+        int menu_choose_id;
+        int menu_choose_position;
+        int battle_change_pkm;
     } mt;
 
     bool sig_save;
@@ -50,4 +53,6 @@ public:
 
     void save(const std::string &filepath);
     static player load(const std::string &filepath);
+
+    int get_subsitute_pkm(const pkm* u) const;
 };

@@ -79,8 +79,12 @@ player::player(int bad, std::string name, std::vector<pkm> pp,
                std::function<void(const std::string &)> opu,
                std::function<bool()> iop, settings sts)
     : badge(bad), name(name), party_pkm(pp), chest_pkm(cp), pls(pl), money(mon),
-      st(sts), get_user_input(gui), output2user(opu), is_op(iop),
-      mt{-1}
+      st(sts), get_user_input(gui), output2user(opu), is_op(iop), mt{-1}
 {
     sig_save = false;
+}
+
+int player::get_subsitute_pkm(const pkm *u) const
+{
+    // TODO
 }

@@ -15,9 +15,9 @@ std::vector<base_skill> skill_list;
 void init_skills()
 {
     skill_list.push_back(base_skill(0, "", "",
-                         0b01110, 100, 35));
+                         0b01110, 100, 35, move_target::ALL, 0));
     skill_list.push_back(atk_move(1, "拍击", "使用长长的尾巴或手等拍打对手进行攻击。",
-                         0b01110, 100, 35, element_types::PLAIN, false, 40,
+                         0b01110, 100, 35, move_target::SELECTED_OPPO, 0, element_types::PLAIN, false, 40,
                          false, (atk_move::side_effect){false, 0, aff_move()}));
     // read from file then
 }

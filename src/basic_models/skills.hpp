@@ -16,20 +16,21 @@ public:
     char hitrate;
     move_target tgt;
     u_char pp;
+    int prior; // level of priority, like: 电光一闪 +1，镜面反射 -5
     virtual void affect(pkm &self, pkm &p) {}
     base_skill(size_t uid, const std::string nm, const std::string ds, char ar,
-               char hr, u_char pp, move_target tgx)
-        : uid(uid), name(nm), desc(ds), affect_range(ar), hitrate(hr), pp(pp), tgt(tgx)
+               char hr, u_char pp, move_target tgx, int pri)
+        : uid(uid), name(nm), desc(ds), affect_range(ar), hitrate(hr), pp(pp), tgt(tgx), prior(pri)
     {
     }
     base_skill(const base_skill &bs)
         : uid(bs.uid), name(bs.name), desc(bs.desc),
-          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp), tgt(bs.tgt)
+          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp), tgt(bs.tgt), prior(bs.prior)
     {
     }
     base_skill(const base_skill &&bs)
         : uid(bs.uid), name(bs.name), desc(bs.desc),
-          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp), tgt(bs.tgt)
+          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp), tgt(bs.tgt), prior(bs.prior)
     {
     }
 };
@@ -53,7 +54,7 @@ public:
           aff_evasionrate(aff_eva)
     {
     }
-    aff_move() : base_skill(0, "", "", 0, 0, 0, static_cast<move_target>(0)) {}
+    aff_move() : base_skill(0, "", "", 0, 0, 0, static_cast<move_target>(0), 0) {}
 };
 
 // just attack
@@ -94,10 +95,10 @@ public:
                        app));
     }
 
-    atk_move(size_t uid, const std::string nm, const std::string ds, char ar, char hr, u_char pp, move_target tgx,
+    atk_move(size_t uid, const std::string nm, const std::string ds, char ar, char hr, u_char pp, move_target tgx, int prio,
              element_types et, bool son, u_char atkx, bool easy_cri,
              side_effect w)
-        : base_skill(uid, nm, ds, ar, hr, pp, tgx), tp(et), sp_or_norm(son), atk(atkx),
+        : base_skill(uid, nm, ds, ar, hr, pp, tgx, prio), tp(et), sp_or_norm(son), atk(atkx),
           is_easy_critical(easy_cri), se(w)
     {
     }

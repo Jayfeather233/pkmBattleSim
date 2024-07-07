@@ -71,7 +71,8 @@ enum gender { MALE, FEMALE, NONE };
 void init_predefs();
 
 enum field_status{
-    NO_FIELD
+    NO_FIELD,
+    TRICK_ROOM //戏法空间
 };
 enum weather_status{
     CLEAR
