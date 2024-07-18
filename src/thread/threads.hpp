@@ -1,10 +1,10 @@
 #pragma once
 
 #include "menu.hpp"
-
-#include "menu.hpp"
+#include "utils.h"
 
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -13,24 +13,21 @@ class singleplayerthread {
 public:
     uint64_t user_id;
     player p;
-#ifdef QQBOT
-    msg_meta conf;
+    bot *botp;
     std::atomic<bool> sig_ipt;
     std::string ipt;
-    void add_input(const std::string &ipt)
+    uint64_t gid;
+    void add_input(const std::string &ipt, const uint64_t group_id = 0)
     {
         this->ipt = ipt;
         sig_ipt.store(true);
+        gid = group_id;
         // just store the last operation
     }
-#endif
-    singleplayerthread(uint64_t user_id, void *ptr = nullptr)
+    singleplayerthread(uint64_t user_id, bot *ptr = nullptr)
         : user_id(user_id),
-          p(player::load("./config/pkm/" + std::to_string(user_id) + ".json"))
+          p("./config/pkm/" + std::to_string(user_id) + ".json"), botp(ptr)
     {
-#ifdef QQBOT
-        this->conf = (msg_meta){"private", user_id, 0, 0, ptr};
-#endif
         this->p.get_user_input = [this]() { return this->get_user_input(); };
         this->p.output2user = [this](std::string s) {
             return this->output2user(s);
@@ -64,20 +61,34 @@ public:
         run_text_menu(p, root_menu, [this]() { this->save(); }, nullptr);
     }
 
-#ifdef QQBOT
     std::string get_user_input()
     {
-        while (!sig_ipt.load()) {
-            std::this_thread::sleep_for(500ms);
+        if (botp == nullptr) {
+            std::string ret;
+            std::getline(std::cin, ret);
+            return ret;
         }
-        sig_ipt.store(false);
-        return ipt;
+        else {
+            while (!sig_ipt.load()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }
+            sig_ipt.store(false);
+            return ipt;
+        }
     }
 
     void output2user(const std::string &s)
     {
-        if (s.length() > 0)
-            conf.p->cq_send(s, conf);
+        if (botp == nullptr) {
+            if (s.length() > 0)
+                std::cout << s << std::endl;
+        }
+        else {
+            if (s.length() > 0)
+                botp->cq_send(
+                    s, gid == 0 ? msg_meta("private", user_id, 0, 0, botp)
+                                : msg_meta("group", user_id, gid, 0, botp));
+        }
     }
 
     int get_next_int(std::string text = "")
@@ -94,21 +105,6 @@ public:
             }
         }
     }
-#else
-    std::string get_user_input()
-    {
-        std::string ret;
-        std::getline(std::cin, ret);
-        return ret;
-    }
-
-    void output2user(const std::string &s)
-    {
-        if (s.length() > 0)
-            std::cout << s << std::endl;
-    }
-
-#endif
     void save()
     {
         this->p.save("./config/pkm/" + std::to_string(user_id) + ".json");

@@ -1,6 +1,5 @@
 #pragma once
 
-#ifdef QQBOT
 #include "processable.h"
 #include "threads.hpp"
 
@@ -9,24 +8,23 @@
 #include <map>
 #include <thread>
 
-std::map<std::pair<uint64_t, uint64_t>, singleplayerthread> th_mapper;
+std::map<uint64_t, singleplayerthread*> th_mapper;
 
 class pkmbattle : public processable {
 private:
 public:
     void process(std::string message, const msg_meta &conf) {
-
-        auto it = th_mapper.find(conf.group_id, conf.user_id);
+        auto it = th_mapper.find(conf.user_id);
         if (it == th_mapper.end()) {
             th_mapper.insert(
-                std::make_pair(std::make_pair(conf.group_id, conf.user_id),
-                               singleplayerthread(conf.user_id, conf.p)));
-            th_mapper[std::make_pair(conf.group_id, conf.user_id)].add_input(
-                message.substr(4));
+                std::pair<const uint64_t, singleplayerthread*>(conf.user_id,
+                               new singleplayerthread(conf.user_id, conf.p)));
+            th_mapper[conf.user_id]->add_input(
+                message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
         }
         else {
-            th_mapper[std::make_pair(conf.group_id, conf.user_id)].add_input(
-                message.substr(4));
+            th_mapper[conf.user_id]->add_input(
+                message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
         }
     }
     bool check(std::string message, const msg_meta &conf) {
@@ -35,4 +33,6 @@ public:
     std::string help() {}
 };
 
-#endif
+extern "C" processable* create(){
+    return new pkmbattle();
+}

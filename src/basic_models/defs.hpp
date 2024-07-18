@@ -1,3 +1,5 @@
 #pragma once
 
-#define image unsigned char *
+#include <Magick++.h>
+
+#define image Magick::Image

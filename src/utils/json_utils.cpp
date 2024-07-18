@@ -1,4 +1,4 @@
-#include "utils.hpp"
+#include "myutils.hpp"
 #include "pkm.hpp"
 #include "texts.hpp"
 
@@ -157,7 +157,7 @@ text_menu* J2text_menu(const Json::Value &J){
                 p.output2user(get_action_text("clear", p));
             };
         } else {
-            p->action = [act_type](player &p){
+            p->action = [act_type = const_cast<const std::string &>(act_type)](player &p){
                 p.output2user(get_action_text(act_type, p));
             };
         }

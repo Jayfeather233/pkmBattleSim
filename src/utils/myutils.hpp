@@ -1,28 +1,10 @@
 #pragma once
 
-#include "defs.hpp"
 #include "menu.hpp"
 #include "pkm.hpp"
 
 #include <jsoncpp/json/json.h>
 #include <set>
-
-#ifndef QQBOT
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-
-std::fstream openfile(const std::string file_path,
-                      const std::ios_base::openmode mode);
-std::string readfile(const std::string &file_path,
-                     const std::string &default_content);
-void writefile(const std::string file_path, const std::string &content,
-               bool is_append);
-Json::Value string_to_json(const std::string &str);
-
-#endif
-
-image readImage(std::string filepath);
 
 void replaceAll(std::string &str, const std::string &from,
                 const std::string &to);

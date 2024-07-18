@@ -1,8 +1,11 @@
 #include "menu.hpp"
 #include "places.hpp"
 #include "skills.hpp"
-#include "utils.hpp"
+#include "utils.h"
+#include "myutils.hpp"
+#include "image_utils.hpp"
 
+#include <iostream>
 #include <filesystem>
 #include <fmt/core.h>
 #include <jsoncpp/json/json.h>

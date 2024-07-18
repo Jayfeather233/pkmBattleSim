@@ -1,13 +1,14 @@
 #pragma once
 
 #include "basic.hpp"
+#include "defs.hpp"
 
 #include <map>
 #include <string>
 
 struct pkm_info {
     int id;
-    u_char *pkm_image;
+    image pkm_image;
     std::vector<std::pair<int, int>>
         skills_can_learn; // level - skill_id
     std::vector<int> skills_can_learn_bymachine;

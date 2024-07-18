@@ -31,7 +31,7 @@ public:
     std::function<void(const std::string &)> output2user;
 
     std::function<bool()> is_op;
-    bool is_type(const std::string &tp) const;
+    bool is_type(const std::string &tp) const; // used for showing additional menu
 
     struct menu_temp{
         // menu_choose_item
@@ -41,7 +41,7 @@ public:
         int battle_change_pkm;
     } mt;
 
-    bool sig_save;
+    bool sig_save; // anything changes that need to save to file
 
     pkm *get_choose_pkm();
     const pkm *get_choose_pkm_const() const;
@@ -52,7 +52,7 @@ public:
            std::function<bool()> iop, settings sts = settings());
 
     void save(const std::string &filepath);
-    static player load(const std::string &filepath);
+    player(const std::string &filepath);
 
     int get_subsitute_pkm(const pkm* u) const;
 };

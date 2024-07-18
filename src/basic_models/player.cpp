@@ -1,5 +1,6 @@
 #include "player.hpp"
-#include "utils.hpp"
+#include "myutils.hpp"
+#include "utils.h"
 
 void player::save(const std::string &filepath)
 {
@@ -17,18 +18,24 @@ void player::save(const std::string &filepath)
     writefile(filepath, J.toStyledString(), false);
 }
 
-player player::load(const std::string &filepath)
+player::player(const std::string &filepath)
+    : player(0, "", {}, {}, nullptr, 0, nullptr, nullptr, nullptr,
+             settings({}, {}))
 {
     Json::Value J = string_to_json(readfile(
         filepath, "{\"badge\":0,\"name\": \"\", "
                   "\"party_pkm\":[],\"chest_pkm\":[],\"pls\":0,\"money\":0, "
                   "\"settings\":{\"type\":[],\"enable\":[]}}"));
-    return player(J["badge"].asInt(), J["name"].asString(),
-                  Ja2pkm(J["party_pkm"]), Ja2pkm(J["chest_pkm"]),
-                  &placs[J["pls"].asInt()], J["money"].asInt(), nullptr,
-                  nullptr, nullptr,
-                  settings(Ja2set(J["settings"]["type"]),
-                           Ja2set(J["settings"]["enable"])));
+
+    badge = J["badge"].asInt();
+    name = J["name"].asString();
+    party_pkm = Ja2pkm(J["party_pkm"]);
+    chest_pkm = Ja2pkm(J["chest_pkm"]);
+    pls = &placs[J["pls"].asInt()];
+    money = J["money"].asInt();
+    st = settings(Ja2set(J["settings"]["type"]),
+                  Ja2set(J["settings"]["enable"]));
+    sig_save = false;
 }
 
 bool settings::is_type(const std::string &tp) const

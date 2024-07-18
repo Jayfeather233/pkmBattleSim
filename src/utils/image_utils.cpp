@@ -1,5 +1,5 @@
-#include "utils.hpp"
+#include "image_utils.hpp"
 
 image readImage(std::string filepath){
-    return nullptr;
+    return Magick::Image(filepath);
 }

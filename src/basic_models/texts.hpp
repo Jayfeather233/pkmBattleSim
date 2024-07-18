@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.hpp"
+#include "myutils.hpp"
 #include "random.hpp"
 
 // battle texts: start battle -> use skill -> switch pkm -> fainting -> end
