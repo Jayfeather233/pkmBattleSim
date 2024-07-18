@@ -2,12 +2,18 @@ cmake_minimum_required(VERSION 3.11)
 
 project(pbs)
 
-# add_definitions(-DUSE_OPENSSL)
+add_definitions(-DUSE_OPENSSL)
 
 # find_package(OpenSSL REQUIRED)
 find_package(fmt REQUIRED)
 # include_directories(${OPENSSL_INCLUDE_DIR})
+
+add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
+add_definitions( -DMAGICKCORE_HDRI_ENABLE=1 )
+find_package(ImageMagick COMPONENTS Magick++ MagickWand MagickCore REQUIRED)
+include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${fmt_INCLUDE_DIRS})
+include_directories("./src/shinxbot_api")
 include_directories("./src/basic_models")
 include_directories("./src/thread")
 include_directories("./src/ui")
@@ -46,13 +52,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstandalone-debug")
 endif()
 
-add_executable(${PROJECT_NAME}  ${BM_SOURCES} ${TH_SOURCES} ${UI_SOURCES} ${UTILS_SOURCES} ${MAIN_SOURCES})
+# add_executable(${PROJECT_NAME}  ${BM_SOURCES} ${TH_SOURCES} ${UI_SOURCES} ${UTILS_SOURCES} ${MAIN_SOURCES})
 
-# add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
-# add_definitions( -DMAGICKCORE_HDRI_ENABLE=1 )
-# find_package(ImageMagick COMPONENTS Magick++ MagickWand MagickCore REQUIRED)
-# include_directories(${ImageMagick_INCLUDE_DIRS})
-# target_link_libraries(${PROJECT_NAME} PUBLIC ${ImageMagick_LIBRARIES})
+add_library(${PROJECT_NAME} SHARED ${BM_SOURCES} ${TH_SOURCES} ${UI_SOURCES} ${UTILS_SOURCES} ${MAIN_SOURCES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/../src/shinxbot_api/libutils.so)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${ImageMagick_LIBRARIES})
 
 find_package(jsoncpp REQUIRED)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${JSONCPP_LIBRARIES})

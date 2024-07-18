@@ -372,6 +372,7 @@ text_menu *choose_name_menu(text_menu *f)
                       {yes_confirm_menu(nullptr), no_confirm_menu()},
                       name_ch_action, false, nullptr, nullptr, false);
     p->options[0]->father = f;
+    return p;
 }
 
 void player_name_init_menu_init(text_menu *f)

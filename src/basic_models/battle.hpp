@@ -179,7 +179,26 @@ public:
         // 花之礼、阴晴不定特性()
         // 若上一回合为宝可梦极巨化的第3回合，极巨化结束()
     }
-    void execute_move(const move_struct &ms) {}
+    void execute_move(const move_struct &ms) {
+        if(skill_list[ms.from->skills[ms.skill_id]].tgt == OPPO_FIELD){
+            skill_list[ms.from->skills[ms.skill_id]].affect(field[ms.from_side^1]);
+            return;
+        } else 
+        if(skill_list[ms.from->skills[ms.skill_id]].tgt == USER_FIELD){
+            skill_list[ms.from->skills[ms.skill_id]].affect(field[ms.from_side]);
+            return;
+        } else 
+        if(skill_list[ms.from->skills[ms.skill_id]].tgt == ENTIRE_FIELD){
+            skill_list[ms.from->skills[ms.skill_id]].affect(field[2]);
+            return;
+        }
+        auto afpkm = aff_pkms(ms);
+        for(auto topkm : afpkm){
+            if(pkms[topkm.first][topkm.second] != nullptr){
+                skill_list[ms.from->skills[ms.skill_id]].affect(*(ms.from), *(pkms[topkm.first][topkm.second]));
+            }
+        }
+    }
     void execute_change_pkm(const pkm_list_item &ms)
     {
         pkms[ms.from_side][ms.from_pos] = ms.to;
@@ -238,6 +257,9 @@ public:
     void use_moves()
     {
         sort_moves(sort_method::BY_MOVES);
+        for(auto mv:moves){
+            execute_move(mv);
+        }
         /*
         按以下顺序使用招式：
         先按招式优先度修正后的顺序：优先度高的招式→先制之爪、释陀果、速击的发动者使用的招式→普通招式→后攻之尾、饱腹薰香、慢出的发动者使用的招式→优先度低的招式
@@ -334,7 +356,7 @@ public:
             }
             int D = get_random(256);
             if (D < F) {
-                // TODO: test here
+                // TODO: text here
                 return true;
             }
             else {

@@ -30,7 +30,7 @@ void replaceAll(std::string &str, const std::string &from,
 Json::Value set2Ja(const std::set<std::string> &s);
 std::set<std::string> Ja2set(const Json::Value &Ja);
 std::vector<int> Ja2Vec(const Json::Value &Ja);
-std::vector<std::pair<int, std::string>> Ja2VecP(const Json::Value &Ja);
+std::vector<std::pair<int, int>> Ja2VecP(const Json::Value &Ja);
 std::vector<std::string> Ja2VecS(const Json::Value &Ja);
 std::vector<std::pair<int, float>> Ja2Vec2(const Json::Value &Ja);
 base6 J2base6(const Json::Value &J);

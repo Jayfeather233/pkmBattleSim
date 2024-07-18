@@ -18,9 +18,9 @@ pkm_base::pkm_base(const std::string &nm, base6 sp,
                    float w, u_char cr, int gr, base6 abp, u_char eas, int bexp,
                    std::vector<std::pair<int, float>> poss_itemx)
     : base_name(nm), species_points(sp), typ{et[0], et[1]}, category(cat),
-      poss_abilities(abilities), height(h), weight(w), catch_rate(cr),
-      gender_ratio(gr), aquire_base_point(abp), exp_acc_speed(eas),
-      base_exp(bexp), id(idx), poss_items(poss_itemx)
+      poss_abilities(abilities), poss_items(poss_itemx), height(h), weight(w),
+      catch_rate(cr), gender_ratio(gr), aquire_base_point(abp),
+      exp_acc_speed(eas), base_exp(bexp), id(idx)
 {
 }
 
@@ -31,9 +31,9 @@ pkm_base::pkm_base(const std::string &nm, base6 sp, element_types et[2],
                    float w, u_char cr, int gr, base6 abp, u_char eas, int bexp,
                    std::vector<std::pair<int, float>> poss_itemx)
     : base_name(nm), species_points(sp), typ{et[0], et[1]}, category(cat),
-      poss_abilities(abilities), height(h), weight(w), catch_rate(cr),
-      gender_ratio(gr), aquire_base_point(abp), exp_acc_speed(eas),
-      base_exp(bexp), id(idx), poss_items(poss_itemx)
+      poss_abilities(abilities), poss_items(poss_itemx), height(h), weight(w),
+      catch_rate(cr), gender_ratio(gr), aquire_base_point(abp),
+      exp_acc_speed(eas), base_exp(bexp), id(idx)
 {
 }
 
@@ -94,6 +94,8 @@ int get_next_level_exp(u_char eas, u_char level)
             return 0.02 * level4 + 0.28 * level3;
         else
             return 0.02 * level3 * int((level + 64) / 2);
+    default:
+        throw "No such exp gain speed";
     }
 }
 std::vector<size_t> get_pkm_init_skills(const pkm_base &p, int level)
@@ -117,8 +119,9 @@ pkm::pkm(const pkm_base &pb, const std::string &namex, gender gen,
          int naturex, int hpred, bool is_sh, int caritem, int abi)
     : pkm_base(pb), name(namex), gend(gen), level(levelx), exp_need(exp_needx),
       exp_curr(exp_currx), IV(IVx), base_points(bp), friendship(fship),
-      bstatus(bs), nature(naturex), hpreduced(hpred), is_shiny(is_sh),
-      carried_item(caritem), ability(abi)
+      nature(naturex), is_shiny(is_sh), carried_item(caritem), ability(abi),
+      hpreduced(hpred), bstatus(bs)
+
 {
     refresh_stat();
     this->skills[0] = skillx[0];
@@ -139,8 +142,8 @@ pkm::pkm(const pkm_base &pb, const std::string &namex, gender gen,
          int caritem, int abi)
     : pkm_base(pb), name(namex), gend(gen), level(levelx), exp_need(exp_needx),
       exp_curr(exp_currx), IV(IVx), base_points(bp), friendship(fship),
-      bstatus(bs), nature(naturex), hpreduced(hpred), is_shiny(is_sh),
-      carried_item(caritem), ability(abi)
+      nature(naturex), is_shiny(is_sh), carried_item(caritem), ability(abi),
+      hpreduced(hpred), bstatus(bs)
 {
     refresh_stat();
     this->skills[0] = skillx[0];
@@ -191,5 +194,6 @@ pkm pkm::create_pkm(const pkm_base &p, const std::string &nm, bool gen,
                (base6){0, 0, 0, 0, 0, 0}, 70, battle_status::NORMAL,
                {skills[0], skills[1], skills[2], skills[3]}, {0, 0, 0, 0},
                get_random(25), 0, get_random(4096) == 0,
-               get_possi_random(p.poss_items), get_possi_random_(p.poss_abilities));
+               get_possi_random(p.poss_items),
+               get_possi_random_(p.poss_abilities));
 }

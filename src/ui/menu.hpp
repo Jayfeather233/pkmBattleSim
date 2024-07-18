@@ -24,9 +24,9 @@ public:
     std::function<void(player &p)>
         action; // the action take when getting to this menu
     std::function<void(player &p, int id)> choose_cb; // choose callback with id
-    bool need_back;                                   // the default back menu
     std::function<std::vector<std::string>(const player &p)>
         get_choose_set; // call to get item list
+    bool need_back;                                   // the default back menu
 
     bool set_uid(std::string u);
     std::string get_title(const player &p) const;

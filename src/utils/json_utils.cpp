@@ -26,11 +26,11 @@ std::vector<int> Ja2Vec(const Json::Value &Ja)
     return ret;
 }
 
-std::vector<std::pair<int,std::string>> Ja2VecP(const Json::Value &Ja)
+std::vector<std::pair<int,int>> Ja2VecP(const Json::Value &Ja)
 {
-    std::vector<std::pair<int,std::string>> ret;
+    std::vector<std::pair<int,int>> ret;
     for (Json::Value it : Ja) {
-        ret.push_back(std::make_pair(it["level"].asInt(), it["skill"].asString()));
+        ret.push_back(std::make_pair(it["level"].asInt(), it["skill"].asInt()));
     }
     return ret;
 }

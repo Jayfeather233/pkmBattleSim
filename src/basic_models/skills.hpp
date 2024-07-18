@@ -14,23 +14,27 @@ public:
     std::string desc;
     char affect_range;
     char hitrate;
-    move_target tgt;
     u_char pp;
+    move_target tgt;
     int prior; // level of priority, like: 电光一闪 +1，镜面反射 -5
     virtual void affect(pkm &self, pkm &p) {}
-    base_skill(size_t uid, const std::string nm, const std::string ds, char ar,
-               char hr, u_char pp, move_target tgx, int pri)
-        : uid(uid), name(nm), desc(ds), affect_range(ar), hitrate(hr), pp(pp), tgt(tgx), prior(pri)
+    virtual void affect(field_status &fs) {}
+    base_skill(size_t uid, const std::string &nm, const std::string &ds,
+               char ar, char hr, u_char pp, move_target tgx, int pri)
+        : uid(uid), name(nm), desc(ds), affect_range(ar), hitrate(hr), pp(pp),
+          tgt(tgx), prior(pri)
     {
     }
     base_skill(const base_skill &bs)
         : uid(bs.uid), name(bs.name), desc(bs.desc),
-          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp), tgt(bs.tgt), prior(bs.prior)
+          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp),
+          tgt(bs.tgt), prior(bs.prior)
     {
     }
     base_skill(const base_skill &&bs)
         : uid(bs.uid), name(bs.name), desc(bs.desc),
-          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp), tgt(bs.tgt), prior(bs.prior)
+          affect_range(bs.affect_range), hitrate(bs.hitrate), pp(bs.pp),
+          tgt(bs.tgt), prior(bs.prior)
     {
     }
 };
@@ -49,12 +53,26 @@ public:
         p.bstate.affected_hitrate += aff_hitrate;
         p.bstate.affected_evasionrate += aff_evasionrate;
     }
-    aff_move(const base_skill &bs, base6 aff_pts, char aff_hr, char aff_eva)
+    aff_move(const base_skill &bs, const base6 &aff_pts, const char &aff_hr,
+             const char &aff_eva)
         : base_skill(bs), aff_points(aff_pts), aff_hitrate(aff_hr),
           aff_evasionrate(aff_eva)
     {
     }
-    aff_move() : base_skill(0, "", "", 0, 0, 0, static_cast<move_target>(0), 0) {}
+    aff_move() : base_skill(0, "", "", 0, 0, 0, static_cast<move_target>(0), 0)
+    {
+    }
+};
+
+class field_move : public base_skill {
+public:
+    char succ_rate;
+    field_status aff_to;
+    field_move(const base_skill &bs, const char &sr, const field_status &at)
+        : base_skill(bs), succ_rate(sr), aff_to(at)
+    {
+    }
+    void affect(field_status &fs) { fs = aff_to; }
 };
 
 // just attack
@@ -95,11 +113,11 @@ public:
                        app));
     }
 
-    atk_move(size_t uid, const std::string nm, const std::string ds, char ar, char hr, u_char pp, move_target tgx, int prio,
-             element_types et, bool son, u_char atkx, bool easy_cri,
-             side_effect w)
-        : base_skill(uid, nm, ds, ar, hr, pp, tgx, prio), tp(et), sp_or_norm(son), atk(atkx),
-          is_easy_critical(easy_cri), se(w)
+    atk_move(size_t uid, const std::string nm, const std::string ds, char ar,
+             char hr, u_char pp, move_target tgx, int prio, element_types et,
+             bool son, u_char atkx, bool easy_cri, side_effect w)
+        : base_skill(uid, nm, ds, ar, hr, pp, tgx, prio), tp(et),
+          sp_or_norm(son), atk(atkx), is_easy_critical(easy_cri), se(w)
     {
     }
 };
