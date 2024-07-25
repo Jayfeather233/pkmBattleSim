@@ -12,7 +12,6 @@ struct base6 {
 };
 
 base6 operator+(const base6 &a, const base6 &b);
-
 base6 operator+=(base6 &a, const base6 &b);
 
 enum element_types {
@@ -69,6 +68,7 @@ enum move_target {
 enum gender { MALE, FEMALE, NONE };
 
 void init_predefs();
+void remove_predefs();
 
 enum field_status{
     NO_FIELD,

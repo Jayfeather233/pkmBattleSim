@@ -6,6 +6,11 @@
 #include <functional>
 #include <set>
 
+/**
+ * this can influence showing addtional options in menu.
+ * user_types: op can change what types can user enable
+ * user_enables: the user enabled additional function
+ */
 class settings {
 public:
     std::set<std::string> user_types;
@@ -31,9 +36,10 @@ public:
     std::function<void(const std::string &)> output2user;
 
     std::function<bool()> is_op;
-    bool is_type(const std::string &tp) const; // used for showing additional menu
+    bool
+    is_type(const std::string &tp) const; // used for showing additional menu
 
-    struct menu_temp{
+    struct menu_temp {
         // menu_choose_item
         int menu_choose_pokemon;
         int menu_choose_id;
@@ -53,6 +59,9 @@ public:
 
     void save(const std::string &filepath);
     player(const std::string &filepath);
+    player(const pkm &p);                                       // a wild pkm
+    player(const std::string &name, const std::vector<pkm> &p); // a trainer
 
-    int get_subsitute_pkm(const pkm* u) const;
+    int player::get_subsitute_pkm(const std::vector<pkm *> u);
+    std::vector<pkm*> get_available_pkm() const;
 };

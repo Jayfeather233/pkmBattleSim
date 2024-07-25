@@ -25,7 +25,7 @@ void init_pkm(std::string filepath)
     pkm_info_maper.push_back((pkm_info){});
     Json::Value J = string_to_json(readfile(filepath, "[]"));
     for (Json::Value item : J) {
-        if (pkm_list.size() != item["id"].asInt()) {
+        if (static_cast<int>(pkm_list.size()) != item["id"].asInt()) {
             std::cout << "Warning: pkm order in json file is not the id order."
                       << std::endl;
         }
@@ -51,7 +51,7 @@ void init_places(std::string filepath)
                                      plcs["points"].asInt(),
                                      {},
                                      Ja2Vec2(plcs["pkms"]),
-                                     placs.size()});
+                                     static_cast<int>(placs.size())});
         }
         for (Json::Value conn : re["connect"]) {
             int from = conn["from"].asInt(), to = conn["to"].asInt();
@@ -63,9 +63,9 @@ void init_places(std::string filepath)
 
 /*
 J:{
-"type1":{
+"type1":{ // append type
     "id1":[
-        {
+        { // the append option goes here
             "title":
             ...
         }
@@ -73,7 +73,7 @@ J:{
 }
 }
 */
-std::vector<std::pair<text_menu *, std::string>> father_setter;
+static std::vector<std::pair<text_menu *, std::string>> father_setter;
 void app_menu_init(const std::string &rt_dir)
 {
     for (const auto &entry : std::filesystem::directory_iterator(rt_dir)) {
@@ -113,6 +113,10 @@ void insert_app_menu()
         auto it2 = text_menu_mapper.find(it.first);
         if (it2 == text_menu_mapper.end()) {
             fmt::print("WARNING: menu_id: {:d} cannot be found!\n", it.first);
+            for (auto it3 : it.second) {
+                for(auto u : it3.second)
+                    delete u;
+            }
         }
         else {
             for (auto it3 : it.second) {
@@ -143,4 +147,9 @@ void init_predefs()
     init_texts("./data/pkm/texts");
 
     first_pkm_list.push_back(1);
+}
+
+void remove_predefs()
+{
+    menu_remove();
 }

@@ -10,6 +10,7 @@
 using u32 = uint_least32_t;
 using engine = std::mt19937;
 
+// This is fairly secure, though not cryptographically secure
 static std::random_device os_seed;
 static const u32 seed = os_seed();
 static engine generator = engine(seed);

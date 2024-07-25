@@ -12,7 +12,7 @@ private:
 
 public:
     std::string choose_text; // display at father manu's option list
-    text_menu *father;
+    text_menu const *father;
     std::vector<text_menu *> options;
     std::map<std::string, std::vector<text_menu *>>
         app_options; // appended options for user_type, like Pokémon Refresh in
@@ -26,9 +26,10 @@ public:
     std::function<void(player &p, int id)> choose_cb; // choose callback with id
     std::function<std::vector<std::string>(const player &p)>
         get_choose_set; // call to get item list
-    bool need_back;                                   // the default back menu
+    bool need_back;     // the default back menu
 
     bool set_uid(std::string u);
+    std::string get_uid() const;
     std::string get_title(const player &p) const;
     text_menu();
 
@@ -54,12 +55,26 @@ public:
 extern text_menu *root_menu;
 extern text_menu *first_pkm_choose_menu;
 extern std::map<std::string, std::map<std::string, std::vector<text_menu *>>>
-    app_menu_mapper;
-extern std::map<std::string, text_menu *> text_menu_mapper;
+    app_menu_mapper; // uid->(type->menu*)
+extern std::map<std::string, text_menu *>
+    text_menu_mapper; // when add a menu, it will store uid->menu*
 extern text_menu *player_name_init_menu;
 extern text_menu *battle_menu;
+extern text_menu *subsitute_menu;
+extern std::vector<std::pair<text_menu *, std::string>> menu_fathers;
+extern std::vector<std::pair<text_menu *, std::string>> menu_options;
 
 void menu_init();
+void menu_remove();
 
-void run_text_menu(player &p, const text_menu *px,std::function<void()>save,
+void run_text_menu(player &p, const text_menu *px, std::function<void()> save,
                    const text_menu *stop = nullptr);
+
+extern std::map<std::string, std::function<void(player &, int)>>
+    choose_callback_mapper;
+
+extern std::map<std::string, std::function<void(player &)>> action_mapper;
+
+extern std::map<std::string,
+                std::function<std::vector<std::string>(const player &)>>
+    get_choose_set_mapper;

@@ -5,3 +5,5 @@
 /data/pkm/texts/*
 !/data/pkm/app_menus/1.json
 !/data/pkm/texts/1.json
+main.cpp
+test.cpp

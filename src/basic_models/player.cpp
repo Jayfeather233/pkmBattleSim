@@ -38,6 +38,19 @@ player::player(const std::string &filepath)
     sig_save = false;
 }
 
+player::player(const pkm &p)
+    : badge(-1), name(p.get_name()), party_pkm({p}), chest_pkm({}),
+      pls(nullptr), money(0), st(settings()), get_user_input(nullptr),
+      output2user(nullptr), is_op(nullptr), mt(menu_temp()), sig_save(false)
+{
+}
+player::player(const std::string &name, const std::vector<pkm> &p)
+    : badge(-2), name(name), party_pkm(p), chest_pkm({}), pls(nullptr),
+      money(0), st(settings()), get_user_input(nullptr), output2user(nullptr),
+      is_op(nullptr), mt(menu_temp()), sig_save(false)
+{
+}
+
 bool settings::is_type(const std::string &tp) const
 {
     return user_types.find(tp) != user_types.end() &&
@@ -56,12 +69,12 @@ bool player::is_type(const std::string &tp) const { return st.is_type(tp); }
 pkm *player::get_choose_pkm()
 {
     if (mt.menu_choose_pokemon > 6) {
-        return chest_pkm.size() > mt.menu_choose_pokemon - 6
+        return static_cast<int>(chest_pkm.size()) > mt.menu_choose_pokemon - 6
                    ? &chest_pkm[mt.menu_choose_pokemon - 6]
                    : &chest_pkm[0];
     }
     else {
-        return party_pkm.size() > mt.menu_choose_pokemon
+        return static_cast<int>(party_pkm.size()) > mt.menu_choose_pokemon
                    ? &party_pkm[mt.menu_choose_pokemon]
                    : &party_pkm[0];
     }
@@ -69,12 +82,12 @@ pkm *player::get_choose_pkm()
 const pkm *player::get_choose_pkm_const() const
 {
     if (mt.menu_choose_pokemon > 6) {
-        return chest_pkm.size() > mt.menu_choose_pokemon - 6
+        return static_cast<int>(chest_pkm.size()) > mt.menu_choose_pokemon - 6
                    ? &chest_pkm[mt.menu_choose_pokemon - 6]
                    : &chest_pkm[0];
     }
     else {
-        return party_pkm.size() > mt.menu_choose_pokemon
+        return static_cast<int>(party_pkm.size()) > mt.menu_choose_pokemon
                    ? &party_pkm[mt.menu_choose_pokemon]
                    : &party_pkm[0];
     }
@@ -91,7 +104,23 @@ player::player(int bad, std::string name, std::vector<pkm> pp,
     sig_save = false;
 }
 
-int player::get_subsitute_pkm(const pkm *u) const
+int player::get_subsitute_pkm(const std::vector<pkm *> u)
 {
-    // TODO
+    auto ret = get_available_pkm();
+    if(ret.size() == 0) return -1;
+    else {
+        run_text_menu(*this, subsitute_menu, nullptr, root_menu);
+        return this->mt.menu_choose_pokemon;
+    }
+}
+
+std::vector<pkm *> player::get_available_pkm() const
+{
+    std::vector<pkm *> ret;
+    for (auto u : this->party_pkm) {
+        if (u.hpreduced < u.stat.hp) {
+            ret.push_back(&u);
+        }
+    }
+    return ret;
 }

@@ -5,6 +5,7 @@
 
 #include <jsoncpp/json/json.h>
 #include <set>
+#include <fmt/core.h>
 
 void replaceAll(std::string &str, const std::string &from,
                 const std::string &to);
@@ -27,3 +28,19 @@ Json::Value pkm2J(const pkm &p);
 Json::Value pkm2Ja(const std::vector<pkm> &vp);
 
 int get_next_int(player &p, std::string text = "");
+
+template<typename K, typename T>
+T map_finder(const K& name, std::map<K, T> &maper) {
+    auto it = maper.find(name);
+    if (it == maper.end()) {
+        throw std::runtime_error(fmt::format("Cannot find key '{}' in the map<{} -> {}>",
+                                             name, typeid(K).name(), typeid(T).name()));
+    } else {
+        return it->second;
+    }
+}
+
+std::string gender2string(const gender &g);
+std::string eletype2string(const element_types &a);
+std::string eletype2string(const std::array<element_types, 2> a);
+void my_string_format(std::string &s, const player &pl, const pkm* pk = nullptr);

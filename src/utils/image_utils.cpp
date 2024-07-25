@@ -1,5 +1,7 @@
 #include "image_utils.hpp"
 
 image readImage(std::string filepath){
-    return Magick::Image(filepath);
+    if(!filepath.empty())
+        return Magick::Image(filepath);
+    else return Magick::Image();
 }

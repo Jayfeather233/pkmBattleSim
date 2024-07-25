@@ -1,13 +1,14 @@
 {
     "refresh": {
-        "1": [
+        "pkm_interactive_menu": [
             {
                 "title": "",
                 "choose_text": "宝可清爽乐",
+                "father": "player_pkm_ch_main",
                 "options": [
                 ],
-                "action": "clear",
-                "uid": "1805"
+                "action": "refresh_choosed_pkm",
+                "uid": "pkm_refresh"
             }
         ]
     }

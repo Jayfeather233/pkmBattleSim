@@ -6,13 +6,15 @@
 #include <map>
 #include <string>
 
+/**
+ * Some meta info, like image, can-learn skills
+ */
 struct pkm_info {
     int id;
     image pkm_image;
-    std::vector<std::pair<int, int>>
-        skills_can_learn; // level - skill_id
+    std::vector<std::pair<int, int>> skills_can_learn; // level - skill_id
     std::vector<int> skills_can_learn_bymachine;
-    std::vector<std::pair<int, float> > item_poss_carry;
+    std::vector<std::pair<int, float>> item_poss_carry;
 };
 
 extern std::vector<pkm_info> pkm_info_maper;
@@ -24,7 +26,7 @@ public:
     std::string base_name;
     base6
         species_points; // 种族值是反映不同种类宝可梦之间各项能力大致情况的数值
-    element_types typ[2];
+    std::array<element_types, 2> typ;
     std::string category; // what-what pokemon
     std::vector<std::pair<int, float>>
         poss_abilities; // 可能的特性, id - possibility
@@ -52,24 +54,19 @@ public:
              float w, u_char cr, int gr, base6 abp, u_char eas, int bexp,
              std::vector<std::pair<int, float>> poss_itemx = {});
 
-    // Parameterized constructor 2
-    pkm_base(const std::string &nm, base6 sp, element_types et[2], int idx,
-             const std::string &cat,
-             const std::vector<std::pair<int, float>> &abilities, float h,
-             float w, u_char cr, int gr, base6 abp, u_char eas, int bexp,
-             std::vector<std::pair<int, float>> poss_itemx = {});
-
     // Copy constructor
     pkm_base(const pkm_base &u);
 
     // Move constructor
     pkm_base(pkm_base &&u);
+
+    gender get_gender() const;
 };
 
-extern std::vector<pkm_base> pkm_list;
-extern std::vector<int> first_pkm_list;
+extern std::vector<pkm_base> pkm_list;  // all pkm list, ordered with its id
+extern std::vector<int> first_pkm_list; // used in choose your first pkm
 
-float get_nature_rate(int nature);
+base6 get_nature_rate(int nature);
 
 class pkm : public pkm_base {
 private:
@@ -91,8 +88,8 @@ public:
         base_points; // aquired throuth battle
                      // 基础点数是击败宝可梦后，除了经验值外可以获得的另一项数值
     u_char friendship;
-    size_t skills[4]; // skill_list[skills]
-    int used_pp[4];
+    std::array<size_t, 4> skills; // skill_list[skills]
+    std::array<int, 4> used_pp;
     int nature; // 性格于第三世代引入的宝可梦的一种特征。一共存在25种性格。
     bool is_shiny;
     int carried_item;
@@ -106,7 +103,7 @@ public:
         char affected_hitrate;
         char affected_evasionrate;
 
-        struct hitted_by{
+        struct hitted_by {
             int las_hit_damage;
             int las_hit_id;
         } hb;
@@ -114,18 +111,16 @@ public:
 
     pkm(const pkm_base &pb, const std::string &namex, gender gen, u_char levelx,
         int exp_needx, int exp_currx, base6 IVx, base6 bp, u_char fship,
-        battle_status bs, size_t skillx[4], int used_ppx[4], int naturex,
-        int hpred, bool is_sh, int caritem, int abi);
-
-    pkm(const pkm_base &pb, const std::string &namex, gender gen, u_char levelx,
-        int exp_needx, int exp_currx, base6 IVx, base6 bp, u_char fship,
         battle_status bs, std::array<size_t, 4> skillx,
         std::array<int, 4> used_ppx, int naturex, int hpred, bool is_sh,
         int caritem, int abi);
 
+    pkm(const pkm &other);
+    pkm(const pkm &&other);
+
     void refresh_stat();
     void refresh_bstate();
 
-    static pkm create_pkm(const pkm_base &p, const std::string &nm, bool gen,
+    static pkm create_pkm(const pkm_base &p, const std::string &nm,
                           u_char level);
 };

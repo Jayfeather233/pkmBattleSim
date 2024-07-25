@@ -48,6 +48,7 @@ inline bool ms_cmp_move_fast2slow(const move_struct &a, const move_struct &b)
     return ms_cmp_move_slow2fast(b, a);
 }
 
+// for pkm exchange
 struct pkm_list_item {
     pkm *from;
     int from_pos;
@@ -155,7 +156,7 @@ public:
             throw "skill error: no such target";
         }
 
-        // TODO: deal with nullptr
+        // TODO: deal with nullptr, if selected one faint, hit around pkm
 
         return ret;
     }
@@ -179,23 +180,27 @@ public:
         // 花之礼、阴晴不定特性()
         // 若上一回合为宝可梦极巨化的第3回合，极巨化结束()
     }
-    void execute_move(const move_struct &ms) {
-        if(skill_list[ms.from->skills[ms.skill_id]].tgt == OPPO_FIELD){
-            skill_list[ms.from->skills[ms.skill_id]].affect(field[ms.from_side^1]);
+    void execute_move(const move_struct &ms)
+    {
+        if (skill_list[ms.from->skills[ms.skill_id]].tgt == OPPO_FIELD) {
+            skill_list[ms.from->skills[ms.skill_id]].affect(
+                field[ms.from_side ^ 1]);
             return;
-        } else 
-        if(skill_list[ms.from->skills[ms.skill_id]].tgt == USER_FIELD){
-            skill_list[ms.from->skills[ms.skill_id]].affect(field[ms.from_side]);
+        }
+        else if (skill_list[ms.from->skills[ms.skill_id]].tgt == USER_FIELD) {
+            skill_list[ms.from->skills[ms.skill_id]].affect(
+                field[ms.from_side]);
             return;
-        } else 
-        if(skill_list[ms.from->skills[ms.skill_id]].tgt == ENTIRE_FIELD){
+        }
+        else if (skill_list[ms.from->skills[ms.skill_id]].tgt == ENTIRE_FIELD) {
             skill_list[ms.from->skills[ms.skill_id]].affect(field[2]);
             return;
         }
         auto afpkm = aff_pkms(ms);
-        for(auto topkm : afpkm){
-            if(pkms[topkm.first][topkm.second] != nullptr){
-                skill_list[ms.from->skills[ms.skill_id]].affect(*(ms.from), *(pkms[topkm.first][topkm.second]));
+        for (auto topkm : afpkm) {
+            if (pkms[topkm.first][topkm.second] != nullptr) {
+                skill_list[ms.from->skills[ms.skill_id]].affect(
+                    *(ms.from), *(pkms[topkm.first][topkm.second]));
             }
         }
     }
@@ -257,7 +262,7 @@ public:
     void use_moves()
     {
         sort_moves(sort_method::BY_MOVES);
-        for(auto mv:moves){
+        for (auto mv : moves) {
             execute_move(mv);
         }
         /*
@@ -274,7 +279,7 @@ public:
                 if (pkms[sd][i] == nullptr)
                     continue;
                 if (pkms[sd][i]->stat.hp <= pkms[sd][i]->hpreduced) {
-                    int pid = p[sd]->get_subsitute_pkm(pkms[sd][i]);
+                    int pid = p[sd]->get_subsitute_pkm(pkms[sd]);
                     if (pid >= 0 && pid < p[sd]->party_pkm.size()) {
                         pkm *subs = &(p[sd]->party_pkm[pid]);
                         if (subs->stat.hp <= subs->hpreduced) {
@@ -398,11 +403,25 @@ void battle_start(player *p1, player *p2, int battle_num,
                   weather_status weather = weather_status::CLEAR)
 {
     std::vector<pkm *> p1pkm, p2pkm;
-    for (int i = 0; i < battle_num && i < p1->party_pkm.size(); i++) {
-        p1pkm.push_back(&(p1->party_pkm[i]));
+    int cnt = 0;
+    for (int i = 0; cnt < battle_num && i < p1->party_pkm.size(); i++) {
+        if (p1->party_pkm[i].hpreduced < p1->party_pkm[i].stat.hp) {
+            p1pkm.push_back(&(p1->party_pkm[i]));
+            ++cnt;
+        }
     }
-    for (int i = 0; i < battle_num && i < p2->party_pkm.size(); i++) {
-        p1pkm.push_back(&(p2->party_pkm[i]));
+    cnt = 0;
+    for (int i = 0; cnt < battle_num && i < p2->party_pkm.size(); i++) {
+        if (p2->party_pkm[i].hpreduced < p2->party_pkm[i].stat.hp) {
+            p2pkm.push_back(&(p2->party_pkm[i]));
+            ++cnt;
+        }
+    }
+    while(p1pkm.size() < battle_num){
+        p1pkm.push_back(nullptr);
+    }
+    while(p2pkm.size() < battle_num){
+        p2pkm.push_back(nullptr);
     }
     battle_main bm =
         (battle_main){false,
@@ -471,6 +490,10 @@ void get_next_battle_move(int side, battle_main *bm)
                             u, j, side, bm->p[side]->mt.menu_choose_id,
                             bm->p[side]->mt.menu_choose_position, -1});
                     }
+                    break;
+                }
+                if(i==5){
+                    throw "The battle pkm is not your party pkm";
                 }
             }
         }

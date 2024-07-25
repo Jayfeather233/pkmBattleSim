@@ -1,5 +1,8 @@
 #include "myutils.hpp"
 
+#include <fmt/core.h>
+#include <fmt/ranges.h>
+
 void replaceAll(std::string &str, const std::string &from,
                 const std::string &to)
 {
@@ -24,4 +27,56 @@ int get_next_int(player &p, std::string text)
             p.output2user("invalid input." + text);
         }
     }
+}
+
+std::string gender2string(const gender &g)
+{
+    if (g == gender::FEMALE) {
+        return "♀";
+    }
+    else if (g == gender::MALE) {
+        return "♂";
+    }
+    else {
+        return "";
+    }
+}
+
+std::string eletype2string(const element_types &a)
+{
+    if (a == element_types::BUG) {
+        return "虫";
+    }
+    else if (a == element_types::GRASS) {
+        return "草";
+    }
+    else if (a == element_types::POISON) {
+        return "毒";
+    }
+    else {
+        // TODO: complete here
+    }
+}
+
+std::string eletype2string(const std::array<element_types, 2> a)
+{
+    if (a[1] != element_types::EMPTY) {
+        return fmt::format("{}, {}", eletype2string(a[0]),
+                           eletype2string(a[1]));
+    }
+    else {
+        return eletype2string(a[0]);
+    }
+}
+
+void my_string_format(std::string &s, const player &pl, const pkm *pk)
+{
+    replaceAll(s, "$u", pl.name);
+    if (pl.mt.menu_choose_pokemon != -1) {
+        replaceAll(s, "$1", pl.get_choose_pkm_const()->get_name());
+    }
+    if(pk != nullptr){
+        replaceAll(s, "$e", pk->get_name());
+    }
+    replaceAll(s, "$p", pl.pls->name);
 }

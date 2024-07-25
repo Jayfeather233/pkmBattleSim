@@ -1,14 +1,16 @@
 #include "menu.hpp"
-#include "random.hpp"
 #include "myutils.hpp"
+#include "random.hpp"
+#include "texts.hpp"
+#include "utils.h"
 #include <fmt/core.h>
 
-void run_text_menu(player &p, const text_menu *px, std::function<void()>save, const text_menu *stop)
+void run_text_menu(player &p, const text_menu *px, std::function<void()> save,
+                   const text_menu *stop)
 {
     while (px != stop && px != nullptr) {
-        p.output2user(px->to_string(p));
         while (px != stop && px != nullptr && px->no_next_menu(p)) {
-            if (px->father->action != nullptr) {
+            if (px->father != nullptr && px->father->action != nullptr) {
                 px->father->action(p);
             }
             px = px->father;
@@ -16,8 +18,9 @@ void run_text_menu(player &p, const text_menu *px, std::function<void()>save, co
         if (px == stop || px == nullptr) {
             break;
         }
+        p.output2user(px->to_string(p));
         px = px->get_nxt_menu(p, get_next_int(p));
-        if(p.sig_save){
+        if (p.sig_save) {
             p.sig_save = false;
             save();
         }
@@ -30,15 +33,7 @@ std::map<std::string, std::map<std::string, std::vector<text_menu *>>>
 std::string text_menu::get_title(const player &p) const
 {
     std::string s = this->title;
-    replaceAll(s, "$u", p.name);
-    if(p.mt.menu_choose_pokemon != -1){
-        if(p.mt.menu_choose_pokemon < 6){
-            replaceAll(s, "$1", p.get_choose_pkm_const()->get_name());
-        }
-        else{
-
-        }
-    }
+    my_string_format(s, p);
     return s;
 }
 
@@ -60,10 +55,9 @@ bool text_menu::no_next_menu(const player &p) const
     return true;
 }
 
-std::string name_pkm(player &p, bool gender)
+std::string name_pkm(player &p)
 {
-    p.output2user(
-        fmt::format("想给{:s}起名字吗？\n0. 是\n1. 否", gender ? "她" : "他"));
+    p.output2user(fmt::format("想给它起名字吗？\n0. 是\n1. 否"));
     if (p.get_user_input() == "0") {
         p.output2user(fmt::format("请输入名字："));
         return p.get_user_input();
@@ -109,6 +103,8 @@ bool text_menu::set_uid(std::string u)
     text_menu_mapper[u] = this;
     return true;
 }
+
+std::string text_menu::get_uid() const { return uid; }
 
 void text_menu::add_option(text_menu *p)
 {
@@ -159,7 +155,7 @@ std::string text_menu::to_string(const player &p) const
     }
     if (need_back)
         ret += std::to_string(cnt) + ". 返回";
-    return ret;
+    return trim(ret);
 }
 
 const text_menu *text_menu::get_nxt_menu(player &p, int id) const
@@ -169,16 +165,20 @@ const text_menu *text_menu::get_nxt_menu(player &p, int id) const
         return this;
     }
     if (is_choose) {
-        if (id < get_choose_set(p).size()) {
+        if (id < static_cast<int>(get_choose_set(p).size())) {
             if (choose_cb != nullptr) {
                 choose_cb(p, id);
+            }
+            if (options.size() < 1 || options[0] == nullptr) {
+                fmt::print("Error: choose menu dont have default option\n");
             }
             if (options[0]->action != nullptr) {
                 options[0]->action(p);
             }
             return options[0];
         }
-        else if (need_back && id == get_choose_set(p).size()) {
+        else if (need_back &&
+                 id == static_cast<int>(get_choose_set(p).size())) {
             if (father->action != nullptr) {
                 father->action(p);
             }
@@ -188,7 +188,7 @@ const text_menu *text_menu::get_nxt_menu(player &p, int id) const
             return this;
         }
     }
-    if (id < options.size()) {
+    if (id < static_cast<int>(options.size())) {
         if (options[id]->action != nullptr) {
             options[id]->action(p);
         }
@@ -198,7 +198,7 @@ const text_menu *text_menu::get_nxt_menu(player &p, int id) const
         id -= options.size();
         for (auto it : app_options) {
             if (p.is_type(it.first)) {
-                if (id < it.second.size()) {
+                if (id < static_cast<int>(it.second.size())) {
                     if (it.second[id]->action != nullptr) {
                         it.second[id]->action(p);
                     }
@@ -223,94 +223,74 @@ const text_menu *text_menu::get_nxt_menu(player &p, int id) const
 
 text_menu *root_menu;
 
-void set_choose_pkm(player &p, int id) { p.mt.menu_choose_pokemon = id; }
-void set_choose_ch_pkm(player &p, int id) { p.mt.menu_choose_pokemon = id + 6; }
-void reset_choose_ch_pkm(player &p) { p.mt.menu_choose_pokemon = -1; };
+std::map<std::string, std::function<void(player &, int)>>
+    choose_callback_mapper = {
+        {"menu_choose_pokemon_party_pkm",
+         [](player &p, int id) { p.mt.menu_choose_pokemon = id; }},
+        {"menu_choose_pokemon_chest_pkm",
+         [](player &p, int id) { p.mt.menu_choose_pokemon = id + 6; }},
+        {"set_choose_pkm",
+         [](player &p, int id) { p.mt.menu_choose_pokemon = id; }}};
 
-std::vector<std::string> get_player_party_pkm_name_list(const player &p)
-{
-    std::vector<std::string> ret;
-    for (auto pk : p.party_pkm) {
-        if (pk.id != 0) {
-            ret.push_back(pk.get_name());
-        }
-    }
-    return ret;
-}
-std::vector<std::string> get_player_chest_pkm_name_list(const player &p)
-{
-    std::vector<std::string> ret;
-    for (auto it : p.chest_pkm) {
-        if (it.id != 0) {
-            ret.push_back(it.get_name());
-        }
-    }
-    return ret;
-}
+std::map<std::string, std::function<void(player &)>> action_mapper = {
+    {"output_pkm_state",
+     [](player &p) {
+         const pkm *u = p.get_choose_pkm_const();
+         std::string s1 =
+             fmt::format("{} 的性格\n {} 在 {} 遇到了它。", u->get_name(), "",
+                         ""); // TODO: add get time & get place
+         std::string s2 = fmt::format(
+             "{} Lv. {}, {}, 持有物：{}", u->get_name(), u->level,
+             gender2string(u->gend), u->carried_item); // TOOD: item here
+         std::string s3 = fmt::format(
+             "No. {}, type: {}, 现有经验值: {}, 距下一级经验值: {}", u->id,
+             eletype2string(u->typ), u->exp_curr, u->exp_need);
+         p.output2user(fmt::format("{}\n\n{}\n\n{}", s1, s2, s3));
+     }},
+    {"reset_menu_choose_pokemon",
+     [](player &p) { p.mt.menu_choose_pokemon = -1; }},
+    {"refresh_choosed_pkm",
+     [](player &p) {
+         p.get_choose_pkm()->bstatus = battle_status::NORMAL;
+         p.output2user(get_action_text("refresh", p));
+     }},
+    {"reset_all_menu_tmp", [](player &p) {
+         p.mt.battle_change_pkm = -1;
+         p.mt.menu_choose_id = -1;
+         p.mt.menu_choose_pokemon = -1;
+         p.mt.menu_choose_position = -1;
+     }}};
 
-text_menu *init_pkm_afterchoose_menu()
-{
-    text_menu *p = new text_menu("做什么呢？", "", {/* interactive options */});
-    p->set_uid("1");
-    return p;
-}
-
-text_menu *init_party_pkm_menu()
-{
-    return new text_menu("选择一个宝可梦", "选择同行宝可梦",
-                         {init_pkm_afterchoose_menu()}, nullptr, true,
-                         set_choose_pkm, get_player_party_pkm_name_list);
-}
-text_menu *init_chest_pkm_menu()
-{
-    return new text_menu("选择一个宝可梦", "选择箱子宝可梦",
-                         {/* interactive options */}, nullptr, true,
-                         set_choose_ch_pkm, get_player_chest_pkm_name_list);
-}
-
-text_menu *init_pkm_choose_menu()
-{
-    text_menu *p = new text_menu("选择一个宝可梦", "选择宝可梦",
-                                 {init_party_pkm_menu(), init_chest_pkm_menu()},
-                                 reset_choose_ch_pkm);
-    p->set_uid("2");
-    return p;
-}
-
-text_menu *init_item_menu()
-{
-    return new text_menu("选择一个物品", "选择物品", {/* different items */});
-}
-
-// text_menu *init_pkm_menu()
-// {
-//     text_menu *p = new text_menu("pokemon menu", "pokemon menu", {}, false,
-//                                  nullptr, nullptr, nullptr);
-//     p->add_option(init_pkm_choose_menu());
-//     p->add_option(init_item_menu());
-//     return p;
-// }
-// text_menu *init_pkm_menu()
-// {
-//     text_menu *p = new text_menu("pokemon menu", "pokemon menu", {}, false,
-//                                  nullptr, nullptr, nullptr);
-//     p->add_option(init_pkm_choose_menu());
-//     p->add_option(init_item_menu());
-//     return p;
-// }
-
-text_menu *init_player_menu()
-{
-    return new text_menu("玩家菜单", "玩家菜单",
-                         {init_pkm_choose_menu(), init_item_menu()});
-}
-text_menu *init_places_menu()
-{
-    return new text_menu(
-        "地点菜单", "地点菜单",
-        {/* move, meet wild pkm, meet wild trainer, meet gym*/});
-}
-
+std::map<std::string, std::function<std::vector<std::string>(const player &)>>
+    get_choose_set_mapper = {{"get_player_party_pkm_name_list",
+                              [](const player &p) -> std::vector<std::string> {
+                                  std::vector<std::string> ret;
+                                  for (auto pk : p.party_pkm) {
+                                      if (pk.id != 0) {
+                                          ret.push_back(pk.get_name());
+                                      }
+                                  }
+                                  return ret;
+                              }},
+                             {"get_player_chest_pkm_name_list",
+                              [](const player &p) -> std::vector<std::string> {
+                                  std::vector<std::string> ret;
+                                  for (auto it : p.chest_pkm) {
+                                      if (it.id != 0) {
+                                          ret.push_back(it.get_name());
+                                      }
+                                  }
+                                  return ret;
+                              }},
+                             {"get_player_available_pkm_name_list",
+                              [](const player &p) -> std::vector<std::string> {
+                                  std::vector<std::string> ret;
+                                  auto s = p.get_available_pkm();
+                                  for (auto it : s) {
+                                      ret.push_back(it->get_name());
+                                  }
+                                  return ret;
+                              }}};
 ////// Main menu(up), first pkm choose menu(down)
 
 text_menu *first_pkm_choose_menu;
@@ -339,18 +319,18 @@ text_menu *choose_confirm_menu(text_menu *f, void (*act)(player &p))
 void choose_first_pkm_action(player &p)
 {
     if (p.party_pkm.size() < 6) {
-        bool gen = get_random(2);
         p.party_pkm.push_back(
             pkm::create_pkm(pkm_list[first_pkm_list[p.mt.menu_choose_pokemon]],
-                            name_pkm(p, gen), gen, 5));
+                            name_pkm(p), 5));
     }
 }
 
-void pkm_ch_init(text_menu *f)
+void pkm_ch_init(const text_menu *f)
 {
-    first_pkm_choose_menu =
-        new text_menu("选择初始伙伴", "", {}, nullptr, true, set_choose_pkm,
-                      get_init_pkm_list, false);
+    first_pkm_choose_menu = new text_menu(
+        "选择初始伙伴", "", {}, nullptr, true,
+        map_finder((std::string) "set_choose_pkm", choose_callback_mapper),
+        get_init_pkm_list, false);
     first_pkm_choose_menu->add_option(
         choose_confirm_menu(first_pkm_choose_menu, choose_first_pkm_action));
     first_pkm_choose_menu->father = f;
@@ -365,7 +345,7 @@ void name_ch_action(player &p)
     p.name = p.get_user_input();
 }
 
-text_menu *choose_name_menu(text_menu *f)
+text_menu *choose_name_menu(const text_menu *f)
 {
     text_menu *p =
         new text_menu("名字是 $u，这样可以吗？", "Next",
@@ -375,22 +355,92 @@ text_menu *choose_name_menu(text_menu *f)
     return p;
 }
 
-void player_name_init_menu_init(text_menu *f)
+text_menu *battle_menu;
+text_menu *subsitute_menu;
+void init_battle_menu(const text_menu *f)
 {
-    player_name_init_menu =
-        new text_menu("欢迎来到宝可梦的世界！", "", {choose_name_menu(f)});
+    auto whatx = new text_menu();
+    whatx->father = f;
+    subsitute_menu = new text_menu(
+        "请选择替换的宝可梦", "", {whatx}, nullptr, true,
+        map_finder((std::string)"set_choose_pkm", choose_callback_mapper),
+        map_finder((std::string)"get_player_available_pkm_name_list", get_choose_set_mapper),
+        false);
+    
+    
 }
 
-text_menu *battle_menu;
-void init_battle_menu(const text_menu *f){
+std::vector<std::pair<text_menu *, std::string>> menu_fathers;
+std::vector<std::pair<text_menu *, std::string>> menu_options;
+void init_main_menu(const Json::Value &J)
+{
+    auto *p = J2text_menu(J);
+    if (p->get_uid() == "main_menu") {
+        root_menu = p;
+    }
+    else {
+        if (!J.isMember("father") && p->father == nullptr) {
+            fmt::print("Warning: No father for menu:{}", J.toStyledString());
+        }
+    }
+}
 
+void link_menu_options()
+{
+    for (auto it : menu_options) {
+        auto it2 = text_menu_mapper.find(it.second);
+        if (it2 == text_menu_mapper.end()) {
+            fmt::print("WARNING: menu_id: {} cannot be found!\n", it.second);
+        }
+        else {
+            it.first->add_option(it2->second);
+        }
+    }
+}
+
+void link_menu_father()
+{
+    for (auto it : menu_fathers) {
+        auto it2 = text_menu_mapper.find(it.second);
+        if (it2 == text_menu_mapper.end()) {
+            fmt::print("WARNING: menu_id: {} cannot be found!\n", it.second);
+        }
+        else {
+            it.first->father = it2->second;
+        }
+    }
 }
 
 void menu_init()
 {
-    root_menu = new text_menu("", "", {init_player_menu(), init_places_menu()});
+    Json::Value Ja = string_to_json(readfile("./data/pkm/menu.json"));
+    for (Json::Value J : Ja) {
+        init_main_menu(J);
+    }
     pkm_ch_init(root_menu);
     init_battle_menu(root_menu);
-    // add manually because of the action pointer;
+    link_menu_options();
+    link_menu_father();
+    // manually or read from file both ok
 }
 
+void _menu_remove(text_menu *p)
+{
+    for (auto it : p->options) {
+        _menu_remove(it);
+    }
+    for (auto it : p->app_options) {
+        for (auto it2 : it.second) {
+            _menu_remove(it2);
+        }
+    }
+    delete p;
+}
+
+void menu_remove()
+{
+    _menu_remove(root_menu);
+    _menu_remove(first_pkm_choose_menu);
+    _menu_remove(player_name_init_menu);
+    _menu_remove(battle_menu);
+}
