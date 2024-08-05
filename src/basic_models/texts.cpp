@@ -11,3 +11,7 @@ std::string get_action_text(const std::string &typ, const player &p1){
     my_string_format(ret, p1);
     return ret;
 }
+
+std::string get_levelup_text(const pkm &p){
+    return fmt::format("cong, {} up to {}", p.get_name(), (int)p.level); // TODO
+}

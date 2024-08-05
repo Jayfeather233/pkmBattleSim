@@ -96,7 +96,7 @@ public:
         int tgt = skill_list[ms.from->skills[ms.skill_id]].tgt;
         if (tgt & (1 << move_target::SPECIFIC)) {
             ret.push_back(std::make_pair(ms.from_side ^ 1,
-                                         ms.from->bstate.hb.las_hit_id));
+                                         ms.from->bstate6.hb.las_hit_id));
         }
         else if (tgt & (1 << move_target::ANY_OPPO)) {
             ret.push_back(std::make_pair(ms.from_side ^ 1, ms.to));
@@ -198,9 +198,15 @@ public:
         }
         auto afpkm = aff_pkms(ms);
         for (auto topkm : afpkm) {
-            if (pkms[topkm.first][topkm.second] != nullptr) {
+            auto ttpkm = pkms[topkm.first][topkm.second];
+            if (ttpkm != nullptr) {
                 skill_list[ms.from->skills[ms.skill_id]].affect(
-                    *(ms.from), *(pkms[topkm.first][topkm.second]));
+                    *(ms.from), *ttpkm);
+                if(ttpkm->hpreduced >= ttpkm->stat.hp){
+                    // TODO: faint text here
+                    size_t exps = get_gained_exp(&ttpkm);
+                    // TODO: finish this. keep recording all pkm participate in battle, and gain exp
+                }
             }
         }
     }
@@ -398,50 +404,6 @@ public:
 
 extern text_menu *battle_menu;
 
-// battle_num: n vs n
-void battle_start(player *p1, player *p2, int battle_num,
-                  weather_status weather = weather_status::CLEAR)
-{
-    std::vector<pkm *> p1pkm, p2pkm;
-    int cnt = 0;
-    for (int i = 0; cnt < battle_num && i < p1->party_pkm.size(); i++) {
-        if (p1->party_pkm[i].hpreduced < p1->party_pkm[i].stat.hp) {
-            p1pkm.push_back(&(p1->party_pkm[i]));
-            ++cnt;
-        }
-    }
-    cnt = 0;
-    for (int i = 0; cnt < battle_num && i < p2->party_pkm.size(); i++) {
-        if (p2->party_pkm[i].hpreduced < p2->party_pkm[i].stat.hp) {
-            p2pkm.push_back(&(p2->party_pkm[i]));
-            ++cnt;
-        }
-    }
-    while(p1pkm.size() < battle_num){
-        p1pkm.push_back(nullptr);
-    }
-    while(p2pkm.size() < battle_num){
-        p2pkm.push_back(nullptr);
-    }
-    battle_main bm =
-        (battle_main){false,
-                      0,
-                      {p1, p2},
-                      {p1pkm, p2pkm},
-                      {},
-                      {field_status::NO_FIELD, field_status::NO_FIELD,
-                       field_status::NO_FIELD},
-                      weather};
-    int u;
-
-    // battle text something
-    while ((u = bm.process_turn()) == 0) {
-        get_next_battle_move(0, &bm);
-        get_next_battle_move(1, &bm);
-    }
-    // end text something
-}
-
 void get_next_battle_move(int side, battle_main *bm)
 {
     if (bm->p[side]->badge < 0) {
@@ -498,4 +460,48 @@ void get_next_battle_move(int side, battle_main *bm)
             }
         }
     }
+}
+
+// battle_num: n vs n
+void battle_start(player *p1, player *p2, int battle_num,
+                  weather_status weather = weather_status::CLEAR)
+{
+    std::vector<pkm *> p1pkm, p2pkm;
+    int cnt = 0;
+    for (int i = 0; cnt < battle_num && i < p1->party_pkm.size(); i++) {
+        if (p1->party_pkm[i].hpreduced < p1->party_pkm[i].stat.hp) {
+            p1pkm.push_back(&(p1->party_pkm[i]));
+            ++cnt;
+        }
+    }
+    cnt = 0;
+    for (int i = 0; cnt < battle_num && i < p2->party_pkm.size(); i++) {
+        if (p2->party_pkm[i].hpreduced < p2->party_pkm[i].stat.hp) {
+            p2pkm.push_back(&(p2->party_pkm[i]));
+            ++cnt;
+        }
+    }
+    while(p1pkm.size() < battle_num){
+        p1pkm.push_back(nullptr);
+    }
+    while(p2pkm.size() < battle_num){
+        p2pkm.push_back(nullptr);
+    }
+    battle_main bm =
+        (battle_main){false,
+                      0,
+                      {p1, p2},
+                      {p1pkm, p2pkm},
+                      {},
+                      {field_status::NO_FIELD, field_status::NO_FIELD,
+                       field_status::NO_FIELD},
+                      weather};
+    int u;
+
+    // battle text something
+    while ((u = bm.process_turn()) == 0) {
+        get_next_battle_move(0, &bm);
+        get_next_battle_move(1, &bm);
+    }
+    // end text something
 }

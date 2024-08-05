@@ -1,6 +1,6 @@
 [
     {
-        "title": "菜单标题",
+        "title": "tamplete: 菜单标题",
         "choose_text": "选项文字",
         "uid": "唯一标识符",
         "action": "reset_all_menu_tmp",
@@ -8,12 +8,23 @@
         "choose_cb": null,
         "get_choose_set": null,
         "need_back": true,
-        "father": "",
+        "father": "father uid",
         "options": [
             {
-                "title": "子级菜单"
-            }
+                "title": "子级菜单json"
+            },
+            "子级uid"
         ]
+    },
+    {
+        "title": "",
+        "choose_text": "",
+        "uid": "fall_back_to_main_menu",
+        "action": "reset_all_menu_tmp",
+        "is_choose": false,
+        "need_back": true,
+        "father": "main_menu",
+        "options": []
     },
     {
         "title": "做什么呢",
@@ -65,7 +76,7 @@
                                 "uid": "",
                                 "action": "reset_all_menu_tmp",
                                 "is_choose": true,
-                                "choose_cb": "menu_choose_pokemon_party_pkm",
+                                "choose_cb": "set_choose_pkm",
                                 "get_choose_set": "get_player_party_pkm_name_list",
                                 "need_back": true,
                                 "options": [
@@ -97,6 +108,34 @@
                 "is_choose": false,
                 "need_back": true,
                 "options": [
+                    {
+                        "title": "",
+                        "choose_text": "踩草丛",
+                        "action": "battle_wild_pkm",
+                        "is_choose": false,
+                        "need_back": true,
+                        "options": []
+                    },
+                    {
+                        "title": "",
+                        "choose_text": "去往下一个地点",
+                        "is_choose": true,
+                        "choose_cb": "set_choose_id",
+                        "get_choose_set": "get_place_neighber_name_list",
+                        "need_back": true,
+                        "father": "",
+                        "options": [
+                            {
+                                "title": "",
+                                "choose_text": "",
+                                "action": "move_to_next_place",
+                                "is_choose": false,
+                                "need_back": true,
+                                "father": "main_menu",
+                                "options": []
+                            }
+                        ]
+                    }
                 ]
             }
         ]

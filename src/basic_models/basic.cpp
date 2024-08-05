@@ -36,6 +36,17 @@ base6 operator+(const base6 &a, const base6 &b)
     return w;
 }
 
+base6 operator-(const base6 &a, const base6 &b)
+{
+    base6 w = (base6){std::max(0, (int)a.hp - b.hp),
+                      std::max(0, (int)a.atk - b.atk),
+                      std::max(0, (int)a.df - b.df),
+                      std::max(0, (int)a.stk - b.stk),
+                      std::max(0, (int)a.sdf - b.sdf),
+                      std::max(0, (int)a.spd - b.spd)};
+    return w;
+}
+
 base6 operator+=(base6 &a, const base6 &b)
 {
     a = (base6){std::min(MAX_pts, (int)a.hp + b.hp),
@@ -95,3 +106,13 @@ element_types str2et(const std::string &s) {
         return element_types::EMPTY; // Default case if no match is found
     }
 }
+
+base6 nature_table6[] = {
+
+};
+
+std::string base6str[6] = {
+
+};
+
+// TODO;

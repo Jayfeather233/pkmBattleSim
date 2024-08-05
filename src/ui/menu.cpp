@@ -1,4 +1,5 @@
 #include "menu.hpp"
+#include "battle.hpp"
 #include "myutils.hpp"
 #include "random.hpp"
 #include "texts.hpp"
@@ -225,26 +226,26 @@ text_menu *root_menu;
 
 std::map<std::string, std::function<void(player &, int)>>
     choose_callback_mapper = {
-        {"menu_choose_pokemon_party_pkm",
-         [](player &p, int id) { p.mt.menu_choose_pokemon = id; }},
         {"menu_choose_pokemon_chest_pkm",
          [](player &p, int id) { p.mt.menu_choose_pokemon = id + 6; }},
         {"set_choose_pkm",
-         [](player &p, int id) { p.mt.menu_choose_pokemon = id; }}};
+         [](player &p, int id) { p.mt.menu_choose_pokemon = id; }},
+         {"set_choose_id", [](player &p, int id) { p.mt.menu_choose_id = id; }},
+         {"set_choose_position", [](player &p, int id) { p.mt.menu_choose_position = id; }}};
 
 std::map<std::string, std::function<void(player &)>> action_mapper = {
     {"output_pkm_state",
      [](player &p) {
          const pkm *u = p.get_choose_pkm_const();
          std::string s1 =
-             fmt::format("{} 的性格\n {} 在 {} 遇到了它。", u->get_name(), "",
-                         ""); // TODO: add get time & get place
+             fmt::format("{} 的性格\n {} 在 {} 遇到了它。", nature2string(u->nature), u->get_time,
+                         u->get_place);
          std::string s2 = fmt::format(
              "{} Lv. {}, {}, 持有物：{}", u->get_name(), u->level,
              gender2string(u->gend), u->carried_item); // TOOD: item here
          std::string s3 = fmt::format(
              "No. {}, type: {}, 现有经验值: {}, 距下一级经验值: {}", u->id,
-             eletype2string(u->typ), u->exp_curr, u->exp_need);
+             eletype2string(u->typ), u->exp_curr, get_next_level_exp(u->exp_acc_speed, u->level) - u->exp_curr);
          p.output2user(fmt::format("{}\n\n{}\n\n{}", s1, s2, s3));
      }},
     {"reset_menu_choose_pokemon",
@@ -254,11 +255,33 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
          p.get_choose_pkm()->bstatus = battle_status::NORMAL;
          p.output2user(get_action_text("refresh", p));
      }},
-    {"reset_all_menu_tmp", [](player &p) {
+    {"reset_all_menu_tmp",
+     [](player &p) {
          p.mt.battle_change_pkm = -1;
          p.mt.menu_choose_id = -1;
          p.mt.menu_choose_pokemon = -1;
          p.mt.menu_choose_position = -1;
+     }},
+    {"battle_wild_pkm",
+     [](player &p) {
+         pkm u = pkm::create_pkm(pkm_list[get_possi_random(p.pls->pkms)], "",
+                                 get_random(7) - 5 + p.party_pkm[0].level, "",
+                                 p.pls->name);
+         player *wp = new player(u);
+         battle_start(&p, wp, 1);
+         delete wp;
+         p.sig_save = true;
+         p.mt.move_point += 1;
+     }},
+    {"move_to_next_place", [](player &p) {
+         if (p.mt.move_point >= p.pls->meet_points) {
+             p.mt.move_point = 0;
+             p.pls = p.pls->neighbors[p.mt.menu_choose_id];
+             p.output2user(get_action_text("move_to_next_place", p));
+         }
+         else {
+             // TODO: text here
+         }
      }}};
 
 std::map<std::string, std::function<std::vector<std::string>(const player &)>>
@@ -288,6 +311,14 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>>
                                   auto s = p.get_available_pkm();
                                   for (auto it : s) {
                                       ret.push_back(it->get_name());
+                                  }
+                                  return ret;
+                              }},
+                              {"get_place_neighber_name_list", 
+                              [](const player &p) -> std::vector<std::string> {
+                                  std::vector<std::string> ret;
+                                  for (auto it : p.pls->neighbors) {
+                                      ret.push_back(it->name);
                                   }
                                   return ret;
                               }}};
@@ -321,7 +352,7 @@ void choose_first_pkm_action(player &p)
     if (p.party_pkm.size() < 6) {
         p.party_pkm.push_back(
             pkm::create_pkm(pkm_list[first_pkm_list[p.mt.menu_choose_pokemon]],
-                            name_pkm(p), 5));
+                            name_pkm(p), 5, nowtime_string(), p.pls->name));
     }
 }
 
@@ -363,11 +394,10 @@ void init_battle_menu(const text_menu *f)
     whatx->father = f;
     subsitute_menu = new text_menu(
         "请选择替换的宝可梦", "", {whatx}, nullptr, true,
-        map_finder((std::string)"set_choose_pkm", choose_callback_mapper),
-        map_finder((std::string)"get_player_available_pkm_name_list", get_choose_set_mapper),
+        map_finder((std::string) "set_choose_pkm", choose_callback_mapper),
+        map_finder((std::string) "get_player_available_pkm_name_list",
+                   get_choose_set_mapper),
         false);
-    
-    
 }
 
 std::vector<std::pair<text_menu *, std::string>> menu_fathers;

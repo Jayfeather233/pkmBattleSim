@@ -33,6 +33,7 @@ public:
     int money;
     settings st;
     std::function<std::string()> get_user_input;
+    std::function<std::string()> get_user_input_no_wait;
     std::function<void(const std::string &)> output2user;
 
     std::function<bool()> is_op;
@@ -45,6 +46,7 @@ public:
         int menu_choose_id;
         int menu_choose_position;
         int battle_change_pkm;
+        int move_point;
     } mt;
 
     bool sig_save; // anything changes that need to save to file
@@ -53,7 +55,7 @@ public:
     const pkm *get_choose_pkm_const() const;
 
     player(int bad, std::string name, std::vector<pkm> pp, std::vector<pkm> cp,
-           places *pl, int mon, std::function<std::string()> gui,
+           places *pl, int mon, std::function<std::string(bool)> gui,
            std::function<void(const std::string &)> opu,
            std::function<bool()> iop, settings sts = settings());
 
@@ -62,6 +64,8 @@ public:
     player(const pkm &p);                                       // a wild pkm
     player(const std::string &name, const std::vector<pkm> &p); // a trainer
 
-    int player::get_subsitute_pkm(const std::vector<pkm *> u);
+    void gain_exp(size_t position, size_t exp);
+
+    int get_subsitute_pkm(const std::vector<pkm *> u);
     std::vector<pkm*> get_available_pkm() const;
 };

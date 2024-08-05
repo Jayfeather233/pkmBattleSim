@@ -28,11 +28,12 @@ public:
         : user_id(user_id),
           p("./config/pkm/" + std::to_string(user_id) + ".json"), botp(ptr)
     {
-        this->p.get_user_input = [this]() { return this->get_user_input(); };
+        this->p.get_user_input = [this]() { return this->get_user_input(true); };
+        this->p.get_user_input_no_wait = [this]() { return this->get_user_input(false); };
         this->p.output2user = [this](std::string s) {
             return this->output2user(s);
         };
-        this->p.is_op = [this]() { return false; };
+        this->p.is_op = [user_id, ptr]() { return is_op(ptr, user_id); };
         if (this->p.party_pkm.size() == 0) {
             init_player();
         }
@@ -51,6 +52,7 @@ public:
     }
     void choose_init_pkm()
     {
+        // TODO: user-specific pkm
         run_text_menu(
             p, first_pkm_choose_menu, [this]() { this->save(); }, root_menu);
         save();
@@ -61,7 +63,7 @@ public:
         run_text_menu(p, root_menu, [this]() { this->save(); }, nullptr);
     }
 
-    std::string get_user_input()
+    std::string get_user_input(bool is_wait = true)
     {
         if (botp == nullptr) {
             std::string ret;
@@ -69,11 +71,20 @@ public:
             return ret;
         }
         else {
-            while (!sig_ipt.load()) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            if(is_wait){
+                while (!sig_ipt.load()) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+                sig_ipt.store(false);
+                return ipt;
+            } else {
+                if(sig_ipt.load()){
+                    sig_ipt.store(false);
+                    return ipt;
+                } else {
+                    return "";
+                }
             }
-            sig_ipt.store(false);
-            return ipt;
         }
     }
 

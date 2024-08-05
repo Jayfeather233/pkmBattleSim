@@ -43,4 +43,6 @@ T map_finder(const K& name, std::map<K, T> &maper) {
 std::string gender2string(const gender &g);
 std::string eletype2string(const element_types &a);
 std::string eletype2string(const std::array<element_types, 2> a);
+std::string nature2string(const int nature);
 void my_string_format(std::string &s, const player &pl, const pkm* pk = nullptr);
+std::string nowtime_string();

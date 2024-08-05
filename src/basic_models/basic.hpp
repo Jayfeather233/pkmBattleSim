@@ -11,7 +11,10 @@ struct base6 {
     int hp, atk, df, stk, sdf, spd;
 };
 
+extern std::string base6str[6];
+
 base6 operator+(const base6 &a, const base6 &b);
+base6 operator-(const base6 &a, const base6 &b);
 base6 operator+=(base6 &a, const base6 &b);
 
 enum element_types {
@@ -39,6 +42,7 @@ element_types str2et(const std::string &s);
 
 // from, to, types Compatibility
 extern float eff_table[20][20];
+extern base6 nature_table6[25];
 
 enum battle_status {
     NORMAL,

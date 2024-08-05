@@ -113,17 +113,18 @@ pkm_base J2pkm_base(const Json::Value &J)
 pkm J2pkm(const Json::Value &J)
 {
     return pkm(pkm_list[J["id"].asInt()], J["name"].asString(),
+               J["get_time"].asString(), J["get_place"].asString(),
                static_cast<gender>(J["gender"].asInt()), J["level"].asInt(),
-               J["exp_need"].asInt(), J["exp_curr"].asInt(), J2base6(J["IV"]),
-               J2base6(J["bp"]), J["friendship"].asInt(),
-               static_cast<battle_status>(J["battle_status"].asInt()),
+               J["exp_curr"].asInt(), J2base6(J["IV"]), J2base6(J["bp"]),
+               J["friendship"].asInt(),
                {J["skill"][0].asUInt(), J["skill"][1].asUInt(),
                 J["skill"][2].asUInt(), J["skill"][3].asUInt()},
                {J["used_pp"][0].asInt(), J["used_pp"][1].asInt(),
                 J["used_pp"][2].asInt(), J["used_pp"][3].asInt()},
-               J["nature"].asInt(), J["hpreduced"].asInt(),
-               J["is_shiny"].asBool(), J["carry_item"].asInt(),
-               J["ability"].asInt());
+               J["nature"].asInt(), J["is_shiny"].asBool(),
+               J["carry_item"].asInt(), J["ability"].asInt(),
+               J["hpreduced"].asInt(),
+               static_cast<battle_status>(J["battle_status"].asInt()));
 }
 std::vector<pkm> Ja2pkm(const Json::Value &Ja)
 {
@@ -234,7 +235,6 @@ Json::Value pkm2J(const pkm &p)
     J["name"] = p.get_name();
     J["gender"] = static_cast<int>(p.gend);
     J["level"] = p.level;
-    J["exp_need"] = p.exp_need;
     J["exp_curr"] = p.exp_curr;
     J["IV"] = base62J(p.IV);
     J["bp"] = base62J(p.base_points);

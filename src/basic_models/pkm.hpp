@@ -54,11 +54,10 @@ public:
              float w, u_char cr, int gr, base6 abp, u_char eas, int bexp,
              std::vector<std::pair<int, float>> poss_itemx = {});
 
-    // Copy constructor
-    pkm_base(const pkm_base &u);
-
-    // Move constructor
-    pkm_base(pkm_base &&u);
+    pkm_base(const pkm_base &u) = default;
+    pkm_base(pkm_base &&u) = default;
+    pkm_base& operator = (const pkm_base &other) = default;
+    pkm_base& operator = (pkm_base &&other) = default;
 
     gender get_gender() const;
 };
@@ -73,14 +72,16 @@ private:
     std::string name;
 
 public:
+    std::string get_time;
+    std::string get_place;
     std::string get_name() const
     {
         return name.length() == 0 ? base_name : name;
     }
     gender gend;
     u_char level;
-    int exp_need; // need to grant level
-    int exp_curr; // current exp
+    size_t exp_curr; // current level exp
+    size_t exp_total;// total exp gained
     base6
         IV; // individual value, random generate at catch
             // 个体值是参与决定每只宝可梦能力的一组数值。个体值与生俱来，无法改变，是每只宝可梦的一个隐藏参数。
@@ -107,20 +108,24 @@ public:
             int las_hit_damage;
             int las_hit_id;
         } hb;
-    } bstate;
+    } bstate6;
 
-    pkm(const pkm_base &pb, const std::string &namex, gender gen, u_char levelx,
-        int exp_needx, int exp_currx, base6 IVx, base6 bp, u_char fship,
-        battle_status bs, std::array<size_t, 4> skillx,
-        std::array<int, 4> used_ppx, int naturex, int hpred, bool is_sh,
-        int caritem, int abi);
+    pkm(const pkm_base &pb, const std::string &namex, const std::string &get_t,
+        const std::string &get_p, gender gen, u_char levelx,
+        size_t exp_currx, base6 IVx, base6 bp, u_char fship,
+        std::array<size_t, 4> skillx, std::array<int, 4> used_ppx, int naturex,
+        bool is_sh, int caritem, int abi, int hpred, battle_status bs);
 
-    pkm(const pkm &other);
-    pkm(const pkm &&other);
+    pkm(const pkm &other) = default;
+    pkm(pkm &&other) = default;
+
+    pkm& operator = (const pkm &other) = default;
+    pkm& operator = (pkm &&other) = default;
 
     void refresh_stat();
-    void refresh_bstate();
+    void refresh_bstate6();
 
     static pkm create_pkm(const pkm_base &p, const std::string &nm,
-                          u_char level);
+                          u_char level, const std::string &get_time,
+                          const std::string &place_name);
 };

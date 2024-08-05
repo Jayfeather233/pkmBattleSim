@@ -47,11 +47,11 @@ public:
     char aff_evasionrate;
     void affect(pkm &self, pkm &p)
     {
-        p.bstate.affected += aff_points;
-        p.hpreduced += p.bstate.affected.hp;
-        p.bstate.affected.hp = 0;
-        p.bstate.affected_hitrate += aff_hitrate;
-        p.bstate.affected_evasionrate += aff_evasionrate;
+        p.bstate6.affected += aff_points;
+        p.hpreduced += p.bstate6.affected.hp;
+        p.bstate6.affected.hp = 0;
+        p.bstate6.affected_hitrate += aff_hitrate;
+        p.bstate6.affected_evasionrate += aff_evasionrate;
     }
     aff_move(const base_skill &bs, const base6 &aff_pts, const char &aff_hr,
              const char &aff_eva)

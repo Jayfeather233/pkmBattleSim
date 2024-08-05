@@ -1,5 +1,7 @@
 #include "myutils.hpp"
 
+#include <chrono>
+#include <ctime>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 
@@ -58,6 +60,10 @@ std::string eletype2string(const element_types &a)
     }
 }
 
+std::string nature2string(const int nature){
+    // TODO: complete here
+}
+
 std::string eletype2string(const std::array<element_types, 2> a)
 {
     if (a[1] != element_types::EMPTY) {
@@ -75,8 +81,16 @@ void my_string_format(std::string &s, const player &pl, const pkm *pk)
     if (pl.mt.menu_choose_pokemon != -1) {
         replaceAll(s, "$1", pl.get_choose_pkm_const()->get_name());
     }
-    if(pk != nullptr){
+    if (pk != nullptr) {
         replaceAll(s, "$e", pk->get_name());
     }
     replaceAll(s, "$p", pl.pls->name);
+}
+
+std::string nowtime_string()
+{
+    std::time_t nt =
+        std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    tm tt = *localtime(&nt);
+    return fmt::format("{}年{}月{}日", tt.tm_year, tt.tm_mon + 1, tt.tm_mday);
 }

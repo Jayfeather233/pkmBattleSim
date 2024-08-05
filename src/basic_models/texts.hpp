@@ -18,8 +18,16 @@ std::string get_skill_text(const pkm &p1, const pkm &p2, int skill_id);
 
 std::string get_entry_text(const pkm &p, int type); // entry type
 
-std::string battle_start_text(); // what
+std::string get_battle_start_text(const pkm &p); // TODO
 
-std::string pkm_faint_text();
+std::string get_pkm_faint_text(const pkm &p);
 
-std::string battle_end_text();
+std::string get_battle_end_text(const pkm &p);
+
+std::string get_levelup_text(const pkm &p);
+
+std::string get_evolving_text(const pkm &p);
+
+std::string get_evolved_text(const pkm &p, const std::string &ori_name);
+
+std::string get_evolve_abort_text(const pkm &p);
