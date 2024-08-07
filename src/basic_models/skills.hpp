@@ -17,7 +17,7 @@ public:
     u_char pp;
     move_target tgt;
     int prior; // level of priority, like: 电光一闪 +1，镜面反射 -5
-    virtual void affect(pkm &self, pkm &p) {}
+    virtual void affect(pkm &self, pkm &p, bool &is_critical) {}
     virtual void affect(field_status &fs) {}
     base_skill(size_t uid, const std::string &nm, const std::string &ds,
                char ar, char hr, u_char pp, move_target tgx, int pri)
@@ -45,7 +45,7 @@ public:
     base6 aff_points;
     char aff_hitrate;
     char aff_evasionrate;
-    void affect(pkm &self, pkm &p)
+    [[override]] void affect(pkm &self, pkm &p, bool &is_critical)
     {
         p.bstate6.affected += aff_points;
         p.hpreduced += p.bstate6.affected.hp;
@@ -72,7 +72,28 @@ public:
         : base_skill(bs), succ_rate(sr), aff_to(at)
     {
     }
-    void affect(field_status &fs) { fs = aff_to; }
+    [[override]] void affect(field_status &fs)
+    {
+        if ((fs == field_status::TOXIC_SPICKES ||
+             fs == field_status::TOXIC_SPICKES2) &&
+            aff_to == field_status::TOXIC_SPICKES) {
+            fs = field_status::TOXIC_SPICKES2;
+        }
+        else if (fs == field_status::SPIKES && aff_to == field_status::SPIKES) {
+            fs = field_status::SPIKES2;
+        }
+        else if (fs == field_status::SPIKES2 &&
+                 aff_to == field_status::SPIKES) {
+            fs = field_status::SPIKES3;
+        }
+        else if (fs == field_status::SPIKES3 &&
+                 aff_to == field_status::SPIKES) {
+            fs = field_status::SPIKES3;
+        }
+        else {
+            fs = aff_to;
+        }
+    }
 };
 
 // just attack
@@ -88,10 +109,10 @@ public:
         float prob;
         aff_move afm;
     } se;
-    void affect(pkm &self, pkm &p)
+    [[override]] void affect(pkm &self, pkm &p, bool &is_critical)
     {
         float eft = eff_table[tp][p.typ[0]] * eff_table[tp][p.typ[1]];
-        bool is_critical =
+        is_critical =
             (is_easy_critical ? (get_random(8) == 0) : (get_random(16) == 0));
         float app =
             eft * (is_critical ? 1.5 : 1.0) * (get_random(16) + 85) / 100.0;

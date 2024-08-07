@@ -238,7 +238,7 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
      [](player &p) {
          const pkm *u = p.get_choose_pkm_const();
          std::string s1 =
-             fmt::format("{} 的性格\n {} 在 {} 遇到了它。", nature2string(u->nature), u->get_time,
+             fmt::format("{} 的性格\n {} 在 {} 遇到了它。", nature2str[u->nature], u->get_time,
                          u->get_place);
          std::string s2 = fmt::format(
              "{} Lv. {}, {}, 持有物：{}", u->get_name(), u->level,

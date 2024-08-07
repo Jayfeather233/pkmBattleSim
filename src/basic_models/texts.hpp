@@ -31,3 +31,6 @@ std::string get_evolving_text(const pkm &p);
 std::string get_evolved_text(const pkm &p, const std::string &ori_name);
 
 std::string get_evolve_abort_text(const pkm &p);
+
+extern std::string base6str[6];
+extern std::string nature2str[25];

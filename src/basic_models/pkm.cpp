@@ -38,7 +38,7 @@ pkm_info *get_pkm_info(int id) { return &pkm_info_maper[id]; }
 
 base6 get_nature_rate(int nature)
 {
-    return base6(); // TODO: nature table here
+    return nature_table6[nature];
 }
 
 int get_next_level_exp(u_char eas, u_char level)

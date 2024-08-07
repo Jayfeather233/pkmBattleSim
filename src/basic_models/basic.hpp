@@ -11,8 +11,6 @@ struct base6 {
     int hp, atk, df, stk, sdf, spd;
 };
 
-extern std::string base6str[6];
-
 base6 operator+(const base6 &a, const base6 &b);
 base6 operator-(const base6 &a, const base6 &b);
 base6 operator+=(base6 &a, const base6 &b);
@@ -49,6 +47,7 @@ enum battle_status {
     SLEEP,
     ELECT,
     POISONED,
+    BADLY_POISONED,
 };
 
 enum move_target {
@@ -74,10 +73,15 @@ enum gender { MALE, FEMALE, NONE };
 void init_predefs();
 void remove_predefs();
 
-enum field_status{
+enum field_status {
     NO_FIELD,
-    TRICK_ROOM //戏法空间
+    TRICK_ROOM,     // 戏法空间
+    STICKY_WEB,     // 黏黏网
+    SPIKES,         // 撒菱
+    SPIKES2,        // 撒菱x2
+    SPIKES3,        // 撒菱x3
+    TOXIC_SPICKES,  // 毒菱
+    TOXIC_SPICKES2, // 毒菱x2
+    STEALTH_ROCK    // 隐形岩
 };
-enum weather_status{
-    CLEAR
-};
+enum weather_status { CLEAR };

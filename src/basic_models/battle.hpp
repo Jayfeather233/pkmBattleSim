@@ -71,6 +71,7 @@ public:
     unsigned int escape_times;
     player *p[2];
     std::vector<pkm *> pkms[2];
+    std::vector<std::set<pkm *>> seened_pkms[2];
     std::vector<move_struct> moves; // moves in one turn
 
     field_status field[3]; // 0/1 player field, 2 overall field
@@ -90,6 +91,12 @@ public:
                              : ms_cmp_move_fast2slow));
     }
 
+    bool check_valid_pkm(int side, int id)
+    {
+        return side < 2 && 0 <= side && 0 <= id && id < pkms[side].size() &&
+               pkms[side][id] != nullptr;
+    }
+
     std::vector<std::pair<int, int>> aff_pkms(const move_struct &ms)
     {
         std::vector<std::pair<int, int>> ret;
@@ -99,20 +106,68 @@ public:
                                          ms.from->bstate6.hb.las_hit_id));
         }
         else if (tgt & (1 << move_target::ANY_OPPO)) {
-            ret.push_back(std::make_pair(ms.from_side ^ 1, ms.to));
+            int l1 = ms.from_side ^ 1;
+            int l2 = ms.to;
+            int off = -1;
+            while (!check_valid_pkm(l1, l2)) {
+                l2 += off;
+                off = (off < 0 ? -off + 1 : -off - 1);
+                if (off > pkms[l1].size() + 1) {
+                    l2 = ms.to;
+                    break;
+                }
+            }
+            ret.push_back(std::make_pair(l1, l2));
         }
         else if (tgt & (1 << move_target::ANY_ALLY)) {
-            ret.push_back(std::make_pair(ms.from_side, ms.to));
+            int l1 = ms.from_side;
+            int l2 = ms.to;
+            int off = -1;
+            while (!check_valid_pkm(l1, l2)) {
+                l2 += off;
+                off = (off < 0 ? -off + 1 : -off - 1);
+                if (off > pkms[l1].size() + 1) {
+                    l2 = ms.to;
+                    break;
+                }
+            }
+            ret.push_back(std::make_pair(l1, l2));
         }
         else if (tgt & (1 << move_target::UESR_OR_AROUND_ALLY)) {
-            ret.push_back(std::make_pair(ms.from_side, ms.to));
+            if (pkms[ms.from_side][ms.to] == nullptr) {
+                int l1 = ms.from_side;
+                int l2 = ms.from_pos;
+                int off = -1;
+                while (!check_valid_pkm(l1, l2)) {
+                    l2 += off;
+                    off = (off < 0 ? -off + 1 : -off - 1);
+                    if (off == -3) {
+                        l2 = ms.from_pos;
+                        break;
+                    }
+                }
+                ret.push_back(std::make_pair(l1, l2));
+            }
+            else {
+                ret.push_back(std::make_pair(ms.from_side, ms.to));
+            }
         }
         else if (tgt & (1 << move_target::USER)) {
             ret.push_back(std::make_pair(ms.from_side, ms.from_pos));
         }
         else if (tgt & (1 << move_target::RANDOM_OPPO)) {
-            ret.push_back(std::make_pair(
-                ms.from_side ^ 1, get_random(pkms[ms.from_side ^ 1].size())));
+            int l1 = ms.from_side ^ 1;
+            int l2 = get_random(pkms[ms.from_side ^ 1].size());
+            int off = -1;
+            while (!check_valid_pkm(l1, l2)) {
+                l2 += off;
+                off = (off < 0 ? -off + 1 : -off - 1);
+                if (off > pkms[l1].size() + 1) {
+                    l2 = 0;
+                    break;
+                }
+            }
+            ret.push_back(std::make_pair(l1, l2));
         }
         else if (tgt & (1 << move_target::ALL_OPPO)) {
             for (size_t j = 0; j < pkms[ms.from_side ^ 1].size(); ++j)
@@ -120,7 +175,18 @@ public:
                     ret.push_back(std::make_pair(ms.from_side ^ 1, j));
         }
         else if (tgt & (1 << move_target::SELECTED_OPPO)) {
-            ret.push_back(std::make_pair(ms.from_side ^ 1, ms.to));
+            int l1 = ms.from_side ^ 1;
+            int l2 = ms.to;
+            int off = -1;
+            while (!check_valid_pkm(l1, l2)) {
+                l2 += off;
+                off = (off < 0 ? -off + 1 : -off - 1);
+                if (off > pkms[l1].size() + 1) {
+                    l2 = ms.to;
+                    break;
+                }
+            }
+            ret.push_back(std::make_pair(l1, l2));
         }
         else if (tgt & (1 << move_target::USER_AND_ALL_ALLY)) {
             for (size_t j = 0; j < pkms[ms.from_side].size(); ++j)
@@ -156,8 +222,6 @@ public:
             throw "skill error: no such target";
         }
 
-        // TODO: deal with nullptr, if selected one faint, hit around pkm
-
         return ret;
     }
 
@@ -171,8 +235,72 @@ public:
         // TODO
     }
 
+    void refresh_seened_pkm()
+    {
+        for (int i = 0; i < 2; i++) {
+            for (auto it : seened_pkms[i]) {
+                for (auto it2 = it.begin(); it2 != it.end();) {
+                    if ((*it2) == nullptr ||
+                        (*it2)->hpreduced >= (*it2)->stat.hp) {
+                        it2 = it.erase(it2); // erase returns the iterator to
+                                             // the next element
+                    }
+                    else {
+                        ++it2; // only increment if no element is erased
+                    }
+                }
+                // in c++20: std::erase_if()
+            }
+        }
+    }
+
+    /**
+     * If the pkm[side][pos] is faint, get the exp gained
+     */
+    void get_gained_exp(int side, int pos)
+    {
+        refresh_seened_pkm();
+        if (p[side ^ 1]->badge < 0)
+            return;
+        float a = (p[side]->badge == -1) ? 1 : 1.5;
+        int b = pkms[side][pos]->base_exp;
+        int l = pkms[side][pos]->level;
+        std::set<pkm *> to_gain = seened_pkms[side][pos];
+        for (auto it : p[side ^ 1]->party_pkm) {
+            if (it.carried_item == -1) { // TODO: learning machine here
+                to_gain.insert(&it);
+            }
+        }
+        size_t s = to_gain.size();
+        for (auto u : to_gain) {
+            float e =
+                (u->carried_item == -1 /* TODO: carried lucky egg */) ? 1.5 : 1;
+            int lp = u->level;
+            float f = (u->friendship >= 150 ? 1.2 : 1.0);
+            size_t i;
+            for (i = 0; i < p[side ^ 1]->party_pkm.size(); ++i) {
+                if (&(p[side ^ 1]->party_pkm[i]) == u) {
+                    break;
+                }
+            }
+            if (i != p[side ^ 1]->party_pkm.size()) {
+                p[side ^ 1]->gain_exp(
+                    i, (a * b * l / (5.0 * s) *
+                            std::pow((2.0 * l + 10) / (l + lp + 10.0), 2.5) +
+                        1) *
+                           e * f);
+            }
+        }
+    }
+
     void pkm_entry_proc(int side, int id, pkm *pkm, bool is_first_entry = false)
     {
+        if (is_first_entry) {
+            for (auto it : seened_pkms[side ^ 1]) {
+                it.insert(pkm);
+            }
+            seened_pkms[side][id].clear();
+        }
         // 化学变化气体特性()
         // 紧张感和人马一体特性()
         // other abilities
@@ -182,6 +310,9 @@ public:
     }
     void execute_move(const move_struct &ms)
     {
+        // TODO: text here
+        if (!check_valid_pkm(ms.from_side, ms.from_pos))
+            return;
         if (skill_list[ms.from->skills[ms.skill_id]].tgt == OPPO_FIELD) {
             skill_list[ms.from->skills[ms.skill_id]].affect(
                 field[ms.from_side ^ 1]);
@@ -198,25 +329,60 @@ public:
         }
         auto afpkm = aff_pkms(ms);
         for (auto topkm : afpkm) {
-            auto ttpkm = pkms[topkm.first][topkm.second];
-            if (ttpkm != nullptr) {
-                skill_list[ms.from->skills[ms.skill_id]].affect(
-                    *(ms.from), *ttpkm);
-                if(ttpkm->hpreduced >= ttpkm->stat.hp){
+            if (check_valid_pkm(topkm.first, topkm.second)) {
+                auto ttpkm = pkms[topkm.first][topkm.second];
+                bool is_cri = false;
+                skill_list[ms.from->skills[ms.skill_id]].affect(*(ms.from),
+                                                                *ttpkm, is_cri);
+                if (ttpkm->hpreduced >= ttpkm->stat.hp) {
                     // TODO: faint text here
-                    size_t exps = get_gained_exp(&ttpkm);
-                    // TODO: finish this. keep recording all pkm participate in battle, and gain exp
+                    get_gained_exp(topkm.first, topkm.second);
                 }
             }
         }
     }
+
+    void field_effect(field_status fs, pkm *p)
+    {
+        // TODO text_here
+        if (fs == field_status::SPIKES) {
+            p->hpreduced += p->stat.hp / 8;
+        }
+        else if (fs == field_status::SPIKES2) {
+            p->hpreduced += p->stat.hp / 4;
+        }
+        else if (fs == field_status::SPIKES3) {
+            p->hpreduced += 3 * p->stat.hp / 8;
+        }
+        else if (fs == field_status::STICKY_WEB) {
+            p->bstate6.affected.spd -= 1;
+        }
+        else if (fs == field_status::TOXIC_SPICKES) {
+            if (p->bstatus == battle_status::NORMAL) {
+                p->bstatus = battle_status::POISONED;
+            }
+        }
+        else if (fs == field_status::TOXIC_SPICKES2) {
+            if (p->bstatus == battle_status::NORMAL) {
+                p->bstatus = battle_status::BADLY_POISONED;
+            }
+        }
+        else if (fs == field_status::STEALTH_ROCK) {
+            float eft = eff_table[element_types::ROCK][p->typ[0]] *
+                        eff_table[element_types::ROCK][p->typ[1]];
+            p->hpreduced += eft * p->stat.hp / 8;
+        }
+    }
     void execute_change_pkm(const pkm_list_item &ms)
     {
+        // TODO: text here
         pkms[ms.from_side][ms.from_pos] = ms.to;
-        // 隐形岩、毒菱、撒菱等场地型状态变化造成伤害
+        ms.to->refresh_stat();
+        ms.to->refresh_bstate6();
+        field_effect(field[ms.from_side], ms.to);
         pkm_entry_proc(ms.from_side, ms.from_pos, ms.to, true);
     }
-    void exchange_pkm()
+    void exchange_pkm(bool first_turn)
     {
         sort_moves(sort_method::BY_PKM_SPEED);
         std::vector<pkm_list_item> pls;
@@ -255,7 +421,7 @@ public:
                 execute_change_pkm(u);
             }
             else {
-                pkm_entry_proc(u.from_side, u.from_pos, u.from, false);
+                pkm_entry_proc(u.from_side, u.from_pos, u.from, first_turn);
             }
         }
     }
@@ -291,8 +457,8 @@ public:
                         if (subs->stat.hp <= subs->hpreduced) {
                             throw "subsitute pkm is fainting.";
                         }
-                        pkms[sd][i] = subs;
-                        // TODO: text here
+                        pkm_list_item pli = (pkm_list_item){pkms[sd][i], sd, i, subs};
+                        execute_change_pkm(pli);
                     }
                     else if (pid < 0) {
                         pkms[sd][i] = nullptr;
@@ -311,7 +477,7 @@ public:
         发动影响ＨＰ的道具、状态变化或异常状态
         状态变化解除
         发动其他回合末发动的特性或道具效果
-        若当回合有宝可梦陷入濒死，且训练家还有其它宝可梦，则选择后备宝可梦上场，并进入入场流程
+        # 若当回合有宝可梦陷入濒死，且训练家还有其它宝可梦，则选择后备宝可梦上场，并进入入场流程
         在第三世代对战中，宝可梦在回合结束前击倒时，玩家要立即替换下一只宝可梦；从第四世代开始，必须等到回合结束后才能替换下一只宝可梦
         */
     }
@@ -376,12 +542,12 @@ public:
             }
         }
     }
-    int process_turn()
+    int process_turn(bool first_turn)
     {
         if (escape_detec()) {
             return 2;
         }
-        exchange_pkm();
+        exchange_pkm(first_turn);
         use_items();
 
         /*
@@ -454,7 +620,7 @@ void get_next_battle_move(int side, battle_main *bm)
                     }
                     break;
                 }
-                if(i==5){
+                if (i == 5) {
                     throw "The battle pkm is not your party pkm";
                 }
             }
@@ -470,6 +636,8 @@ void battle_start(player *p1, player *p2, int battle_num,
     int cnt = 0;
     for (int i = 0; cnt < battle_num && i < p1->party_pkm.size(); i++) {
         if (p1->party_pkm[i].hpreduced < p1->party_pkm[i].stat.hp) {
+            p1->party_pkm[i].refresh_stat();
+            p1->party_pkm[i].refresh_bstate6();
             p1pkm.push_back(&(p1->party_pkm[i]));
             ++cnt;
         }
@@ -477,14 +645,16 @@ void battle_start(player *p1, player *p2, int battle_num,
     cnt = 0;
     for (int i = 0; cnt < battle_num && i < p2->party_pkm.size(); i++) {
         if (p2->party_pkm[i].hpreduced < p2->party_pkm[i].stat.hp) {
+            p2->party_pkm[i].refresh_stat();
+            p2->party_pkm[i].refresh_bstate6();
             p2pkm.push_back(&(p2->party_pkm[i]));
             ++cnt;
         }
     }
-    while(p1pkm.size() < battle_num){
+    while (p1pkm.size() < battle_num) {
         p1pkm.push_back(nullptr);
     }
-    while(p2pkm.size() < battle_num){
+    while (p2pkm.size() < battle_num) {
         p2pkm.push_back(nullptr);
     }
     battle_main bm =
@@ -493,15 +663,18 @@ void battle_start(player *p1, player *p2, int battle_num,
                       {p1, p2},
                       {p1pkm, p2pkm},
                       {},
+                      {},
                       {field_status::NO_FIELD, field_status::NO_FIELD,
                        field_status::NO_FIELD},
                       weather};
     int u;
 
     // battle text something
-    while ((u = bm.process_turn()) == 0) {
+    bool first_turn = true;
+    while ((u = bm.process_turn(first_turn)) == 0) {
         get_next_battle_move(0, &bm);
         get_next_battle_move(1, &bm);
+        first_turn = false;
     }
     // end text something
 }

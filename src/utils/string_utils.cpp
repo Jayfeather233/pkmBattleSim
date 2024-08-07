@@ -60,10 +60,6 @@ std::string eletype2string(const element_types &a)
     }
 }
 
-std::string nature2string(const int nature){
-    // TODO: complete here
-}
-
 std::string eletype2string(const std::array<element_types, 2> a)
 {
     if (a[1] != element_types::EMPTY) {
