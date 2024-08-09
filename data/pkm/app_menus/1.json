@@ -11,5 +11,29 @@
                 "uid": "pkm_refresh"
             }
         ]
+    },
+    "enough_place_point": {
+        "place_main_menu": [
+            {
+                "title": "",
+                "choose_text": "去往下一个地点",
+                "is_choose": true,
+                "choose_cb": "set_choose_id",
+                "get_choose_set": "get_place_neighber_name_list",
+                "need_back": true,
+                "father": "",
+                "options": [
+                    {
+                        "title": "",
+                        "choose_text": "",
+                        "action": "move_to_next_place",
+                        "is_choose": false,
+                        "need_back": true,
+                        "father": "main_menu",
+                        "options": []
+                    }
+                ]
+            }
+        ]
     }
 }

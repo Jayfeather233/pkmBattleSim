@@ -51,22 +51,24 @@ enum battle_status {
 };
 
 enum move_target {
-    SPECIFIC, // 镜面反射
-    ANY_OPPO,
-    ANY_ALLY,
-    USER_FIELD,
+    AROUND_USER, // 单体选择
+    USER, // 自身
+    ALL_OPPO, // 任意对手（范围内）
+    ANY_OPPO, // 任一对手（范围内）
+    ENTIRE_FIELD, // weather
+    ALL_AROUND_USER, // except user
+    USER_AND_ALL_ALLY, // like: 芳香治疗
+    ANY,
+    OPPO_FIELD, 
+    SPECIFIC, // 镜面反射等最后一次伤害
+    ANY_ALLY, // 范围内
+    ALL_ALLY, // except user
     UESR_OR_AROUND_ALLY,
-    OPPO_FIELD,
-    USER,
     RANDOM_OPPO,
-    ALL_OPPO,
-    SELECTED_OPPO,
-    ENTIRE_FIELD,
-    USER_AND_ALL_ALLY,
-    ALL_ALLY,
-    ALL,
-    ALL_FAINT
+    USER_FIELD // like: 光墙
 };
+
+bool is_no_target_skill(move_target);
 
 enum gender { MALE, FEMALE, NONE };
 

@@ -57,8 +57,7 @@ player::player(const std::string &name, const std::vector<pkm> &p)
 
 bool settings::is_type(const std::string &tp) const
 {
-    return user_types.find(tp) != user_types.end() &&
-           user_enables.find(tp) != user_enables.end();
+    return user_enables.find(tp) != user_enables.end();
 }
 
 settings::settings() {}
@@ -172,7 +171,7 @@ std::vector<pkm *> player::get_available_pkm() const
 {
     std::vector<pkm *> ret;
     for (auto u : this->party_pkm) {
-        if (u.hpreduced < u.stat.hp) {
+        if (!IS_FAINT(&u)) {
             ret.push_back(&u);
         }
     }

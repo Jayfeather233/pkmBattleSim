@@ -110,31 +110,78 @@
                 "options": [
                     {
                         "title": "",
-                        "choose_text": "踩草丛",
-                        "action": "battle_wild_pkm",
+                        "choose_text": "读读公告牌",
+                        "action": "output_place_desc",
                         "is_choose": false,
                         "need_back": true,
                         "options": []
                     },
                     {
                         "title": "",
-                        "choose_text": "去往下一个地点",
-                        "is_choose": true,
-                        "choose_cb": "set_choose_id",
-                        "get_choose_set": "get_place_neighber_name_list",
+                        "choose_text": "踩草丛",
+                        "action": "battle_wild_pkm",
+                        "is_choose": false,
                         "need_back": true,
-                        "father": "",
-                        "options": [
-                            {
-                                "title": "",
-                                "choose_text": "",
-                                "action": "move_to_next_place",
-                                "is_choose": false,
-                                "need_back": true,
-                                "father": "main_menu",
-                                "options": []
-                            }
-                        ]
+                        "options": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "tamplete: 菜单标题",
+        "choose_text": "选项文字",
+        "uid": "唯一标识符",
+        "action": "reset_all_menu_tmp",
+        "is_choose": false,
+        "choose_cb": null,
+        "get_choose_set": null,
+        "need_back": true,
+        "father": "father uid",
+        "options": [
+            {
+                "title": "子级菜单json"
+            },
+            "子级uid"
+        ]
+    },
+    {
+        "title": "",
+        "choose_text": "",
+        "uid": "battle_target_choose",
+        "is_choose": true,
+        "choose_cb": "set_choose_position",
+        "get_choose_set": "get_pkm_skill_target_list",
+        "need_back": true,
+        "father": "main_menu",
+        "options": [
+        ]
+    },
+    {
+        "title": "$1 要做什么",
+        "choose_text": "",
+        "uid": "main_battle_menu",
+        "is_choose": false,
+        "need_back": false,
+        "father": "main_menu",
+        "options": [
+            {
+                "title": "",
+                "choose_text": "战斗",
+                "action": "set_default_choose_position",
+                "uid": "battle_skill_choose_menu",
+                "is_choose": true,
+                "choose_cb": "set_choose_id",
+                "get_choose_set": "get_pkm_skill_list",
+                "need_back": true,
+                "options": [
+                    {
+                        "title": "",
+                        "choose_text": "",
+                        "is_choose": false,
+                        "action": "battle_target_choose",
+                        "need_back": true,
+                        "options": []
                     }
                 ]
             }

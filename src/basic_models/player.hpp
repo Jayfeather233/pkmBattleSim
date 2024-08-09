@@ -22,13 +22,15 @@ public:
     settings(const std::set<std::string> &ut, const std::set<std::string> &ue);
 };
 
+class battle_main;
+
 class player {
 public:
     int badge; // >=0 is a player, =-1 is a wild pkm, =-2 is a trainer
     std::string name;
     std::vector<pkm> party_pkm;
     std::vector<pkm> chest_pkm;
-    // items
+    std::vector<std::pair<int, int>> items; // item_id - item amount
     places *pls;
     int money;
     settings st;
@@ -41,15 +43,19 @@ public:
     is_type(const std::string &tp) const; // used for showing additional menu
 
     struct menu_temp {
-        // menu_choose_item
+        int menu_choose_item;
         int menu_choose_pokemon;
         int menu_choose_id;
         int menu_choose_position;
         int battle_change_pkm;
         int move_point;
+
+        bool is_goback;
     } mt;
 
     bool sig_save; // anything changes that need to save to file
+
+    battle_main *bm;
 
     pkm *get_choose_pkm();
     const pkm *get_choose_pkm_const() const;

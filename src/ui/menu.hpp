@@ -60,6 +60,7 @@ extern std::map<std::string, text_menu *>
     text_menu_mapper; // when add a menu, it will store uid->menu*
 extern text_menu *player_name_init_menu;
 extern text_menu *battle_menu;
+extern text_menu *battle_target_choose_menu;
 extern text_menu *subsitute_menu;
 extern std::vector<std::pair<text_menu *, std::string>> menu_fathers;
 extern std::vector<std::pair<text_menu *, std::string>> menu_options;

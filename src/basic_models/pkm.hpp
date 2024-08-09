@@ -129,3 +129,6 @@ public:
                           u_char level, const std::string &get_time,
                           const std::string &place_name);
 };
+
+#define IS_FAINT(u) \
+((u)->hpreduced > (u)->stat.hp)

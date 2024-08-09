@@ -230,23 +230,38 @@ std::map<std::string, std::function<void(player &, int)>>
          [](player &p, int id) { p.mt.menu_choose_pokemon = id + 6; }},
         {"set_choose_pkm",
          [](player &p, int id) { p.mt.menu_choose_pokemon = id; }},
-         {"set_choose_id", [](player &p, int id) { p.mt.menu_choose_id = id; }},
-         {"set_choose_position", [](player &p, int id) { p.mt.menu_choose_position = id; }}};
+        {"set_choose_id", [](player &p, int id) { p.mt.menu_choose_id = id; }},
+        {"set_choose_item",
+         [](player &p, int id) { p.mt.menu_choose_item = id; }},
+        {"set_choose_position",
+         [](player &p, int id) { p.mt.menu_choose_position = id; }},
+        {"set_battle_change",
+         [](player &p, int id) { p.mt.battle_change_pkm = id; }}};
 
 std::map<std::string, std::function<void(player &)>> action_mapper = {
     {"output_pkm_state",
      [](player &p) {
          const pkm *u = p.get_choose_pkm_const();
          std::string s1 =
-             fmt::format("{} 的性格\n {} 在 {} 遇到了它。", nature2str[u->nature], u->get_time,
-                         u->get_place);
+             fmt::format("{} 的性格\n {} 在 {} 遇到了它。",
+                         nature2str[u->nature], u->get_time, u->get_place);
          std::string s2 = fmt::format(
              "{} Lv. {}, {}, 持有物：{}", u->get_name(), u->level,
              gender2string(u->gend), u->carried_item); // TOOD: item here
          std::string s3 = fmt::format(
              "No. {}, type: {}, 现有经验值: {}, 距下一级经验值: {}", u->id,
-             eletype2string(u->typ), u->exp_curr, get_next_level_exp(u->exp_acc_speed, u->level) - u->exp_curr);
+             eletype2string(u->typ), u->exp_curr,
+             get_next_level_exp(u->exp_acc_speed, u->level) - u->exp_curr);
          p.output2user(fmt::format("{}\n\n{}\n\n{}", s1, s2, s3));
+     }},
+    {"output_place_point",
+     [](player &p) {
+         p.output2user(fmt::format("距去往下一地点还需：{} 点数",
+                                   p.pls->meet_points - p.mt.move_point));
+     }},
+    {"output_place_desc",
+     [](player &p) {
+         p.output2user(fmt::format("{}\n{}", p.pls->name, p.pls->desc));
      }},
     {"reset_menu_choose_pokemon",
      [](player &p) { p.mt.menu_choose_pokemon = -1; }},
@@ -257,71 +272,163 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
      }},
     {"reset_all_menu_tmp",
      [](player &p) {
+         p.mt.menu_choose_item = -1;
          p.mt.battle_change_pkm = -1;
          p.mt.menu_choose_id = -1;
          p.mt.menu_choose_pokemon = -1;
          p.mt.menu_choose_position = -1;
+         p.mt.is_goback = false;
      }},
+    {"set_default_choose_position",
+     [](player &p) { p.mt.menu_choose_position = 0; }},
     {"battle_wild_pkm",
      [](player &p) {
+         auto cmp = [](const pkm &a, const pkm &b) {
+             return a.level < b.level;
+         };
          pkm u = pkm::create_pkm(pkm_list[get_possi_random(p.pls->pkms)], "",
-                                 get_random(7) - 5 + p.party_pkm[0].level, "",
-                                 p.pls->name);
+                                 get_random(7) - 5 +
+                                     std::max_element(p.party_pkm.begin(), p.party_pkm.end(), cmp)->level,
+                                 "", p.pls->name);
          player *wp = new player(u);
-         battle_start(&p, wp, 1);
+         int result = battle_start(&p, wp, 1);
          delete wp;
          p.sig_save = true;
          p.mt.move_point += 1;
+         if (p.mt.move_point >= p.pls->meet_points)
+             p.st.user_enables.insert("enough_place_point");
      }},
-    {"move_to_next_place", [](player &p) {
+    {"move_to_next_place",
+     [](player &p) {
          if (p.mt.move_point >= p.pls->meet_points) {
              p.mt.move_point = 0;
+             if (p.mt.move_point >= p.pls->meet_points)
+                 p.st.user_enables.insert("enough_place_point");
+             else
+                 p.st.user_enables.erase("enough_place_point");
              p.pls = p.pls->neighbors[p.mt.menu_choose_id];
              p.output2user(get_action_text("move_to_next_place", p));
          }
          else {
              // TODO: text here
          }
+     }},
+    {"set_is_goback_true", [](player &p) { p.mt.is_goback = true; }},
+    {"battle_target_choose", [](player &p) {
+         base_skill bs = skill_list[p.party_pkm[p.mt.menu_choose_pokemon]
+                                        .skills[p.mt.menu_choose_id]];
+         if (p.bm->battle_num == 1 || is_no_target_skill(bs.tgt)) {
+             p.mt.menu_choose_position = 0;
+         }
+         else {
+             run_text_menu(p, battle_target_choose_menu, nullptr, root_menu);
+         }
      }}};
 
 std::map<std::string, std::function<std::vector<std::string>(const player &)>>
-    get_choose_set_mapper = {{"get_player_party_pkm_name_list",
-                              [](const player &p) -> std::vector<std::string> {
-                                  std::vector<std::string> ret;
-                                  for (auto pk : p.party_pkm) {
-                                      if (pk.id != 0) {
-                                          ret.push_back(pk.get_name());
-                                      }
-                                  }
-                                  return ret;
-                              }},
-                             {"get_player_chest_pkm_name_list",
-                              [](const player &p) -> std::vector<std::string> {
-                                  std::vector<std::string> ret;
-                                  for (auto it : p.chest_pkm) {
-                                      if (it.id != 0) {
-                                          ret.push_back(it.get_name());
-                                      }
-                                  }
-                                  return ret;
-                              }},
-                             {"get_player_available_pkm_name_list",
-                              [](const player &p) -> std::vector<std::string> {
-                                  std::vector<std::string> ret;
-                                  auto s = p.get_available_pkm();
-                                  for (auto it : s) {
-                                      ret.push_back(it->get_name());
-                                  }
-                                  return ret;
-                              }},
-                              {"get_place_neighber_name_list", 
-                              [](const player &p) -> std::vector<std::string> {
-                                  std::vector<std::string> ret;
-                                  for (auto it : p.pls->neighbors) {
-                                      ret.push_back(it->name);
-                                  }
-                                  return ret;
-                              }}};
+    get_choose_set_mapper = {
+        {"get_player_party_pkm_name_list",
+         [](const player &p) -> std::vector<std::string> {
+             std::vector<std::string> ret;
+             for (auto pk : p.party_pkm) {
+                 if (pk.id != 0) {
+                     ret.push_back(pk.get_name());
+                 }
+             }
+             return ret;
+         }},
+        {"get_player_chest_pkm_name_list",
+         [](const player &p) -> std::vector<std::string> {
+             std::vector<std::string> ret;
+             for (auto it : p.chest_pkm) {
+                 if (it.id != 0) {
+                     ret.push_back(it.get_name());
+                 }
+             }
+             return ret;
+         }},
+        {"get_player_available_pkm_name_list",
+         [](const player &p) -> std::vector<std::string> {
+             std::vector<std::string> ret;
+             auto s = p.get_available_pkm();
+             for (auto it : s) {
+                 ret.push_back(it->get_name());
+             }
+             return ret;
+         }},
+        {"get_place_neighber_name_list",
+         [](const player &p) -> std::vector<std::string> {
+             std::vector<std::string> ret;
+             for (auto it : p.pls->neighbors) {
+                 ret.push_back(it->name);
+             }
+             return ret;
+         }},
+        {"get_pkm_skill_list",
+         [](const player &p) -> std::vector<std::string> {
+             std::vector<std::string> ret;
+             for (auto it : p.party_pkm[p.mt.menu_choose_pokemon].skills) {
+                 ret.push_back(skill_list[it].name);
+             }
+             return ret;
+         }},
+        {"get_pkm_skill_target_list",
+         [](const player &p) -> std::vector<std::string> {
+             std::vector<std::string> ret;
+             base_skill bs = skill_list[p.party_pkm[p.mt.menu_choose_pokemon]
+                                            .skills[p.mt.menu_choose_id]];
+             if (is_no_target_skill(bs.tgt)) {
+                 ret.push_back("hi, bugs here XD");
+             }
+             else {
+                 if (bs.tgt == move_target::ANY_ALLY) {
+                     int side = (&p == p.bm->p[1] ? 1 : 0);
+                     for (auto it : p.bm->pkms[side]) {
+                         if (it != &p.party_pkm[p.mt.menu_choose_pokemon]) {
+                             if (it != nullptr) {
+                                 ret.push_back(it->get_name());
+                             }
+                             else {
+                                 ret.push_back("empty");
+                             }
+                         }
+                     }
+                 }
+                 else if (bs.tgt == move_target::ANY_OPPO) {
+                     int side = (&p == p.bm->p[1] ? 1 : 0);
+                     for (auto it : p.bm->pkms[side ^ 1]) {
+                         if (it != nullptr) {
+                             ret.push_back(it->get_name());
+                         }
+                         else {
+                             ret.push_back("empty");
+                         }
+                     }
+                 }
+                 else if (bs.tgt == move_target::SELECTED_OPPO) {
+                     int side = (&p == p.bm->p[1] ? 1 : 0);
+                     int position;
+                     for (position = 0;
+                          position < p.bm->pkms[side ^ 1].size() &&
+                          p.bm->pkms[side ^ 1][position] !=
+                              &p.party_pkm[p.mt.menu_choose_pokemon];
+                          ++position)
+                         ;
+                     for (int i = -1; i <= 1; i++) {
+                         if (p.bm->check_valid_pkm(side ^ 1, i + position)) {
+                             ret.push_back(p.bm->pkms[side ^ 1][i + position]
+                                               ->get_name());
+                         }
+                         else {
+                             ret.push_back("empty");
+                         }
+                     }
+                 }
+                 else {
+                 }
+             }
+             return ret;
+         }}};
 ////// Main menu(up), first pkm choose menu(down)
 
 text_menu *first_pkm_choose_menu;
@@ -387,6 +494,7 @@ text_menu *choose_name_menu(const text_menu *f)
 }
 
 text_menu *battle_menu;
+text_menu *battle_target_choose_menu;
 text_menu *subsitute_menu;
 void init_battle_menu(const text_menu *f)
 {
@@ -407,6 +515,12 @@ void init_main_menu(const Json::Value &J)
     auto *p = J2text_menu(J);
     if (p->get_uid() == "main_menu") {
         root_menu = p;
+    }
+    else if (p->get_uid() == "main_battle_menu") {
+        battle_menu = p;
+    }
+    else if (p->get_uid() == "battle_target_choose") {
+        battle_target_choose_menu = p;
     }
     else {
         if (!J.isMember("father") && p->father == nullptr) {

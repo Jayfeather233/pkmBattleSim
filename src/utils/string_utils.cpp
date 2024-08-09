@@ -80,7 +80,7 @@ void my_string_format(std::string &s, const player &pl, const pkm *pk)
     if (pk != nullptr) {
         replaceAll(s, "$e", pk->get_name());
     }
-    replaceAll(s, "$p", pl.pls->name);
+    replaceAll(s, "$p", fmt::format("{}({}/{})", pl.pls->name, pl.mt.move_point, pl.pls->meet_points));
 }
 
 std::string nowtime_string()
