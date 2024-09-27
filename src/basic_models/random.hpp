@@ -6,6 +6,7 @@
 #include <random>
 #include <utility>
 #include <vector>
+#include <fmt/core.h>
 
 using u32 = uint_least32_t;
 using engine = std::mt19937;
@@ -55,6 +56,7 @@ T get_possi_random(const std::vector<std::pair<T, float>> &vec)
             prob -= it.second;
         }
     }
+    fmt::print("WARNING: get_possi_random failed.\n");
     return T();
 }
 

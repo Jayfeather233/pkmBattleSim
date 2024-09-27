@@ -36,10 +36,7 @@ gender pkm_base::get_gender() const
 
 pkm_info *get_pkm_info(int id) { return &pkm_info_maper[id]; }
 
-base6 get_nature_rate(int nature)
-{
-    return nature_table6[nature];
-}
+base6 get_nature_rate(int nature) { return nature_table6[nature]; }
 
 int get_next_level_exp(u_char eas, u_char level)
 {
@@ -108,7 +105,19 @@ pkm::pkm(const pkm_base &pb, const std::string &namex, const std::string &get_t,
         exp_total += get_next_level_exp(pb.exp_acc_speed, i);
     }
     exp_total += exp_curr;
-    bstatus = battle_status::NORMAL;
+}
+
+pkm::pkm(const pkm_base &pb, const pkm &pp)
+    : pkm_base(pb), name(pp.name), get_time(pp.get_time),
+      get_place(pp.get_place), gend(pp.gend), level(pp.level),
+      exp_curr(pp.exp_curr), exp_total(pp.exp_total), IV(pp.IV),
+      base_points(pp.base_points), friendship(pp.friendship), skills(pp.skills),
+      used_pp(pp.used_pp), nature(pp.nature), is_shiny(pp.is_shiny),
+      carried_item(pp.carried_item), ability(pp.ability),
+      hpreduced(pp.hpreduced), bstatus(pp.bstatus)
+{
+    refresh_stat();
+    refresh_bstate6();
 }
 
 void pkm::refresh_stat()

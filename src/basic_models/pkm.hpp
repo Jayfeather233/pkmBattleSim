@@ -115,7 +115,9 @@ public:
         size_t exp_currx, base6 IVx, base6 bp, u_char fship,
         std::array<size_t, 4> skillx, std::array<int, 4> used_ppx, int naturex,
         bool is_sh, int caritem, int abi, int hpred, battle_status bs);
-
+    pkm(const pkm_base &pb, const pkm &pp);
+    
+    pkm() = default;
     pkm(const pkm &other) = default;
     pkm(pkm &&other) = default;
 
@@ -131,4 +133,4 @@ public:
 };
 
 #define IS_FAINT(u) \
-((u)->hpreduced > (u)->stat.hp)
+((u)->hpreduced >= (u)->stat.hp)

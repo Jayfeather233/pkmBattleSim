@@ -11,7 +11,6 @@
 #include <vector>
 
 extern std::map<std::string, std::vector<std::string>> action_text;
-
 std::string get_action_text(const std::string &typ, const player &p1); // action in text_menu
 
 std::string get_skill_text(const pkm &p1, const pkm &p2, int skill_id);
@@ -31,6 +30,8 @@ std::string get_evolving_text(const pkm &p);
 std::string get_evolved_text(const pkm &p, const std::string &ori_name);
 
 std::string get_evolve_abort_text(const pkm &p);
+
+std::string get_side_text(bool u);
 
 extern std::string base6str[6];
 extern std::string nature2str[25];

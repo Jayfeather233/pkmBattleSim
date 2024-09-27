@@ -170,5 +170,10 @@ bool is_no_target_skill(move_target mt)
            mt == move_target::ALL_AROUND_USER ||
            mt == move_target::USER_AND_ALL_ALLY ||
            mt == move_target::OPPO_FIELD || mt == move_target::SPECIFIC ||
-           mt == move_target::ENTIRE_FIELD || mt == move_target::ALL_ALLY|| mt == move_target::RANDOM_OPPO;
+           mt == move_target::ENTIRE_FIELD || mt == move_target::USER_FIELD ||
+           mt == move_target::ALL_ALLY|| mt == move_target::RANDOM_OPPO;
+}
+
+bool is_1v1_hit_oppo_skill(move_target mt){
+    return mt == move_target::AROUND_USER || mt == move_target::ALL_OPPO || mt == move_target::ANY_OPPO;
 }

@@ -50,7 +50,7 @@
         "title": "",
         "choose_text": "",
         "uid": "main_menu",
-        "action": "reset_all_menu_tmp",
+        "action": "",
         "is_choose": false,
         "need_back": false,
         "options": [
@@ -131,7 +131,7 @@
     {
         "title": "tamplete: 菜单标题",
         "choose_text": "选项文字",
-        "uid": "唯一标识符",
+        "uid": "唯一标识符2",
         "action": "reset_all_menu_tmp",
         "is_choose": false,
         "choose_cb": null,
@@ -181,6 +181,7 @@
                         "is_choose": false,
                         "action": "battle_target_choose",
                         "need_back": true,
+                        "father": "main_menu",
                         "options": []
                     }
                 ]

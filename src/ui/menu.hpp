@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bot.h"
 #include "player.hpp"
 
 #include <string>
@@ -54,6 +55,8 @@ public:
 
 extern text_menu *root_menu;
 extern text_menu *first_pkm_choose_menu;
+extern std::map<userid_t, int> user_specific_pkm_idmap;
+extern text_menu *first_pkm_specific_menu;
 extern std::map<std::string, std::map<std::string, std::vector<text_menu *>>>
     app_menu_mapper; // uid->(type->menu*)
 extern std::map<std::string, text_menu *>

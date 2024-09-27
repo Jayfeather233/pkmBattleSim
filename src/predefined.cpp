@@ -18,6 +18,14 @@ std::vector<pkm_base> pkm_list;
 std::vector<int> first_pkm_list;
 std::map<std::string, text_menu *> text_menu_mapper;
 std::map<std::string, std::vector<std::string>> action_text;
+std::map<userid_t, int> user_specific_pkm_idmap;
+
+void init_user_specific_pkm(std::string filepath){
+    Json::Value J = string_to_json(readfile(filepath, "{}"));
+    for(std::string u : J.getMemberNames()){
+        user_specific_pkm_idmap[my_string2uint64(u)] = J[u].asInt();
+    }
+}
 
 void init_pkm(std::string filepath)
 {
@@ -112,7 +120,7 @@ void insert_app_menu()
     for (auto it : app_menu_mapper) {
         auto it2 = text_menu_mapper.find(it.first);
         if (it2 == text_menu_mapper.end()) {
-            fmt::print("WARNING: menu_id: {:d} cannot be found!\n", it.first);
+            fmt::print("WARNING: menu_id: {} cannot be found!\n", it.first);
             for (auto it3 : it.second) {
                 for(auto u : it3.second)
                     delete u;
@@ -127,7 +135,7 @@ void insert_app_menu()
     for(auto it:father_setter){
         auto it2 = text_menu_mapper.find(it.second);
         if (it2 == text_menu_mapper.end()) {
-            fmt::print("WARNING: menu_id: {:d} cannot be found!\n", it.second);
+            fmt::print("WARNING: menu_id: {} cannot be found!\n", it.second);
         }
         else {
             it.first->father = it2->second;
@@ -146,10 +154,12 @@ void init_predefs()
     insert_app_menu();
     init_texts("./data/pkm/texts");
 
+    init_user_specific_pkm("./config/pkm/user_specific.json");
     first_pkm_list.push_back(1);
 }
 
 void remove_predefs()
 {
     menu_remove();
+    remove_skills();
 }

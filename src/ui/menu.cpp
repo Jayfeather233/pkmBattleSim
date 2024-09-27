@@ -6,6 +6,17 @@
 #include "utils.h"
 #include <fmt/core.h>
 
+std::string pkm_choosing_name(const pkm &p, bool is_mine)
+{
+    return fmt::format("{} {} {}", get_side_text(is_mine), p.get_name(),
+                       gender2string(p.gend));
+}
+std::string pkm_choosing_name(const pkm *p, bool is_mine)
+{
+    return fmt::format("{} {} {}", get_side_text(is_mine), p->get_name(),
+                       gender2string(p->gend));
+}
+
 void run_text_menu(player &p, const text_menu *px, std::function<void()> save,
                    const text_menu *stop)
 {
@@ -95,7 +106,7 @@ bool text_menu::set_uid(std::string u)
         text_menu_mapper.erase(uid);
     }
     if (text_menu_mapper.find(u) != text_menu_mapper.end()) {
-        fmt::print("Cannot set uid: {}, already beed used.", u);
+        fmt::print("Cannot set uid: {}, already beed used.\n", u);
         return false;
     }
     uid = u;
@@ -156,7 +167,9 @@ std::string text_menu::to_string(const player &p) const
     }
     if (need_back)
         ret += std::to_string(cnt) + ". 返回";
-    return trim(ret);
+    ret = trim(ret);
+    my_string_format(ret, p);
+    return ret;
 }
 
 const text_menu *text_menu::get_nxt_menu(player &p, int id) const
@@ -286,10 +299,12 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
          auto cmp = [](const pkm &a, const pkm &b) {
              return a.level < b.level;
          };
-         pkm u = pkm::create_pkm(pkm_list[get_possi_random(p.pls->pkms)], "",
-                                 get_random(7) - 5 +
-                                     std::max_element(p.party_pkm.begin(), p.party_pkm.end(), cmp)->level,
-                                 "", p.pls->name);
+         pkm u = pkm::create_pkm(
+             pkm_list[get_possi_random(p.pls->pkms)], "",
+             get_random(7) - 5 +
+                 std::max_element(p.party_pkm.begin(), p.party_pkm.end(), cmp)
+                     ->level,
+             "", p.pls->name);
          player *wp = new player(u);
          int result = battle_start(&p, wp, 1);
          delete wp;
@@ -302,12 +317,13 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
      [](player &p) {
          if (p.mt.move_point >= p.pls->meet_points) {
              p.mt.move_point = 0;
+             p.pls = p.pls->neighbors[p.mt.menu_choose_id];
              if (p.mt.move_point >= p.pls->meet_points)
                  p.st.user_enables.insert("enough_place_point");
              else
                  p.st.user_enables.erase("enough_place_point");
-             p.pls = p.pls->neighbors[p.mt.menu_choose_id];
              p.output2user(get_action_text("move_to_next_place", p));
+             p.sig_save = true;
          }
          else {
              // TODO: text here
@@ -315,9 +331,9 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
      }},
     {"set_is_goback_true", [](player &p) { p.mt.is_goback = true; }},
     {"battle_target_choose", [](player &p) {
-         base_skill bs = skill_list[p.party_pkm[p.mt.menu_choose_pokemon]
+         base_skill* bs = skill_list[p.party_pkm[p.mt.menu_choose_pokemon]
                                         .skills[p.mt.menu_choose_id]];
-         if (p.bm->battle_num == 1 || is_no_target_skill(bs.tgt)) {
+         if ((p.bm->battle_num == 1 && is_1v1_hit_oppo_skill(bs->tgt)) || is_no_target_skill(bs->tgt)) {
              p.mt.menu_choose_position = 0;
          }
          else {
@@ -368,63 +384,120 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>>
          [](const player &p) -> std::vector<std::string> {
              std::vector<std::string> ret;
              for (auto it : p.party_pkm[p.mt.menu_choose_pokemon].skills) {
-                 ret.push_back(skill_list[it].name);
+                 ret.push_back(skill_list[it]->name);
              }
              return ret;
          }},
         {"get_pkm_skill_target_list",
          [](const player &p) -> std::vector<std::string> {
              std::vector<std::string> ret;
-             base_skill bs = skill_list[p.party_pkm[p.mt.menu_choose_pokemon]
+             base_skill* bs = skill_list[p.party_pkm[p.mt.menu_choose_pokemon]
                                             .skills[p.mt.menu_choose_id]];
-             if (is_no_target_skill(bs.tgt)) {
-                 ret.push_back("hi, bugs here XD");
+             if (is_no_target_skill(bs->tgt)) {
+                 ret.push_back("hi, bugs here XD, you cannot select specific "
+                               "target for this move");
              }
              else {
-                 if (bs.tgt == move_target::ANY_ALLY) {
-                     int side = (&p == p.bm->p[1] ? 1 : 0);
-                     for (auto it : p.bm->pkms[side]) {
-                         if (it != &p.party_pkm[p.mt.menu_choose_pokemon]) {
-                             if (it != nullptr) {
-                                 ret.push_back(it->get_name());
+                 int side = (&p == p.bm->p[1] ? 1 : 0);
+                 int position;
+                 for (position = 0; position < p.bm->pkms[side].size() &&
+                                    p.bm->pkms[side][position] !=
+                                        &p.party_pkm[p.mt.menu_choose_pokemon];
+                      ++position)
+                     ;
+                 if (bs->tgt == move_target::AROUND_USER) {
+                     if (p.bm->check_valid_pos(side, position - 1)) {
+                         if (p.bm->check_valid_pkm(side, position - 1)) {
+                             ret.push_back(pkm_choosing_name(
+                                 p.bm->pkms[side][position - 1], true));
+                         }
+                         else {
+                             ret.push_back(get_side_text(true) + " empty");
+                         }
+                     }
+                     for (int i = position - 1; i <= position + 1; i++) {
+                         if (p.bm->check_valid_pos(side ^ 1, i)) {
+                             if (p.bm->check_valid_pkm(side ^ 1, i)) {
+                                 ret.push_back(pkm_choosing_name(
+                                     p.bm->pkms[side ^ 1][i], false));
                              }
                              else {
-                                 ret.push_back("empty");
+                                 ret.push_back(get_side_text(false) + " empty");
+                             }
+                         }
+                     }
+                     if (p.bm->check_valid_pos(side, position + 1)) {
+                         if (p.bm->check_valid_pkm(side, position + 1)) {
+                             ret.push_back(pkm_choosing_name(
+                                 p.bm->pkms[side][position + 1], true));
+                         }
+                         else {
+                             ret.push_back(get_side_text(true) + " empty");
+                         }
+                     }
+                 }
+                 else if (bs->tgt == move_target::ANY_OPPO) {
+                     for (int i = -1; i <= 1; ++i) {
+                         if (p.bm->check_valid_pos(side ^ 1, i + position)) {
+                             if (p.bm->check_valid_pkm(side ^ 1,
+                                                       i + position)) {
+                                 ret.push_back(pkm_choosing_name(
+                                     p.bm->pkms[side ^ 1][i + position],
+                                     false));
+                             }
+                             else {
+                                 ret.push_back(get_side_text(false) + " empty");
                              }
                          }
                      }
                  }
-                 else if (bs.tgt == move_target::ANY_OPPO) {
-                     int side = (&p == p.bm->p[1] ? 1 : 0);
-                     for (auto it : p.bm->pkms[side ^ 1]) {
-                         if (it != nullptr) {
-                             ret.push_back(it->get_name());
+                 else if (bs->tgt == move_target::ANY) {
+                     for (size_t i = 0; i < p.bm->pkms[side ^ 1].size(); ++i) {
+                         if (p.bm->check_valid_pkm(side ^ 1, i)) {
+                             ret.push_back(pkm_choosing_name(
+                                 p.bm->pkms[side ^ 1][i], false));
                          }
                          else {
-                             ret.push_back("empty");
+                             ret.push_back(get_side_text(false) + " empty");
+                         }
+                     }
+                     for (size_t i = 0; i < p.bm->pkms[side].size(); ++i) {
+                         if (p.bm->check_valid_pkm(side, i)) {
+                             ret.push_back(
+                                 pkm_choosing_name(p.bm->pkms[side][i], true));
+                         }
+                         else {
+                             ret.push_back(get_side_text(true) + "empty");
                          }
                      }
                  }
-                 else if (bs.tgt == move_target::SELECTED_OPPO) {
-                     int side = (&p == p.bm->p[1] ? 1 : 0);
-                     int position;
-                     for (position = 0;
-                          position < p.bm->pkms[side ^ 1].size() &&
-                          p.bm->pkms[side ^ 1][position] !=
-                              &p.party_pkm[p.mt.menu_choose_pokemon];
-                          ++position)
-                         ;
-                     for (int i = -1; i <= 1; i++) {
-                         if (p.bm->check_valid_pkm(side ^ 1, i + position)) {
-                             ret.push_back(p.bm->pkms[side ^ 1][i + position]
-                                               ->get_name());
-                         }
-                         else {
-                             ret.push_back("empty");
+                 else if (bs->tgt == move_target::ANY_ALLY) {
+                     for (int i = -1; i <= 1; ++i) {
+                         if (i == 0)
+                             continue;
+                         if (p.bm->check_valid_pos(side, i + position)) {
+                             if (p.bm->check_valid_pkm(side, i + position)) {
+                                 ret.push_back(pkm_choosing_name(
+                                     p.bm->pkms[side][i + position], true));
+                             }
+                             else {
+                                 ret.push_back(get_side_text(true) + "empty");
+                             }
                          }
                      }
                  }
-                 else {
+                 else if (bs->tgt == move_target::USER_OR_AROUND_ALLY) {
+                     for (int i = -1; i <= 1; ++i) {
+                         if (p.bm->check_valid_pos(side, i + position)) {
+                             if (p.bm->check_valid_pkm(side, i + position)) {
+                                 ret.push_back(pkm_choosing_name(
+                                     p.bm->pkms[side][i + position], true));
+                             }
+                             else {
+                                 ret.push_back(get_side_text(true) + "empty");
+                             }
+                         }
+                     }
                  }
              }
              return ret;
@@ -432,6 +505,7 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>>
 ////// Main menu(up), first pkm choose menu(down)
 
 text_menu *first_pkm_choose_menu;
+text_menu *first_pkm_specific_menu;
 
 std::vector<std::string> get_init_pkm_list(const player &p)
 {
@@ -562,6 +636,7 @@ void menu_init()
         init_main_menu(J);
     }
     pkm_ch_init(root_menu);
+    // TODO: first_pkm_specific_menu
     init_battle_menu(root_menu);
     link_menu_options();
     link_menu_father();
@@ -585,6 +660,7 @@ void menu_remove()
 {
     _menu_remove(root_menu);
     _menu_remove(first_pkm_choose_menu);
+    _menu_remove(first_pkm_specific_menu);
     _menu_remove(player_name_init_menu);
     _menu_remove(battle_menu);
 }

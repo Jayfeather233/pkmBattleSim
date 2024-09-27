@@ -7,7 +7,10 @@
 
 #include "menu.hpp"
 #include "skills.hpp"
+#include "myutils.hpp"
+#include "texts.hpp"
 
+#include <fmt/ranges.h>
 #include <algorithm>
 
 struct move_struct {
@@ -23,28 +26,28 @@ struct move_struct {
     int exchange_pkm; // exchange to player.party_pkm[exchange_pkm]
 };
 
-inline bool ms_cmp_pkm_slow2fast(const move_struct &a, const move_struct &b)
+bool ms_cmp_pkm_slow2fast(const move_struct &a, const move_struct &b)
 {
     return a.from->stat.spd == b.from->stat.spd
-               ? get_random(2)
+               ? a.from < b.from
                : a.from->stat.spd < b.from->stat.spd;
 }
-inline bool ms_cmp_pkm_fast2slow(const move_struct &a, const move_struct &b)
+bool ms_cmp_pkm_fast2slow(const move_struct &a, const move_struct &b)
 {
     return ms_cmp_pkm_slow2fast(b, a);
 }
-inline bool ms_cmp_move_slow2fast(const move_struct &a, const move_struct &b)
+bool ms_cmp_move_slow2fast(const move_struct &a, const move_struct &b)
 {
     int u1 =
-        (skill_list[a.from->skills[a.skill_id]].prior << 1) + a.mv_piror_fix;
+        (skill_list[a.from->skills[a.skill_id]]->prior << 1) + a.mv_piror_fix;
     int u2 =
-        (skill_list[b.from->skills[b.skill_id]].prior << 1) + b.mv_piror_fix;
+        (skill_list[b.from->skills[b.skill_id]]->prior << 1) + b.mv_piror_fix;
     return u1 == u2 ? (a.from->stat.spd == b.from->stat.spd
-                           ? get_random(2)
+                           ? a.from < b.from
                            : a.from->stat.spd < b.from->stat.spd)
                     : u1 < u2;
 }
-inline bool ms_cmp_move_fast2slow(const move_struct &a, const move_struct &b)
+bool ms_cmp_move_fast2slow(const move_struct &a, const move_struct &b)
 {
     return ms_cmp_move_slow2fast(b, a);
 }
@@ -52,8 +55,8 @@ inline bool ms_cmp_move_fast2slow(const move_struct &a, const move_struct &b)
 // for pkm exchange
 struct pkm_list_item {
     pkm *from;
-    int from_pos;
     int from_side;
+    size_t from_pos;
     pkm *to;
 };
 
@@ -81,6 +84,18 @@ public:
 
     enum sort_method { BY_PKM_SPEED, BY_MOVES };
 
+    std::string half_to_string(int side){
+        std::string u;
+        for(size_t i=0;i<pkms[side].size();++i){
+            u += fmt::format("[Lv.{} {}{}] ", pkms[side][i]->level, pkms[side][i]->get_name(), gender2string(pkms[side][i]->gend));
+        }
+        return u;
+    }
+
+    std::string to_string(int side){
+        return fmt::format("对方: {}\n己方: {}", half_to_string(side ^ 1), half_to_string(side));
+    }
+
     void sort_moves(sort_method method)
     {
         std::sort(moves.begin(), moves.end(),
@@ -106,7 +121,7 @@ public:
     std::vector<std::pair<int, int>> aff_pkms(const move_struct &ms)
     {
         std::vector<std::pair<int, int>> ret;
-        move_target tgt = skill_list[ms.from->skills[ms.skill_id]].tgt;
+        move_target tgt = skill_list[ms.from->skills[ms.skill_id]]->tgt;
         if (tgt == move_target::SPECIFIC) {
             ret.push_back(std::make_pair(ms.from_side ^ 1,
                                          ms.from->bstate6.hb.las_hit_id));
@@ -162,21 +177,63 @@ public:
             }
             ret.push_back(std::make_pair(l1, l2));
         }
+        else if (tgt == move_target::ALL_AROUND_USER) {
+            for(int i=ms.from_pos-1;i<=ms.from_pos+1; ++i){
+                if(check_valid_pkm(ms.from_side, i) && i != ms.from_pos){
+                    ret.push_back(std::make_pair(ms.from_side, i));
+                }
+                if(check_valid_pkm(ms.from_side^1, i)){
+                    ret.push_back(std::make_pair(ms.from_side^1, i));
+                }
+            }
+        }
+        else if (tgt == move_target::USER_AND_ALL_ALLY) {
+            for (size_t j = 0; j < pkms[ms.from_side].size(); ++j)
+                if (pkms[ms.from_side][j] != nullptr)
+                    ret.push_back(std::make_pair(ms.from_side, j));
+        } else if ( tgt == move_target::ANY){
+            if(ms.to >= pkms[ms.from_side^1].size()){
+                int msto = ms.to - pkms[ms.from_side^1].size();
+                if(msto >= ms.from_pos) msto += 1;
+                ret.push_back(std::make_pair(ms.from_side, msto));
+            } else {
+                int l1 = ms.from_side^1;
+                int l2 = ms.to;
+                int off = -1;
+                while (!check_valid_pkm(l1, l2) || l2 == ms.from_pos) {
+                    l2 += off;
+                    off = (off < 0 ? -off + 1 : -off - 1);
+                    if (off > pkms[l1].size() + 2) {
+                        l2 = ms.to;
+                        break;
+                    }
+                }
+                ret.push_back(std::make_pair(l1, l2));
+            }
+        }
         else if (tgt == move_target::ANY_ALLY) {
             int l1 = ms.from_side;
-            int l2 = (ms.to >= ms.from_pos ? ms.to + 1 : ms.to);
-            int off = -1;
-            while (!check_valid_pkm(l1, l2) || l2 == ms.from_pos) {
-                l2 += off;
-                off = (off < 0 ? -off + 1 : -off - 1);
-                if (off > pkms[l1].size() + 2) {
-                    l2 = ms.to;
-                    break;
+            int l2 = ms.from_pos + (ms.to<<1) - 1;
+            if(!check_valid_pkm(l1, l2)){
+                l2 -= 1;
+                int off = 2;
+                while (!check_valid_pkm(l1, l2) || l2 == ms.from_pos) {
+                    l2 += off;
+                    off = (off < 0 ? -off + 1 : -off - 1);
+                    if (off == 4) {
+                        l2 = ms.to;
+                        break;
+                    }
                 }
             }
             ret.push_back(std::make_pair(l1, l2));
         }
-        else if (tgt == move_target::UESR_OR_AROUND_ALLY) {
+        else if (tgt == move_target::ALL_ALLY) {
+            for (size_t j = 0; j < pkms[ms.from_side].size(); ++j)
+                if (pkms[ms.from_side][j] != nullptr && ms.from_pos != j)
+                    ret.push_back(std::make_pair(ms.from_side, j));
+        }
+        else if (tgt == move_target::USER_OR_AROUND_ALLY) {
             int l1 = ms.from_side;
             int l2 = ms.from_pos + ms.to - 1;
             if (!check_valid_pkm(l1, l2)) {
@@ -206,46 +263,6 @@ public:
                 }
             }
             ret.push_back(std::make_pair(l1, l2));
-        }
-        else if (tgt == move_target::ALL_OPPO) {
-            for (size_t j = 0; j < pkms[ms.from_side ^ 1].size(); ++j)
-                if (pkms[ms.from_side ^ 1][j] != nullptr)
-                    ret.push_back(std::make_pair(ms.from_side ^ 1, j));
-        }
-        else if (tgt == move_target::SELECTED_OPPO) {
-            int l1 = ms.from_side ^ 1;
-            int l2 = ms.to - 1 + ms.from_pos;
-            if (!check_valid_pkm(l1, l2)) {
-                l2 = ms.from_pos;
-                int off = -1;
-                while (!check_valid_pkm(l1, l2)) {
-                    l2 += off;
-                    off = (off < 0 ? -off + 1 : -off - 1);
-                    if (off == 4) {
-                        l2 = ms.from_pos;
-                        break;
-                    }
-                }
-            }
-            ret.push_back(std::make_pair(l1, l2));
-        }
-        else if (tgt == move_target::USER_AND_ALL_ALLY) {
-            for (size_t j = 0; j < pkms[ms.from_side].size(); ++j)
-                if (pkms[ms.from_side][j] != nullptr)
-                    ret.push_back(std::make_pair(ms.from_side, j));
-        }
-        else if (tgt == move_target::ALL_ALLY) {
-            for (size_t j = 0; j < pkms[ms.from_side].size(); ++j)
-                if (pkms[ms.from_side][j] != nullptr && ms.from_pos != j)
-                    ret.push_back(std::make_pair(ms.from_side, j));
-        }
-        else if (tgt == move_target::ALL) {
-            for (size_t j = 0; j < pkms[ms.from_side ^ 1].size(); ++j)
-                if (pkms[ms.from_side ^ 1][j] != nullptr)
-                    ret.push_back(std::make_pair(ms.from_side ^ 1, j));
-            for (size_t j = 0; j < pkms[ms.from_side].size(); ++j)
-                if (pkms[ms.from_side][j] != nullptr)
-                    ret.push_back(std::make_pair(ms.from_side, j));
         }
         else {
             throw "skill error: no such target";
@@ -331,6 +348,7 @@ public:
             }
             seened_pkms[side][id].clear();
         }
+        fmt::print("{}\n", get_entry_text(*pkm, is_first_entry));
         // 化学变化气体特性
         // 紧张感和人马一体特性
         // other abilities
@@ -341,28 +359,29 @@ public:
     void execute_move(const move_struct &ms)
     {
         // TODO: text here
-        if (!check_valid_pkm(ms.from_side, ms.from_pos))
+        if (!check_valid_pkm(ms.from_side, ms.from_pos) || IS_FAINT(ms.from))
             return;
-        if (skill_list[ms.from->skills[ms.skill_id]].tgt == OPPO_FIELD) {
-            skill_list[ms.from->skills[ms.skill_id]].affect(
+        if (skill_list[ms.from->skills[ms.skill_id]]->tgt == OPPO_FIELD) {
+            skill_list[ms.from->skills[ms.skill_id]]->affect(
                 field[ms.from_side ^ 1]);
             return;
         }
-        else if (skill_list[ms.from->skills[ms.skill_id]].tgt == USER_FIELD) {
-            skill_list[ms.from->skills[ms.skill_id]].affect(
+        else if (skill_list[ms.from->skills[ms.skill_id]]->tgt == USER_FIELD) {
+            skill_list[ms.from->skills[ms.skill_id]]->affect(
                 field[ms.from_side]);
             return;
         }
-        else if (skill_list[ms.from->skills[ms.skill_id]].tgt == ENTIRE_FIELD) {
-            skill_list[ms.from->skills[ms.skill_id]].affect(field[2]);
+        else if (skill_list[ms.from->skills[ms.skill_id]]->tgt == ENTIRE_FIELD) {
+            skill_list[ms.from->skills[ms.skill_id]]->affect(field[2]);
             return;
         }
         auto afpkm = aff_pkms(ms);
         for (auto topkm : afpkm) {
             if (check_valid_pkm(topkm.first, topkm.second)) {
                 auto ttpkm = pkms[topkm.first][topkm.second];
+                if(IS_FAINT(ttpkm)) continue;
                 bool is_cri = false;
-                skill_list[ms.from->skills[ms.skill_id]].affect(*(ms.from),
+                skill_list[ms.from->skills[ms.skill_id]]->affect(*(ms.from),
                                                                 *ttpkm, is_cri);
                 if (IS_FAINT(ttpkm)) {
                     // TODO: faint text here
@@ -418,7 +437,7 @@ public:
         std::vector<pkm_list_item> pls;
         for (int i = 0; i < 2; ++i) {
             for (size_t j = 0; j < pkms[i].size(); ++j) {
-                if (pkms[i][j] != nullptr)
+                if (check_valid_pkm(i, j))
                     pls.push_back((pkm_list_item){pkms[i][j], i, j, nullptr});
             }
         }
@@ -438,7 +457,7 @@ public:
         for (pkm_list_item &u : pls) {
             for (auto ms : moves) {
                 if (ms.use_item == -1 && ms.exchange_pkm == -1 &&
-                    skill_list[ms.from->skills[ms.skill_id]].uid == 228 &&
+                    skill_list[ms.from->skills[ms.skill_id]]->uid == 228 &&
                     !IS_FAINT(ms.from)) { // Pursuit 追打
                     if (pkms[ms.from_side ^ 1][ms.to] == u.from &&
                         u.to != nullptr) {
@@ -611,7 +630,7 @@ extern text_menu *battle_menu;
 void get_next_battle_move(int side, battle_main *bm)
 {
     if (bm->p[side]->badge < 0) {
-        for (int i = 0; i < bm->pkms[side].size(); i++) {
+        for (size_t i = 0; i < bm->pkms[side].size(); i++) {
             auto u = bm->pkms[side][i];
             if (u == nullptr)
                 continue;
@@ -633,7 +652,7 @@ void get_next_battle_move(int side, battle_main *bm)
             }
 
             bm->moves.push_back(
-                (move_struct){u, i, side, get_random(ux), i, -1, -1});
+                (move_struct){u, i, side, get_random(ux), i, 0, -1, -1}); // TODO: target random
         }
     }
     else {
@@ -648,26 +667,28 @@ void get_next_battle_move(int side, battle_main *bm)
                     bm->p[side]->mt.menu_choose_pokemon = i;
                     run_text_menu(*(bm->p[side]), battle_menu, nullptr,
                                   root_menu);
+                    fmt::print("mt: {} {}\n", bm->p[side]->mt.menu_choose_id,bm->p[side]->mt.menu_choose_position);
                     if (bm->p[side]->mt.is_goback) {
                         i -= 2;
+                        bm->moves.pop_back();
                         continue;
                     }
                     if (bm->p[side]->mt.battle_change_pkm != -1) {
                         bm->moves.push_back((move_struct){
                             u, j, side, bm->p[side]->mt.menu_choose_id,
-                            bm->p[side]->mt.menu_choose_position, -1,
+                            bm->p[side]->mt.menu_choose_position, 0, -1,
                             bm->p[side]->mt.battle_change_pkm});
                     }
                     else if (bm->p[side]->mt.menu_choose_item != -1) {
                         bm->moves.push_back((move_struct){
                             u, j, side, bm->p[side]->mt.menu_choose_id,
-                            bm->p[side]->mt.menu_choose_position,
+                            bm->p[side]->mt.menu_choose_position,0, 
                             bm->p[side]->mt.menu_choose_item, -1});
                     }
                     else {
                         bm->moves.push_back((move_struct){
                             u, j, side, bm->p[side]->mt.menu_choose_id,
-                            bm->p[side]->mt.menu_choose_position, -1, -1});
+                            bm->p[side]->mt.menu_choose_position, 0, -1, -1});
                     }
                     break;
                 }
@@ -685,7 +706,7 @@ int battle_start(player *p1, player *p2, int battle_num,
 {
     std::vector<pkm *> p1pkm, p2pkm;
     int cnt = 0;
-    for (int i = 0; cnt < battle_num && i < p1->party_pkm.size(); i++) {
+    for (size_t i = 0; cnt < battle_num && i < p1->party_pkm.size(); i++) {
         if (!IS_FAINT(&(p1->party_pkm[i]))) {
             p1->party_pkm[i].refresh_stat();
             p1->party_pkm[i].refresh_bstate6();
@@ -694,7 +715,7 @@ int battle_start(player *p1, player *p2, int battle_num,
         }
     }
     cnt = 0;
-    for (int i = 0; cnt < battle_num && i < p2->party_pkm.size(); i++) {
+    for (size_t i = 0; cnt < battle_num && i < p2->party_pkm.size(); i++) {
         if (!IS_FAINT(&(p2->party_pkm[i]))) {
             p2->party_pkm[i].refresh_stat();
             p2->party_pkm[i].refresh_bstate6();
@@ -708,13 +729,21 @@ int battle_start(player *p1, player *p2, int battle_num,
     while (p2pkm.size() < battle_num) {
         p2pkm.push_back(nullptr);
     }
+
+    std::vector<std::set<pkm *>> spks1;
+    std::vector<std::set<pkm *>> spks2;
+
+    for(size_t i = 0; i < battle_num; ++i){
+        spks1.push_back({});
+        spks2.push_back({});
+    }
     battle_main bm =
         (battle_main){battle_num,
                       false,
                       0,
                       {p1, p2},
                       {p1pkm, p2pkm},
-                      {},
+                      {spks1, spks2},
                       {},
                       {field_status::NO_FIELD, field_status::NO_FIELD,
                        field_status::NO_FIELD},
@@ -727,6 +756,9 @@ int battle_start(player *p1, player *p2, int battle_num,
     // battle text something
     bool first_turn = true;
     while ((u = bm.process_turn(first_turn)) == 0) {
+        if(p1->output2user != nullptr) p1->output2user(bm.to_string(0));
+        if(p2->output2user != nullptr) p2->output2user(bm.to_string(1));
+        bm.moves.clear();
         get_next_battle_move(0, &bm);
         get_next_battle_move(1, &bm);
         first_turn = false;

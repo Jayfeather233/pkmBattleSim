@@ -125,6 +125,20 @@ void player::gain_exp(size_t position, size_t exp)
         p.level += 1;
     }
     if (p.level != oo) {
+        auto ret = check_evolve(p, evolve_trigger::level_up, p.level);
+        if (ret.first) {
+            this->output2user(get_evolving_text(p));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            if (this->get_user_input_no_wait() != "") {
+                std::string ori_name = p.get_name();
+                party_pkm[position] =
+                    ret.second;
+                this->output2user(get_evolved_text(p, ori_name));
+            }
+            else {
+                this->output2user(get_evolve_abort_text(p));
+            }
+        }
         p.refresh_stat();
 
         this->output2user(fmt::format(
@@ -139,26 +153,12 @@ void player::gain_exp(size_t position, size_t exp)
             pst.atk, p.stat.atk, base6str[2], pst.df, p.stat.df, base6str[3],
             pst.stk, p.stat.stk, base6str[4], pst.sdf, p.stat.sdf, base6str[5],
             pst.spd, p.stat.spd));
-        // TODO: evolve
-        if (check_evolve(p, evolve_trigger::level_up, p.level)) {
-            this->output2user(get_evolving_text(p));
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-            if (this->get_user_input_no_wait() != "") {
-                std::string ori_name = p.get_name();
-                party_pkm[position] =
-                    create_evolve(p, evolve_trigger::level_up, p.level);
-                this->output2user(get_evolved_text(p, ori_name));
-            }
-            else {
-                this->output2user(get_evolve_abort_text(p));
-            }
-        }
     }
 }
 
 int player::get_subsitute_pkm(const std::vector<pkm *> u)
 {
-    auto ret = get_available_pkm();
+    auto ret = get_available_pkm(); //TODO: exclude pkm already in battle
     if (ret.size() == 0)
         return -1;
     else {

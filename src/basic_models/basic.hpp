@@ -63,12 +63,13 @@ enum move_target {
     SPECIFIC, // 镜面反射等最后一次伤害
     ANY_ALLY, // 范围内
     ALL_ALLY, // except user
-    UESR_OR_AROUND_ALLY,
+    USER_OR_AROUND_ALLY,
     RANDOM_OPPO,
     USER_FIELD // like: 光墙
 };
 
 bool is_no_target_skill(move_target);
+bool is_1v1_hit_oppo_skill(move_target);
 
 enum gender { MALE, FEMALE, NONE };
 

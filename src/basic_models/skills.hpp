@@ -12,13 +12,13 @@ public:
     size_t uid;
     std::string name;
     std::string desc;
-    char affect_range;
+    char affect_range; //TODO: can be deleted
     char hitrate;
     u_char pp;
     move_target tgt;
     int prior; // level of priority, like: 电光一闪 +1，镜面反射 -5
-    virtual void affect(pkm &self, pkm &p, bool &is_critical) {}
-    virtual void affect(field_status &fs) {}
+    virtual void affect(pkm &self, pkm &p, bool &is_critical) {fmt::print("warning: execute base_skill affect\n");}
+    virtual void affect(field_status &fs) {fmt::print("warning: execute base_skill affect\n");}
     base_skill(size_t uid, const std::string &nm, const std::string &ds,
                char ar, char hr, u_char pp, move_target tgx, int pri)
         : uid(uid), name(nm), desc(ds), affect_range(ar), hitrate(hr), pp(pp),
@@ -45,7 +45,7 @@ public:
     base6 aff_points;
     char aff_hitrate;
     char aff_evasionrate;
-    [[override]] void affect(pkm &self, pkm &p, bool &is_critical)
+    void affect(pkm &self, pkm &p, bool &is_critical) override
     {
         p.bstate6.affected += aff_points;
         p.hpreduced += p.bstate6.affected.hp;
@@ -72,7 +72,7 @@ public:
         : base_skill(bs), succ_rate(sr), aff_to(at)
     {
     }
-    [[override]] void affect(field_status &fs)
+    void affect(field_status &fs) override
     {
         if ((fs == field_status::TOXIC_SPICKES ||
              fs == field_status::TOXIC_SPICKES2) &&
@@ -109,15 +109,22 @@ public:
         float prob;
         aff_move afm;
     } se;
-    [[override]] void affect(pkm &self, pkm &p, bool &is_critical)
+    void affect(pkm &self, pkm &p, bool &is_critical) override
     {
         float eft = eff_table[tp][p.typ[0]] * eff_table[tp][p.typ[1]];
         is_critical =
             (is_easy_critical ? (get_random(8) == 0) : (get_random(16) == 0));
         float app =
             eft * (is_critical ? 1.5 : 1.0) * (get_random(16) + 85) / 100.0;
-        if (eft <= 1e-6)
+        if (eft <= 1e-6){
             return;
+        }
+        fmt::print("{} {} {} {}\n", std::max(
+                1, int(((2.0 * self.level + 10) / 250.0 * self.stat.stk * 1.0 /
+                            p.stat.sdf * this->atk +
+                        2) *
+                       ((self.typ[0] == tp || self.typ[1] == tp) ? 1.5 : 1.0) *
+                       app)), self.stat.stk, p.stat.sdf, this->atk);
         if (sp_or_norm)
             p.hpreduced += std::max(
                 1, int(((2.0 * self.level + 10) / 250.0 * self.stat.stk * 1.0 /
@@ -144,5 +151,6 @@ public:
 };
 
 // predefined skills
-extern std::vector<base_skill> skill_list;
+extern std::vector<base_skill*> skill_list;
 void init_skills();
+void remove_skills();
