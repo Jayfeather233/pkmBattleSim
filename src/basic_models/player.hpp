@@ -32,6 +32,7 @@ public:
     std::vector<pkm> chest_pkm;
     std::vector<std::pair<int, int>> items; // item_id - item amount
     places *pls;
+    places *las_store_place;
     int money;
     settings st;
     std::function<std::string()> get_user_input;
@@ -39,8 +40,7 @@ public:
     std::function<void(const std::string &)> output2user;
 
     std::function<bool()> is_op;
-    bool
-    is_type(const std::string &tp) const; // used for showing additional menu
+    bool is_type(const std::string &tp) const; // used for showing additional menu
 
     struct menu_temp {
         int menu_choose_item;
@@ -60,9 +60,8 @@ public:
     pkm *get_choose_pkm();
     const pkm *get_choose_pkm_const() const;
 
-    player(int bad, std::string name, std::vector<pkm> pp, std::vector<pkm> cp,
-           places *pl, int mon, std::function<std::string(bool)> gui,
-           std::function<void(const std::string &)> opu,
+    player(int bad, std::string name, std::vector<pkm> pp, std::vector<pkm> cp, places *pl, places *laspl, int mon,
+           std::function<std::string(bool)> gui, std::function<void(const std::string &)> opu,
            std::function<bool()> iop, settings sts = settings());
 
     void save(const std::string &filepath);
@@ -73,5 +72,5 @@ public:
     void gain_exp(size_t position, size_t exp);
 
     int get_subsitute_pkm(const std::vector<pkm *> u);
-    std::vector<pkm*> get_available_pkm() const;
+    std::vector<pkm *> get_available_pkm() const;
 };

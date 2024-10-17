@@ -51,15 +51,15 @@ enum battle_status {
 };
 
 enum move_target {
-    AROUND_USER, // 单体选择
-    USER, // 自身
-    ALL_OPPO, // 任意对手（范围内）
-    ANY_OPPO, // 任一对手（范围内）
-    ENTIRE_FIELD, // weather
-    ALL_AROUND_USER, // except user
+    AROUND_USER,       // 单体选择
+    USER,              // 自身
+    ALL_OPPO,          // 任意对手（范围内）
+    ANY_OPPO,          // 任一对手（范围内）
+    ENTIRE_FIELD,      // weather
+    ALL_AROUND_USER,   // except user
     USER_AND_ALL_ALLY, // like: 芳香治疗
     ANY,
-    OPPO_FIELD, 
+    OPPO_FIELD,
     SPECIFIC, // 镜面反射等最后一次伤害
     ANY_ALLY, // 范围内
     ALL_ALLY, // except user

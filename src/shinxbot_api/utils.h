@@ -3,13 +3,16 @@
 #include "bot.h"
 #include "meta_func/backup.h"
 #include "meta_func/timer.h"
-#include <curl/curl.h>
 #include <filesystem>
+#include <fmt/core.h>
 #include <jsoncpp/json/json.h>
 #include <locale>
 #include <map>
+#include <random>
 #include <set>
 #include <string>
+
+namespace fs = std::filesystem;
 
 /**
  * do a http post with a json body.
@@ -21,14 +24,44 @@ std::string do_post(const std::string &httpaddr,
                     const std::map<std::string, std::string> &headers = {},
                     const bool proxy_flg = false);
 
-/**
- * do a http get.
- * basic headers will automatically included,
- * you can add your own headers through map<>headers
- */
 std::string do_get(const std::string &httpaddr,
                    const std::map<std::string, std::string> &headers = {},
                    const bool proxy_flg = false);
+
+/**
+ * enc: if http encode httppath
+ */
+std::string do_post(const std::string &httpaddr, const std::string &httppath,
+                    bool enc, const Json::Value &json_message,
+                    const std::map<std::string, std::string> &headers = {},
+                    const bool proxy_flg = false);
+
+std::string do_get(const std::string &httpaddr, const std::string &httppath,
+                   bool enc,
+                   const std::map<std::string, std::string> &headers = {},
+                   const bool proxy_flg = false);
+
+std::string do_post(const std::string &httpaddr, int port,
+                    const Json::Value &json_message,
+                    const std::map<std::string, std::string> &headers = {},
+                    const bool proxy_flg = false);
+
+std::string do_get(const std::string &httpaddr, int port,
+                   const std::map<std::string, std::string> &headers = {},
+                   const bool proxy_flg = false);
+
+std::string do_post(const std::string &httpaddr, int port,
+                    const std::string &httppath, bool enc,
+                    const Json::Value &json_message,
+                    const std::map<std::string, std::string> &headers = {},
+                    const bool proxy_flg = false);
+
+std::string do_get(const std::string &httpaddr, int port,
+                   const std::string &httppath, bool enc,
+                   const std::map<std::string, std::string> &headers = {},
+                   const bool proxy_flg = false);
+
+std::pair<std::string, std::string> split_http_addr(const std::string addr);
 
 /**
  * get user's name (group name if group_id != 0)
@@ -128,30 +161,31 @@ uint64_t my_string2uint64(const std::string &s);
  * get a random number [0, maxi)
  */
 int get_random(int maxi = 65536);
+std::mt19937 get_engine();
 
 /**
  * download a image from a http address.
  * save it into "filePath/fileName"
  */
-void download(const std::string &httpAddr, const std::string &filePath,
+void download(const std::string &httpAddr, const fs::path &filePath,
               const std::string &fileName, const bool proxy = false);
 
 /**
  * read string from file
  */
-std::string readfile(const std::string &file_path,
+std::string readfile(const fs::path &file_path,
                      const std::string &default_content = "");
 
 /**
  * write string to file
  */
-void writefile(const std::string file_path, const std::string &content,
+void writefile(const fs::path file_path, const std::string &content,
                bool is_append = false);
 
 /**
  * open a file
  */
-std::fstream openfile(const std::string file_path,
+std::fstream openfile(const fs::path file_path,
                       const std::ios_base::openmode mode);
 
 /**
@@ -211,8 +245,8 @@ Json::ArrayIndex json_array_find(const Json::Value &J, const uint64_t &data);
  * upload a file to group/folder.
  * file: reletive path
  */
-void upload_file(bot *p, const std::filesystem::path &file,
-                 const groupid_t &group_id, const std::string &path);
+void upload_file(bot *p, const fs::path &file, const groupid_t &group_id,
+                 const std::string &path);
 
 /**
  * Get the folder id in a group
@@ -261,4 +295,4 @@ Json::Value string_to_messageArr(const std::string &s);
 std::string get_stranger_name(const bot *p, userid_t user_id);
 
 void send_file_private(const bot *p, const userid_t user_id,
-                       const std::filesystem::path &path);
+                       const fs::path &path);

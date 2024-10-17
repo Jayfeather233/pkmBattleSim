@@ -5,74 +5,48 @@
 float eff_table[20][20] = {
     // EXMPTY PLAIN  FIRE  WATER  GRASS  POISON  FIGHT  FLY   ELEC  GROUND
     // PSYCHIC  ROCK  ICE   BUG   DRAGON  GHOST  DARK  STEEL  FAIRY
-    {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-     1.0, 1.0, 1.0, 1.0}, // empty
-    {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0,
-     0.0, 1.0, 0.5, 1.0}, // PLAIN
-    {1.0, 1.0, 0.5, 0.5, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 2.0, 2.0, 0.5,
-     1.0, 1.0, 2.0, 1.0}, // FIRE
-    {1.0, 1.0, 2.0, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, 1.0, 1.0, 0.5,
-     1.0, 1.0, 1.0, 1.0}, // WATER
-    {1.0, 1.0, 0.5, 2.0, 0.5, 0.5, 1.0, 0.5, 1.0, 2.0, 1.0, 2.0, 1.0, 0.5, 0.5,
-     1.0, 1.0, 0.5, 1.0}, // GRASS
-    {1.0, 1.0, 1.0, 1.0, 2.0, 0.5, 1.0, 1.0, 1.0, 0.5, 1.0, 0.5, 1.0, 1.0, 1.0,
-     0.5, 1.0, 0.0, 2.0}, // POISON
-    {1.0, 2.0, 1.0, 1.0, 1.0, 0.5, 1.0, 0.5, 1.0, 1.0, 0.5, 2.0, 2.0, 0.5, 1.0,
-     0.0, 2.0, 2.0, 0.5}, // FIGHT
-    {1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, 1.0, 0.5, 1.0, 1.0, 0.5, 1.0, 2.0, 1.0,
-     1.0, 1.0, 0.5, 1.0}, // FLY
-    {1.0, 1.0, 1.0, 2.0, 0.5, 1.0, 1.0, 2.0, 0.5, 0.0, 1.0, 1.0, 1.0, 1.0, 0.5,
-     1.0, 1.0, 1.0, 1.0}, // ELEC
-    {1.0, 1.0, 2.0, 1.0, 0.5, 2.0, 1.0, 0.0, 2.0, 1.0, 1.0, 2.0, 1.0, 0.5, 1.0,
-     1.0, 1.0, 2.0, 1.0}, // GROUND
-    {1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0,
-     1.0, 0.0, 0.5, 1.0}, // PSYCHIC
-    {1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 0.5, 2.0, 1.0, 0.5, 1.0, 1.0, 2.0, 2.0, 1.0,
-     1.0, 1.0, 0.5, 1.0}, // ROCK
-    {1.0, 1.0, 0.5, 0.5, 2.0, 1.0, 1.0, 2.0, 1.0, 2.0, 1.0, 1.0, 0.5, 1.0, 2.0,
-     1.0, 1.0, 0.5, 1.0}, // ICE
-    {1.0, 1.0, 0.5, 1.0, 2.0, 0.5, 0.5, 0.5, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0,
-     0.5, 2.0, 0.5, 0.5}, // BUG
-    {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0,
-     1.0, 1.0, 0.5, 0.0}, // DRAGON
-    {1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0,
-     2.0, 0.5, 1.0, 1.0}, // GHOST
-    {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0,
-     2.0, 0.5, 1.0, 0.5}, // DARK
-    {1.0, 1.0, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0,
-     1.0, 1.0, 0.5, 2.0}, // STEEL
-    {1.0, 1.0, 0.5, 1.0, 1.0, 0.5, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-     2.0, 2.0, 0.5, 1.0} // FAIRY
+    {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}, // empty
+    {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 0.0, 1.0, 0.5, 1.0}, // PLAIN
+    {1.0, 1.0, 0.5, 0.5, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 2.0, 2.0, 0.5, 1.0, 1.0, 2.0, 1.0}, // FIRE
+    {1.0, 1.0, 2.0, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0}, // WATER
+    {1.0, 1.0, 0.5, 2.0, 0.5, 0.5, 1.0, 0.5, 1.0, 2.0, 1.0, 2.0, 1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 1.0}, // GRASS
+    {1.0, 1.0, 1.0, 1.0, 2.0, 0.5, 1.0, 1.0, 1.0, 0.5, 1.0, 0.5, 1.0, 1.0, 1.0, 0.5, 1.0, 0.0, 2.0}, // POISON
+    {1.0, 2.0, 1.0, 1.0, 1.0, 0.5, 1.0, 0.5, 1.0, 1.0, 0.5, 2.0, 2.0, 0.5, 1.0, 0.0, 2.0, 2.0, 0.5}, // FIGHT
+    {1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, 1.0, 0.5, 1.0, 1.0, 0.5, 1.0, 2.0, 1.0, 1.0, 1.0, 0.5, 1.0}, // FLY
+    {1.0, 1.0, 1.0, 2.0, 0.5, 1.0, 1.0, 2.0, 0.5, 0.0, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0}, // ELEC
+    {1.0, 1.0, 2.0, 1.0, 0.5, 2.0, 1.0, 0.0, 2.0, 1.0, 1.0, 2.0, 1.0, 0.5, 1.0, 1.0, 1.0, 2.0, 1.0}, // GROUND
+    {1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.5, 1.0}, // PSYCHIC
+    {1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 0.5, 2.0, 1.0, 0.5, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 0.5, 1.0}, // ROCK
+    {1.0, 1.0, 0.5, 0.5, 2.0, 1.0, 1.0, 2.0, 1.0, 2.0, 1.0, 1.0, 0.5, 1.0, 2.0, 1.0, 1.0, 0.5, 1.0}, // ICE
+    {1.0, 1.0, 0.5, 1.0, 2.0, 0.5, 0.5, 0.5, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 0.5, 2.0, 0.5, 0.5}, // BUG
+    {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 0.5, 0.0}, // DRAGON
+    {1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 2.0, 0.5, 1.0, 1.0}, // GHOST
+    {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 2.0, 0.5, 1.0, 0.5}, // DARK
+    {1.0, 1.0, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 0.5, 2.0}, // STEEL
+    {1.0, 1.0, 0.5, 1.0, 1.0, 0.5, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 0.5, 1.0}  // FAIRY
 };
 
 base6 operator+(const base6 &a, const base6 &b)
 {
-    base6 w = (base6){std::min(MAX_pts, (int)a.hp + b.hp),
-                      std::min(MAX_pts, (int)a.atk + b.atk),
-                      std::min(MAX_pts, (int)a.df + b.df),
-                      std::min(MAX_pts, (int)a.stk + b.stk),
-                      std::min(MAX_pts, (int)a.sdf + b.sdf),
-                      std::min(MAX_pts, (int)a.spd + b.spd)};
+    base6 w = (base6){std::min(MAX_pts, (int)a.hp + b.hp),   std::min(MAX_pts, (int)a.atk + b.atk),
+                      std::min(MAX_pts, (int)a.df + b.df),   std::min(MAX_pts, (int)a.stk + b.stk),
+                      std::min(MAX_pts, (int)a.sdf + b.sdf), std::min(MAX_pts, (int)a.spd + b.spd)};
     return w;
 }
 
 base6 operator-(const base6 &a, const base6 &b)
 {
-    base6 w = (base6){
-        std::max(0, (int)a.hp - b.hp),   std::max(0, (int)a.atk - b.atk),
-        std::max(0, (int)a.df - b.df),   std::max(0, (int)a.stk - b.stk),
-        std::max(0, (int)a.sdf - b.sdf), std::max(0, (int)a.spd - b.spd)};
+    base6 w =
+        (base6){std::max(0, (int)a.hp - b.hp),   std::max(0, (int)a.atk - b.atk), std::max(0, (int)a.df - b.df),
+                std::max(0, (int)a.stk - b.stk), std::max(0, (int)a.sdf - b.sdf), std::max(0, (int)a.spd - b.spd)};
     return w;
 }
 
 base6 operator+=(base6 &a, const base6 &b)
 {
-    a = (base6){std::min(MAX_pts, (int)a.hp + b.hp),
-                std::min(MAX_pts, (int)a.atk + b.atk),
-                std::min(MAX_pts, (int)a.df + b.df),
-                std::min(MAX_pts, (int)a.stk + b.stk),
-                std::min(MAX_pts, (int)a.sdf + b.sdf),
-                std::min(MAX_pts, (int)a.spd + b.spd)};
+    a = (base6){std::min(MAX_pts, (int)a.hp + b.hp),   std::min(MAX_pts, (int)a.atk + b.atk),
+                std::min(MAX_pts, (int)a.df + b.df),   std::min(MAX_pts, (int)a.stk + b.stk),
+                std::min(MAX_pts, (int)a.sdf + b.sdf), std::min(MAX_pts, (int)a.spd + b.spd)};
     return a;
 }
 
@@ -140,40 +114,34 @@ element_types str2et(const std::string &s)
         return element_types::FAIRY;
     }
     else {
-        std::cout << "[WARNING] unrecognizable type: " << lowerCaseS
-                  << std::endl;
+        std::cout << "[WARNING] unrecognizable type: " << lowerCaseS << std::endl;
         return element_types::EMPTY; // Default case if no match is found
     }
 }
 
 base6 nature_table6[] = {
-    (base6){0, 0, 0, 0, 0, 0},  (base6){0, 1, -1, 0, 0, 0},
-    (base6){0, 1, 0, -1, 0, 0}, (base6){0, 1, 0, 0, -1, 0},
-    (base6){0, 1, 0, 0, 0, -1}, (base6){0, -1, 1, 0, 0, 0},
+    (base6){0, 0, 0, 0, 0, 0},  (base6){0, 1, -1, 0, 0, 0}, (base6){0, 1, 0, -1, 0, 0},
+    (base6){0, 1, 0, 0, -1, 0}, (base6){0, 1, 0, 0, 0, -1}, (base6){0, -1, 1, 0, 0, 0},
 
-    (base6){0, 0, 0, 0, 0, 0},  (base6){0, 0, 1, -1, 0, 0},
-    (base6){0, 0, 1, 0, -1, 0}, (base6){0, 0, 1, 0, 0, -1},
-    (base6){0, -1, 0, 1, 0, 0}, (base6){0, 0, -1, 1, 0, 0},
+    (base6){0, 0, 0, 0, 0, 0},  (base6){0, 0, 1, -1, 0, 0}, (base6){0, 0, 1, 0, -1, 0},
+    (base6){0, 0, 1, 0, 0, -1}, (base6){0, -1, 0, 1, 0, 0}, (base6){0, 0, -1, 1, 0, 0},
 
-    (base6){0, 0, 0, 0, 0, 0},  (base6){0, 0, 0, 1, -1, 0},
-    (base6){0, 0, 0, 1, 0, -1}, (base6){0, -1, 0, 0, 1, 0},
-    (base6){0, 0, -1, 0, 1, 0}, (base6){0, 0, 0, -1, 1, 0},
+    (base6){0, 0, 0, 0, 0, 0},  (base6){0, 0, 0, 1, -1, 0}, (base6){0, 0, 0, 1, 0, -1},
+    (base6){0, -1, 0, 0, 1, 0}, (base6){0, 0, -1, 0, 1, 0}, (base6){0, 0, 0, -1, 1, 0},
 
-    (base6){0, 0, 0, 0, 0, 0},  (base6){0, 0, 0, 0, 1, -1},
-    (base6){0, -1, 0, 0, 0, 1}, (base6){0, 0, -1, 0, 0, 1},
-    (base6){0, 0, 0, -1, 0, 1}, (base6){0, 0, 0, 0, -1, 1},
+    (base6){0, 0, 0, 0, 0, 0},  (base6){0, 0, 0, 0, 1, -1}, (base6){0, -1, 0, 0, 0, 1},
+    (base6){0, 0, -1, 0, 0, 1}, (base6){0, 0, 0, -1, 0, 1}, (base6){0, 0, 0, 0, -1, 1},
 };
 
 bool is_no_target_skill(move_target mt)
 {
-    return mt == move_target::USER || mt == move_target::ALL_OPPO ||
-           mt == move_target::ALL_AROUND_USER ||
-           mt == move_target::USER_AND_ALL_ALLY ||
-           mt == move_target::OPPO_FIELD || mt == move_target::SPECIFIC ||
-           mt == move_target::ENTIRE_FIELD || mt == move_target::USER_FIELD ||
-           mt == move_target::ALL_ALLY|| mt == move_target::RANDOM_OPPO;
+    return mt == move_target::USER || mt == move_target::ALL_OPPO || mt == move_target::ALL_AROUND_USER ||
+           mt == move_target::USER_AND_ALL_ALLY || mt == move_target::OPPO_FIELD || mt == move_target::SPECIFIC ||
+           mt == move_target::ENTIRE_FIELD || mt == move_target::USER_FIELD || mt == move_target::ALL_ALLY ||
+           mt == move_target::RANDOM_OPPO;
 }
 
-bool is_1v1_hit_oppo_skill(move_target mt){
+bool is_1v1_hit_oppo_skill(move_target mt)
+{
     return mt == move_target::AROUND_USER || mt == move_target::ALL_OPPO || mt == move_target::ANY_OPPO;
 }

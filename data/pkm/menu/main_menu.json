@@ -1,0 +1,191 @@
+[
+    {
+        "title": "tamplete: 菜单标题",
+        "choose_text": "选项文字",
+        "uid": "唯一标识符",
+        "action": "reset_all_menu_tmp",
+        "is_choose": false,
+        "choose_cb": null,
+        "get_choose_set": null,
+        "need_back": true,
+        "father": "father uid",
+        "options": [
+            {
+                "title": "子级菜单json"
+            },
+            "子级uid"
+        ]
+    },
+    {
+        "title": "",
+        "choose_text": "",
+        "uid": "fall_back_to_main_menu",
+        "action": "reset_all_menu_tmp",
+        "is_choose": false,
+        "need_back": true,
+        "father": "main_menu",
+        "options": []
+    },
+    {
+        "title": "做什么呢",
+        "choose_text": "",
+        "uid": "pkm_interactive_menu",
+        "action": "",
+        "is_choose": false,
+        "need_back": true,
+        "father": "player_pkm_ch_main",
+        "options": [
+            {
+                "title": "",
+                "choose_text": "查看能力",
+                "uid": "",
+                "action": "output_pkm_state",
+                "is_choose": false,
+                "need_back": true,
+                "options": []
+            }
+        ]
+    },
+    {
+        "title": "",
+        "choose_text": "",
+        "uid": "main_menu",
+        "action": "",
+        "is_choose": false,
+        "need_back": false,
+        "options": [
+            {
+                "title": "玩家菜单",
+                "choose_text": "玩家菜单",
+                "uid": "player_main_menu",
+                "action": "reset_all_menu_tmp",
+                "is_choose": false,
+                "need_back": true,
+                "options": [
+                    {
+                        "title": "",
+                        "choose_text": "宝可梦菜单",
+                        "uid": "player_pkm_ch_main",
+                        "action": "reset_all_menu_tmp",
+                        "is_choose": false,
+                        "need_back": true,
+                        "options": [
+                            {
+                                "title": "",
+                                "choose_text": "选择同行宝可梦",
+                                "uid": "",
+                                "action": "reset_all_menu_tmp",
+                                "is_choose": true,
+                                "choose_cb": "set_choose_pkm",
+                                "get_choose_set": "get_player_party_pkm_name_list",
+                                "need_back": true,
+                                "options": [
+                                    "pkm_interactive_menu"
+                                ]
+                            },
+                            {
+                                "title": "",
+                                "choose_text": "选择箱子宝可梦",
+                                "uid": "",
+                                "action": "reset_all_menu_tmp",
+                                "is_choose": true,
+                                "choose_cb": "menu_choose_pokemon_chest_pkm",
+                                "get_choose_set": "get_player_chest_pkm_name_list",
+                                "need_back": true,
+                                "options": [
+                                    "pkm_interactive_menu"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "现在在 $p",
+                "choose_text": "地点菜单",
+                "uid": "place_main_menu",
+                "action": "reset_all_menu_tmp",
+                "is_choose": false,
+                "need_back": true,
+                "options": [
+                    {
+                        "title": "",
+                        "choose_text": "读读公告牌",
+                        "action": "output_place_desc",
+                        "is_choose": false,
+                        "need_back": true,
+                        "options": []
+                    },
+                    {
+                        "title": "",
+                        "choose_text": "踩草丛",
+                        "action": "battle_wild_pkm",
+                        "is_choose": false,
+                        "need_back": true,
+                        "options": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "tamplete: 菜单标题",
+        "choose_text": "选项文字",
+        "uid": "唯一标识符2",
+        "action": "reset_all_menu_tmp",
+        "is_choose": false,
+        "choose_cb": null,
+        "get_choose_set": null,
+        "need_back": true,
+        "father": "father uid",
+        "options": [
+            {
+                "title": "子级菜单json"
+            },
+            "子级uid"
+        ]
+    },
+    {
+        "title": "",
+        "choose_text": "",
+        "uid": "battle_target_choose",
+        "is_choose": true,
+        "choose_cb": "set_choose_position",
+        "get_choose_set": "get_pkm_skill_target_list",
+        "need_back": true,
+        "father": "main_menu",
+        "options": [
+        ]
+    },
+    {
+        "title": "$1 要做什么",
+        "choose_text": "",
+        "uid": "main_battle_menu",
+        "is_choose": false,
+        "need_back": false,
+        "father": "main_menu",
+        "options": [
+            {
+                "title": "",
+                "choose_text": "战斗",
+                "action": "set_default_choose_position",
+                "uid": "battle_skill_choose_menu",
+                "is_choose": true,
+                "choose_cb": "set_choose_id",
+                "get_choose_set": "get_pkm_skill_list",
+                "need_back": true,
+                "options": [
+                    {
+                        "title": "",
+                        "choose_text": "",
+                        "is_choose": false,
+                        "action": "battle_target_choose",
+                        "need_back": true,
+                        "father": "main_menu",
+                        "options": []
+                    }
+                ]
+            }
+        ]
+    }
+]

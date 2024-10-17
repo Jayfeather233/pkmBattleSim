@@ -5,8 +5,7 @@
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 
-void replaceAll(std::string &str, const std::string &from,
-                const std::string &to)
+void replaceAll(std::string &str, const std::string &from, const std::string &to)
 {
     size_t startPos = 0;
     while ((startPos = str.find(from, startPos)) != std::string::npos) {
@@ -63,8 +62,7 @@ std::string eletype2string(const element_types &a)
 std::string eletype2string(const std::array<element_types, 2> a)
 {
     if (a[1] != element_types::EMPTY) {
-        return fmt::format("{}, {}", eletype2string(a[0]),
-                           eletype2string(a[1]));
+        return fmt::format("{}, {}", eletype2string(a[0]), eletype2string(a[1]));
     }
     else {
         return eletype2string(a[0]);
@@ -85,8 +83,7 @@ void my_string_format(std::string &s, const player &pl, const pkm *pk)
 
 std::string nowtime_string()
 {
-    std::time_t nt =
-        std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::time_t nt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     tm tt = *localtime(&nt);
     return fmt::format("{}年{}月{}日", tt.tm_year, tt.tm_mon + 1, tt.tm_mday);
 }

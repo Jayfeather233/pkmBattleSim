@@ -1,13 +1,14 @@
+#include "image_utils.hpp"
 #include "menu.hpp"
+#include "myutils.hpp"
+#include "npc.hpp"
 #include "places.hpp"
 #include "skills.hpp"
 #include "utils.h"
-#include "myutils.hpp"
-#include "image_utils.hpp"
 
-#include <iostream>
 #include <filesystem>
 #include <fmt/core.h>
+#include <iostream>
 #include <jsoncpp/json/json.h>
 #include <vector>
 
@@ -20,9 +21,10 @@ std::map<std::string, text_menu *> text_menu_mapper;
 std::map<std::string, std::vector<std::string>> action_text;
 std::map<userid_t, int> user_specific_pkm_idmap;
 
-void init_user_specific_pkm(std::string filepath){
+void init_user_specific_pkm(std::string filepath)
+{
     Json::Value J = string_to_json(readfile(filepath, "{}"));
-    for(std::string u : J.getMemberNames()){
+    for (std::string u : J.getMemberNames()) {
         user_specific_pkm_idmap[my_string2uint64(u)] = J[u].asInt();
     }
 }
@@ -34,14 +36,12 @@ void init_pkm(std::string filepath)
     Json::Value J = string_to_json(readfile(filepath, "[]"));
     for (Json::Value item : J) {
         if (static_cast<int>(pkm_list.size()) != item["id"].asInt()) {
-            std::cout << "Warning: pkm order in json file is not the id order."
-                      << std::endl;
+            std::cout << "Warning: pkm order in json file is not the id order." << std::endl;
         }
         pkm_list.push_back(J2pkm_base(item));
 
-        pkm_info_maper.push_back((pkm_info){item["id"].asInt(),
-                                            readImage(item["image"].asString()),
-                                            Ja2VecP(item["ava_skills"]),Ja2Vec(item["ava_skills_machine"])});
+        pkm_info_maper.push_back((pkm_info){item["id"].asInt(), readImage(item["image"].asString()),
+                                            Ja2VecP(item["ava_skills"]), Ja2Vec(item["ava_skills_machine"])});
     }
 }
 
@@ -93,8 +93,7 @@ void app_menu_init(const std::string &rt_dir)
                         text_menu *p = J2text_menu(it);
                         app_menu_mapper[uidx][typ].push_back(p);
                         if (it.isMember("father"))
-                            father_setter.push_back(
-                                std::make_pair(p, it["father"].asString()));
+                            father_setter.push_back(std::make_pair(p, it["father"].asString()));
                     }
                 }
             }
@@ -114,6 +113,18 @@ void init_texts(const std::string &rt_dir)
         }
     }
 }
+void init_npc(const std::string &rt_dir)
+{
+    for (const auto &entry : std::filesystem::directory_iterator(rt_dir)) {
+        if (entry.is_regular_file()) {
+            Json::Value Ja = string_to_json(readfile(entry.path(), "[]"));
+            for (Json::Value J : Ja) {
+                npc *u = J2npc(J);
+                npc_mapper[u->id] = u;
+            }
+        }
+    }
+}
 
 void insert_app_menu()
 {
@@ -122,7 +133,7 @@ void insert_app_menu()
         if (it2 == text_menu_mapper.end()) {
             fmt::print("WARNING: menu_id: {} cannot be found!\n", it.first);
             for (auto it3 : it.second) {
-                for(auto u : it3.second)
+                for (auto u : it3.second)
                     delete u;
             }
         }
@@ -132,7 +143,7 @@ void insert_app_menu()
             }
         }
     }
-    for(auto it:father_setter){
+    for (auto it : father_setter) {
         auto it2 = text_menu_mapper.find(it.second);
         if (it2 == text_menu_mapper.end()) {
             fmt::print("WARNING: menu_id: {} cannot be found!\n", it.second);
@@ -153,6 +164,7 @@ void init_predefs()
     menu_init();
     insert_app_menu();
     init_texts("./data/pkm/texts");
+    init_npc("./data/pkm/npc");
 
     init_user_specific_pkm("./config/pkm/user_specific.json");
     first_pkm_list.push_back(1);
@@ -161,5 +173,6 @@ void init_predefs()
 void remove_predefs()
 {
     menu_remove();
+    npc_remove();
     remove_skills();
 }

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "npc.hpp"
 #include "pkm.hpp"
 
 // like alolan
@@ -26,6 +27,8 @@ public:
     // what pkm can come across, <pkm_id, chances>
     std::vector<std::pair<int, float>> pkms;
     int id;
+
+    std::vector<npc *> npcs; // TODO: add this
 };
 
 extern std::vector<region> regis;

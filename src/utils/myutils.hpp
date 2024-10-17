@@ -1,14 +1,15 @@
 #pragma once
 
+#include "defs.hpp"
 #include "menu.hpp"
+#include "npc.hpp"
 #include "pkm.hpp"
 
+#include <fmt/core.h>
 #include <jsoncpp/json/json.h>
 #include <set>
-#include <fmt/core.h>
 
-void replaceAll(std::string &str, const std::string &from,
-                const std::string &to);
+void replaceAll(std::string &str, const std::string &from, const std::string &to);
 
 Json::Value set2Ja(const std::set<std::string> &s);
 std::set<std::string> Ja2set(const Json::Value &Ja);
@@ -22,6 +23,7 @@ pkm_base J2pkm_base(const Json::Value &J); // only used in init pkm_base, other
 pkm J2pkm(const Json::Value &J);
 std::vector<pkm> Ja2pkm(const Json::Value &Ja);
 text_menu *J2text_menu(const Json::Value &J);
+npc *J2npc(const Json::Value &J);
 
 Json::Value base62J(const base6 &b);
 Json::Value pkm2J(const pkm &p);
@@ -29,13 +31,14 @@ Json::Value pkm2Ja(const std::vector<pkm> &vp);
 
 int get_next_int(player &p, std::string text = "");
 
-template<typename K, typename T>
-T map_finder(const K& name, std::map<K, T> &maper) {
+template <typename K, typename T> T map_finder(const K &name, std::map<K, T> &maper)
+{
     auto it = maper.find(name);
     if (it == maper.end()) {
-        throw std::runtime_error(fmt::format("Cannot find key '{}' in the map<{} -> {}>",
-                                             name, typeid(K).name(), typeid(T).name()));
-    } else {
+        throw std::runtime_error(
+            fmt::format("Cannot find key '{}' in the map<{} -> {}>", name, typeid(K).name(), typeid(T).name()));
+    }
+    else {
         return it->second;
     }
 }
@@ -43,5 +46,5 @@ T map_finder(const K& name, std::map<K, T> &maper) {
 std::string gender2string(const gender &g);
 std::string eletype2string(const element_types &a);
 std::string eletype2string(const std::array<element_types, 2> a);
-void my_string_format(std::string &s, const player &pl, const pkm* pk = nullptr);
+void my_string_format(std::string &s, const player &pl, const pkm *pk = nullptr);
 std::string nowtime_string();

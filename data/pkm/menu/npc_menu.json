@@ -1,0 +1,49 @@
+[
+    {
+        "title": "",
+        "choose_text": "",
+        "uid": "center_main",
+        "action": "reset_all_menu_tmp",
+        "is_choose": false,
+        "choose_cb": null,
+        "get_choose_set": null,
+        "need_back": true,
+        "father": null,
+        "options": [
+            {
+                "title": "",
+                "choose_text": "友好商店",
+                "uid": "poke_mart",
+                "action": "reset_all_menu_tmp",
+                "is_choose": false,
+                "choose_cb": null,
+                "get_choose_set": null,
+                "need_back": true,
+                "father": "father uid",
+                "options": [
+                    {
+                        "title": "子级菜单json"
+                    },
+                    "子级uid"
+                ]
+            },
+            {
+                "title": "",
+                "choose_text": "乔伊小姐",
+                "uid": "center_lady",
+                "action": "reset_all_menu_tmp",
+                "is_choose": false,
+                "choose_cb": null,
+                "get_choose_set": null,
+                "need_back": true,
+                "father": "father uid",
+                "options": [
+                    {
+                        "title": "子级菜单json"
+                    },
+                    "子级uid"
+                ]
+            }
+        ]
+    }
+]

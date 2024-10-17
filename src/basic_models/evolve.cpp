@@ -18,8 +18,7 @@ std::pair<bool, pkm> check_evolve(const pkm &p, evolve_trigger et, int arg)
             switch (et) {
             case level_up:
                 if (arg >= std::get<1>(it2)) {
-                    return std::make_pair(true,
-                                          create_evolve(p, std::get<2>(it2)));
+                    return std::make_pair(true, create_evolve(p, std::get<2>(it2)));
                 }
                 else {
                     goto no_evolve;
@@ -28,8 +27,7 @@ std::pair<bool, pkm> check_evolve(const pkm &p, evolve_trigger et, int arg)
 
             case user_item:
                 if (arg == std::get<1>(it2)) {
-                    return std::make_pair(true,
-                                          create_evolve(p, std::get<2>(it2)));
+                    return std::make_pair(true, create_evolve(p, std::get<2>(it2)));
                 }
                 else {
                     goto no_evolve;
@@ -50,9 +48,7 @@ no_evolve:
     return std::make_pair(false, pkm());
 }
 
-pkm create_evolve(const pkm &p, int evolve_id) {
-    return pkm(pkm_list[evolve_id], p);
-}
+pkm create_evolve(const pkm &p, int evolve_id) { return pkm(pkm_list[evolve_id], p); }
 
 void init_evolve_chains(const std::filesystem::path &fp)
 {
@@ -61,8 +57,7 @@ void init_evolve_chains(const std::filesystem::path &fp)
     // ]
     Json::Value J = string_to_json(readfile(fp, "[]"));
     for (auto it : J) {
-        evolve_chain[it["from_id"].asInt()].emplace_back(
-            static_cast<evolve_trigger>(it["trigger"].asInt()),
-            it["arg"].asInt(), it["to_id"].asInt());
+        evolve_chain[it["from_id"].asInt()].emplace_back(static_cast<evolve_trigger>(it["trigger"].asInt()),
+                                                         it["arg"].asInt(), it["to_id"].asInt());
     }
 }

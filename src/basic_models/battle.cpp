@@ -1,5 +1,3 @@
-#pragma once
-
 /*
     For the basic `turn`(回合), please refer to:
     https://wiki.52poke.com/wiki/%E5%9B%9E%E5%90%88
@@ -447,6 +445,16 @@ public:
     {
         for (auto it : moves) {
             if (it.use_item != -1) {
+                auto user_item = &p[it.from_side]->items[it.use_item];
+                user_item->second --;
+                int item_id = user_item->first;
+                if(is_pkball(item_id)){
+                    // catch wild pkm
+                } else if(is_battle_point_item(item_id)){
+                    // gain battle stats
+                } else if(is_restore_item(item_id)){
+                    // clear debuff or regain health
+                }
                 // player.items[it.use_item]
                 // TODO
             }

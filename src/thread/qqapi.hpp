@@ -19,20 +19,13 @@ public:
         if (it == th_mapper.end()) {
             th_mapper.insert(std::pair<const uint64_t, singleplayerthread *>(
                 conf.user_id, new singleplayerthread(conf.user_id, conf.p)));
-            th_mapper[conf.user_id]->add_input(
-                message.substr(4),
-                conf.message_type == "group" ? conf.group_id : 0);
+            th_mapper[conf.user_id]->add_input(message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
         }
         else {
-            th_mapper[conf.user_id]->add_input(
-                message.substr(4),
-                conf.message_type == "group" ? conf.group_id : 0);
+            th_mapper[conf.user_id]->add_input(message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
         }
     }
-    bool check(std::string message, const msg_meta &conf)
-    {
-        return message.find("pkm.") == 0;
-    }
+    bool check(std::string message, const msg_meta &conf) { return message.find("pkm.") == 0; }
     std::string help() {}
     ~pkmbattle()
     {
@@ -47,10 +40,11 @@ extern "C" processable *create_t()
     init_predefs();
     return new pkmbattle();
 }
-extern "C" void destroy_t(processable *p){
+extern "C" void destroy_t(processable *p)
+{
     remove_predefs();
     delete p;
 }
 
-//TODO: when group op changes its group type, update all online players setting.
-//TODO: players setting update using group setting when player get online
+// TODO: when group op changes its group type, update all online players setting.
+// TODO: players setting update using group setting when player get online

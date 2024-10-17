@@ -2,25 +2,19 @@
 
 #include "random.hpp"
 // Default constructor
-pkm_base::pkm_base()
-    : height(0.0f), weight(0.0f), catch_rate(0), gender_ratio(-1),
-      exp_acc_speed(0), base_exp(0), id(0)
+pkm_base::pkm_base() : height(0.0f), weight(0.0f), catch_rate(0), gender_ratio(-1), exp_acc_speed(0), base_exp(0), id(0)
 {
     typ[0] = element_types::EMPTY;
     typ[1] = element_types::EMPTY;
 }
 
 // Parameterized constructor 1
-pkm_base::pkm_base(const std::string &nm, base6 sp,
-                   std::array<element_types, 2> et, int idx,
-                   const std::string &cat,
-                   const std::vector<std::pair<int, float>> &abilities, float h,
-                   float w, u_char cr, int gr, base6 abp, u_char eas, int bexp,
-                   std::vector<std::pair<int, float>> poss_itemx)
-    : base_name(nm), species_points(sp), typ(et), category(cat),
-      poss_abilities(abilities), poss_items(poss_itemx), height(h), weight(w),
-      catch_rate(cr), gender_ratio(gr), aquire_base_point(abp),
-      exp_acc_speed(eas), base_exp(bexp), id(idx)
+pkm_base::pkm_base(const std::string &nm, base6 sp, std::array<element_types, 2> et, int idx, const std::string &cat,
+                   const std::vector<std::pair<int, float>> &abilities, float h, float w, u_char cr, int gr, base6 abp,
+                   u_char eas, int bexp, std::vector<std::pair<int, float>> poss_itemx)
+    : base_name(nm), species_points(sp), typ(et), category(cat), poss_abilities(abilities), poss_items(poss_itemx),
+      height(h), weight(w), catch_rate(cr), gender_ratio(gr), aquire_base_point(abp), exp_acc_speed(eas),
+      base_exp(bexp), id(idx)
 {
 }
 
@@ -87,16 +81,12 @@ std::vector<size_t> get_pkm_init_skills(const pkm_base &p, int level)
     return ret;
 }
 
-pkm::pkm(const pkm_base &pb, const std::string &namex, const std::string &get_t,
-         const std::string &get_p, gender gen, u_char levelx, size_t exp_currx,
-         base6 IVx, base6 bp, u_char fship, std::array<size_t, 4> skillx,
-         std::array<int, 4> used_ppx, int naturex, bool is_sh, int caritem,
-         int abi, int hpred, battle_status bs)
-    : pkm_base(pb), name(namex), get_time(get_t), get_place(get_p), gend(gen),
-      level(levelx), exp_curr(exp_currx), IV(IVx), base_points(bp),
-      friendship(fship), skills(skillx), used_pp(used_ppx), nature(naturex),
-      is_shiny(is_sh), carried_item(caritem), ability(abi), hpreduced(hpred),
-      bstatus(bs)
+pkm::pkm(const pkm_base &pb, const std::string &namex, const std::string &get_t, const std::string &get_p, gender gen,
+         u_char levelx, size_t exp_currx, base6 IVx, base6 bp, u_char fship, std::array<size_t, 4> skillx,
+         std::array<int, 4> used_ppx, int naturex, bool is_sh, int caritem, int abi, int hpred, battle_status bs)
+    : pkm_base(pb), name(namex), get_time(get_t), get_place(get_p), gend(gen), level(levelx), exp_curr(exp_currx),
+      IV(IVx), base_points(bp), friendship(fship), skills(skillx), used_pp(used_ppx), nature(naturex), is_shiny(is_sh),
+      carried_item(caritem), ability(abi), hpreduced(hpred), bstatus(bs)
 {
     refresh_stat();
     refresh_bstate6();
@@ -108,13 +98,10 @@ pkm::pkm(const pkm_base &pb, const std::string &namex, const std::string &get_t,
 }
 
 pkm::pkm(const pkm_base &pb, const pkm &pp)
-    : pkm_base(pb), name(pp.name), get_time(pp.get_time),
-      get_place(pp.get_place), gend(pp.gend), level(pp.level),
-      exp_curr(pp.exp_curr), exp_total(pp.exp_total), IV(pp.IV),
-      base_points(pp.base_points), friendship(pp.friendship), skills(pp.skills),
-      used_pp(pp.used_pp), nature(pp.nature), is_shiny(pp.is_shiny),
-      carried_item(pp.carried_item), ability(pp.ability),
-      hpreduced(pp.hpreduced), bstatus(pp.bstatus)
+    : pkm_base(pb), name(pp.name), get_time(pp.get_time), get_place(pp.get_place), gend(pp.gend), level(pp.level),
+      exp_curr(pp.exp_curr), exp_total(pp.exp_total), IV(pp.IV), base_points(pp.base_points), friendship(pp.friendship),
+      skills(pp.skills), used_pp(pp.used_pp), nature(pp.nature), is_shiny(pp.is_shiny), carried_item(pp.carried_item),
+      ability(pp.ability), hpreduced(pp.hpreduced), bstatus(pp.bstatus)
 {
     refresh_stat();
     refresh_bstate6();
@@ -122,16 +109,10 @@ pkm::pkm(const pkm_base &pb, const pkm &pp)
 
 void pkm::refresh_stat()
 {
-    stat.hp =
-        (int)((species_points.hp * 2 + IV.hp + (float)base_points.hp / 4) *
-                  level / 100.0 +
-              10 + level);
+    stat.hp = (int)((species_points.hp * 2 + IV.hp + (float)base_points.hp / 4) * level / 100.0 + 10 + level);
     base6 nature_fix = get_nature_rate(nature);
-#define gst(a)                                                                 \
-    (int)(((species_points.a * 2 + IV.a + (float)base_points.a / 4.0) *        \
-               level / 100.0 +                                                 \
-           5) *                                                                \
-          nature_fix.a / 10.0)
+#define gst(a)                                                                                                         \
+    (int)(((species_points.a * 2 + IV.a + (float)base_points.a / 4.0) * level / 100.0 + 5) * nature_fix.a / 10.0)
     stat.atk = gst(atk);
     stat.stk = gst(stk);
     stat.df = gst(df);
@@ -146,16 +127,13 @@ void pkm::refresh_bstate6()
     this->bstate6.affected_evasionrate = 0;
 }
 
-pkm pkm::create_pkm(const pkm_base &p, const std::string &nm, u_char level,
-                    const std::string &get_time, const std::string &place_name)
+pkm pkm::create_pkm(const pkm_base &p, const std::string &nm, u_char level, const std::string &get_time,
+                    const std::string &place_name)
 {
     auto skills = get_pkm_init_skills(p, level);
     while (skills.size() < 4)
         skills.push_back(0);
-    return pkm(p, nm, get_time, place_name, p.get_gender(), level, 0,
-               random_base6(32), (base6){0, 0, 0, 0, 0, 0}, 70,
-               {skills[0], skills[1], skills[2], skills[3]}, {0, 0, 0, 0},
-               get_random(25), get_random(4096) == 0,
-               get_possi_random(p.poss_items),
-               get_possi_random_(p.poss_abilities), 0, battle_status::NORMAL);
+    return pkm(p, nm, get_time, place_name, p.get_gender(), level, 0, random_base6(32), (base6){0, 0, 0, 0, 0, 0}, 70,
+               {skills[0], skills[1], skills[2], skills[3]}, {0, 0, 0, 0}, get_random(25), get_random(4096) == 0,
+               get_possi_random(p.poss_items), get_possi_random_(p.poss_abilities), 0, battle_status::NORMAL);
 }
