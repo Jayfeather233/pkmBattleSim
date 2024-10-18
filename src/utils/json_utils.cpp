@@ -193,7 +193,7 @@ text_menu *J2text_menu(const Json::Value &J)
     if (p->is_choose) {
         try {
             if (!J.isMember("choose_cb") || !J.isMember("get_choose_set")) {
-                fmt::print("choose menu syntax error");
+                fmt::print("choose menu syntax error\n");
             }
             else {
                 p->choose_cb = map_finder(J["choose_cb"].asString(), choose_callback_mapper);
@@ -201,15 +201,14 @@ text_menu *J2text_menu(const Json::Value &J)
             }
         }
         catch (...) {
-            fmt::print("choose menu syntax error");
+            fmt::print("choose menu syntax error\n");
         }
     }
     if (J.isMember("need_back")) {
         p->need_back = J["need_back"].asBool();
     }
-    if (J.isMember("father")) {
-        if (!J["father"].asString().empty())
-            menu_fathers.emplace_back(p, J["father"].asString());
+    if (J.isMember("father") && !J["father"].asString().empty()) {
+        menu_fathers.emplace_back(p, J["father"].asString());
     }
     // TODO
     return p;

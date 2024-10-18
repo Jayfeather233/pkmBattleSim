@@ -65,7 +65,7 @@ public:
            std::function<bool()> iop, settings sts = settings());
 
     void save(const std::string &filepath);
-    player(const std::string &filepath);
+    player(const fs::path &filepath);
     player(const pkm &p);                                       // a wild pkm
     player(const std::string &name, const std::vector<pkm> &p); // a trainer
 
@@ -73,4 +73,5 @@ public:
 
     int get_subsitute_pkm(const std::vector<pkm *> u);
     std::vector<pkm *> get_available_pkm() const;
+    bool all_pkm_faint() const;
 };

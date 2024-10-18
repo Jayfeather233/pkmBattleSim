@@ -36,6 +36,7 @@ public:
         this->p.is_op = [user_id, ptr]() { return is_op(ptr, user_id); };
         in_group_event = false;
         if (this->p.party_pkm.size() == 0) {
+            fmt::print("new player: {}, run init\n", user_id);
             init_player();
         }
         if (p.mt.move_point >= p.pls->meet_points)
@@ -46,13 +47,13 @@ public:
 
     void init_player()
     {
-        player_name_init();
+        player_init();
         choose_init_pkm();
     }
 
-    void player_name_init()
+    void player_init()
     {
-        run_text_menu(p, player_name_init_menu, [this]() { this->save(); }, root_menu);
+        run_text_menu(p, player_init_menu, [this]() { this->save(); }, root_menu);
     }
     void choose_init_pkm()
     {

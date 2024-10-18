@@ -45,6 +45,8 @@ public:
 
     const text_menu *get_nxt_menu(player &p, int id) const;
     bool no_next_menu(const player &p) const;
+    bool no_choice(const player &p) const;
+    text_menu* get_only_choice(const player &p) const;
 };
 
 extern text_menu *root_menu;
@@ -53,7 +55,7 @@ extern std::map<userid_t, int> user_specific_pkm_idmap;
 extern text_menu *first_pkm_specific_menu;
 extern std::map<std::string, std::map<std::string, std::vector<text_menu *>>> app_menu_mapper; // uid->(type->menu*)
 extern std::map<std::string, text_menu *> text_menu_mapper; // when add a menu, it will store uid->menu*
-extern text_menu *player_name_init_menu;
+extern text_menu *player_init_menu;
 extern text_menu *battle_menu;
 extern text_menu *battle_target_choose_menu;
 extern text_menu *subsitute_menu;

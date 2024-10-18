@@ -34,6 +34,8 @@ public:
           tgt(bs.tgt), prior(bs.prior)
     {
     }
+
+    virtual ~base_skill(){}
 };
 
 // like reduce the defence something

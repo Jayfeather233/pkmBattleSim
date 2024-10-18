@@ -15,33 +15,47 @@
                 "choose_text": "友好商店",
                 "uid": "poke_mart",
                 "action": "reset_all_menu_tmp",
-                "is_choose": false,
-                "choose_cb": null,
-                "get_choose_set": null,
+                "is_choose": true,
+                "choose_cb": "set_choose_id",
+                "get_choose_set": "get_mart_sell_items",
                 "need_back": true,
-                "father": "father uid",
                 "options": [
                     {
-                        "title": "子级菜单json"
-                    },
-                    "子级uid"
+                        "title": "",
+                        "choose_text": "",
+                        "action": "player_buy_item",
+                        "is_choose": false,
+                        "need_back": true,
+                        "father": "poke_mart",
+                        "options": []
+                    }
                 ]
             },
             {
-                "title": "",
+                "title": "欢迎来到宝可梦中心！\n需要让宝可梦休息一下吗？",
                 "choose_text": "乔伊小姐",
                 "uid": "center_lady",
                 "action": "reset_all_menu_tmp",
                 "is_choose": false,
-                "choose_cb": null,
-                "get_choose_set": null,
                 "need_back": true,
-                "father": "father uid",
                 "options": [
                     {
-                        "title": "子级菜单json"
-                    },
-                    "子级uid"
+                        "title": "",
+                        "choose_text": "是",
+                        "action": "restore_all_pkm",
+                        "is_choose": false,
+                        "need_back": true,
+                        "options": [
+                            {
+                                "title": "你的宝可梦已经休息好啦，欢迎下次光临",
+                                "choose_text": "",
+                                "is_choose": false,
+                                "need_back": true,
+                                "father": "center_main",
+                                "options": []
+                            }
+                        ]
+                    }
                 ]
             }
         ]

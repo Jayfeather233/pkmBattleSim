@@ -8,6 +8,7 @@
                     "name": "鹿子镇",
                     "desc": "各种各样点子汇集的城鎮。",
                     "points": 0,
+                    "npc": ["pkm_center"],
                     "pkms": []
                 },
                 {

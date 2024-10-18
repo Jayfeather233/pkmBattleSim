@@ -1,6 +1,7 @@
 #include "myutils.hpp"
 
 #include "battle.hpp"
+#include "skills.hpp"
 #include "menu.hpp"
 #include "texts.hpp"
 #include <fmt/core.h>
@@ -69,6 +70,9 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
          p.mt.move_point += 1;
          if (p.mt.move_point >= p.pls->meet_points)
              p.st.user_enables.insert("enough_place_point");
+         if (p.all_pkm_faint()){
+            // TODO
+         }
      }},
     {"move_to_next_place",
      [](player &p) {
@@ -95,7 +99,28 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
          else {
              run_text_menu(p, battle_target_choose_menu, nullptr, root_menu);
          }
-     }}};
+     }},
+     {"restore_all_pkm", [](player &p) {
+        for(pkm &u : p.party_pkm){
+            u.hpreduced = 0;
+            for(size_t i=0;i<4;++i){
+                u.used_pp[i] = 0;
+            }
+        }
+        for(pkm &u : p.chest_pkm){
+            u.hpreduced = 0;
+            for(size_t i=0;i<4;++i){
+                u.used_pp[i] = 0;
+            }
+        }
+        p.las_store_place = p.pls;
+     }},
+     {"player_buy_item", [](player &p){
+        auto item = map_finder((std::string)"get_mart_sell_items", get_choose_set_mapper)(p)[p.mt.menu_choose_id];
+        // TODO
+     }}
+     
+     };
 
 std::map<std::string, std::function<std::vector<std::string>(const player &)>> get_choose_set_mapper = {
     {"get_player_party_pkm_name_list",
@@ -243,4 +268,7 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
              }
          }
          return ret;
+     }},
+     {"get_mart_sell_items", [](const player &p) -> std::vector<std::string> {
+        // TODO: 
      }}};

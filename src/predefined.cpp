@@ -48,11 +48,11 @@ void init_pkm(std::string filepath)
 void init_places(std::string filepath)
 {
     Json::Value J = string_to_json(readfile(filepath, "{}"));
-    for (Json::Value re : J["regions"]) {
+    for (const Json::Value &re : J["regions"]) {
         regis.push_back((region){re["name"].asString(), re["desc"].asString()});
         region *f = &regis[regis.size() - 1];
         size_t st_pos = placs.size();
-        for (Json::Value plcs : re["places"]) {
+        for (const Json::Value &plcs : re["places"]) {
             placs.push_back((places){plcs["name"].asString(),
                                      plcs["desc"].asString(),
                                      f,
@@ -60,6 +60,9 @@ void init_places(std::string filepath)
                                      {},
                                      Ja2Vec2(plcs["pkms"]),
                                      static_cast<int>(placs.size())});
+            for(const Json::Value &npc_id : plcs["npc"]){
+                placs[placs.size()-1].npcs.push_back(map_finder(npc_id.asString(), npc_mapper));
+            }
         }
         for (Json::Value conn : re["connect"]) {
             int from = conn["from"].asInt(), to = conn["to"].asInt();
@@ -92,7 +95,7 @@ void app_menu_init(const std::string &rt_dir)
                     for (auto it : J[typ][uidx]) {
                         text_menu *p = J2text_menu(it);
                         app_menu_mapper[uidx][typ].push_back(p);
-                        if (it.isMember("father"))
+                        if (it.isMember("father") && !it["father"].asString().empty())
                             father_setter.push_back(std::make_pair(p, it["father"].asString()));
                     }
                 }
@@ -118,7 +121,7 @@ void init_npc(const std::string &rt_dir)
     for (const auto &entry : std::filesystem::directory_iterator(rt_dir)) {
         if (entry.is_regular_file()) {
             Json::Value Ja = string_to_json(readfile(entry.path(), "[]"));
-            for (Json::Value J : Ja) {
+            for (const Json::Value &J : Ja) {
                 npc *u = J2npc(J);
                 npc_mapper[u->id] = u;
             }
@@ -156,18 +159,33 @@ void insert_app_menu()
 
 void init_predefs()
 {
+    fmt::print("app_menu_init\n");
     app_menu_init("./data/pkm/app_menus");
-    init_skills();
-    init_pkm("./data/pkm/pkm.json");
-    init_places("./data/pkm/place.json");
 
+    fmt::print("init_skills\n");
+    init_skills();
+
+    fmt::print("init_pkm\n");
+    init_pkm("./data/pkm/pkm.json");
+
+    fmt::print("menu_init\n");
     menu_init();
+
+    fmt::print("insert_app_menu\n");
     insert_app_menu();
+
+    fmt::print("init_texts\n");
     init_texts("./data/pkm/texts");
+
+    fmt::print("init_npc\n");
     init_npc("./data/pkm/npc");
 
+    fmt::print("init_places\n");
+    init_places("./data/pkm/place.json");
+
+    fmt::print("init_user_specific_pkm\n");
     init_user_specific_pkm("./config/pkm/user_specific.json");
-    first_pkm_list.push_back(1);
+    first_pkm_list.push_back(1); // TODO
 }
 
 void remove_predefs()

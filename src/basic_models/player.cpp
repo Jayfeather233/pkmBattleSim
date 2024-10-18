@@ -14,7 +14,7 @@ void player::save(const std::string &filepath)
     J["party_pkm"] = pkm2Ja(this->party_pkm);
     J["chest_pkm"] = pkm2Ja(this->chest_pkm);
     J["pls"] = this->pls->id;
-    J["las_pls"] = this->las_store_place;
+    J["las_pls"] = this->las_store_place->id;
     J["money"] = this->money;
     Json::Value J2;
     J2["type"] = set2Ja(st.user_types);
@@ -23,7 +23,7 @@ void player::save(const std::string &filepath)
     writefile(filepath, J.toStyledString(), false);
 }
 
-player::player(const std::string &filepath)
+player::player(const fs::path &filepath)
     : player(0, "", {}, {}, nullptr, nullptr, 0, nullptr, nullptr, nullptr, settings({}, {}))
 {
     Json::Value J =
@@ -46,12 +46,25 @@ player::player(const pkm &p)
     : badge(-1), name(p.get_name()), party_pkm({p}), chest_pkm({}), pls(nullptr), las_store_place(nullptr), money(0),
       st(settings()), get_user_input(nullptr), output2user(nullptr), is_op(nullptr), mt(menu_temp()), sig_save(false)
 {
+    map_finder((std::string)"reset_all_menu_tmp", action_mapper)(*this);
 }
 player::player(const std::string &name, const std::vector<pkm> &p)
     : badge(-2), name(name), party_pkm(p), chest_pkm({}), pls(nullptr), las_store_place(nullptr), money(0),
       st(settings()), get_user_input(nullptr), output2user(nullptr), is_op(nullptr), mt(menu_temp()), sig_save(false)
 {
+    map_finder((std::string)"reset_all_menu_tmp", action_mapper)(*this);
 }
+player::player(int bad, std::string name, std::vector<pkm> pp, std::vector<pkm> cp, places *pl, places *las_pl, int mon,
+               std::function<std::string(bool)> gui, std::function<void(const std::string &)> opu,
+               std::function<bool()> iop, settings sts)
+    : badge(bad), name(name), party_pkm(pp), chest_pkm(cp), pls(pl), las_store_place(las_pl), money(mon), st(sts),
+      get_user_input([gui]() { return gui(true); }), get_user_input_no_wait([gui]() { return gui(false); }),
+      output2user(opu), is_op(iop), mt{-1}
+{
+    sig_save = false;
+    map_finder((std::string)"reset_all_menu_tmp", action_mapper)(*this);
+}
+
 
 bool settings::is_type(const std::string &tp) const { return user_enables.find(tp) != user_enables.end(); }
 
@@ -83,16 +96,6 @@ const pkm *player::get_choose_pkm_const() const
         return static_cast<int>(party_pkm.size()) > mt.menu_choose_pokemon ? &party_pkm[mt.menu_choose_pokemon]
                                                                            : &party_pkm[0];
     }
-}
-
-player::player(int bad, std::string name, std::vector<pkm> pp, std::vector<pkm> cp, places *pl, places *las_pl, int mon,
-               std::function<std::string(bool)> gui, std::function<void(const std::string &)> opu,
-               std::function<bool()> iop, settings sts)
-    : badge(bad), name(name), party_pkm(pp), chest_pkm(cp), pls(pl), las_store_place(las_pl), money(mon), st(sts),
-      get_user_input([gui]() { return gui(true); }), get_user_input_no_wait([gui]() { return gui(false); }),
-      output2user(opu), is_op(iop), mt{-1}
-{
-    sig_save = false;
 }
 
 void player::gain_exp(size_t position, size_t exp)
@@ -159,4 +162,13 @@ std::vector<pkm *> player::get_available_pkm() const
         }
     }
     return ret;
+}
+
+bool player::all_pkm_faint() const{
+    for (auto u : this->party_pkm) {
+        if (!IS_FAINT(&u)) {
+            return true;
+        }
+    }
+    return false;
 }

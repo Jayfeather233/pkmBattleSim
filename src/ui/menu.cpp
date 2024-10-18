@@ -9,6 +9,17 @@
 void run_text_menu(player &p, const text_menu *px, std::function<void()> save, const text_menu *stop)
 {
     while (px != stop && px != nullptr) {
+        while (px != stop && px != nullptr && px->no_choice(p)) {
+            text_menu *pp = px->get_only_choice(p);
+            if (pp != nullptr && pp->action != nullptr) {
+                pp->action(p);
+            }
+            p.output2user(px->to_string(p));
+            px = pp;
+        }
+        if (px == stop || px == nullptr) {
+            break;
+        }
         while (px != stop && px != nullptr && px->no_next_menu(p)) {
             if (px->father != nullptr && px->father->action != nullptr) {
                 px->father->action(p);
@@ -52,6 +63,38 @@ bool text_menu::no_next_menu(const player &p) const
         }
     }
     return true;
+}
+bool text_menu::no_choice(const player &p) const
+{
+    if (is_choose) {
+        return false;
+    }
+    else {
+        size_t u = options.size();
+        for (auto it : app_options) {
+            if (p.is_type(it.first)) {
+                u += it.second.size();
+            }
+        }
+        if (need_back) {
+            return false;
+        }
+        return u == 1;
+    }
+}
+text_menu* text_menu::get_only_choice(const player &p) const{
+    
+    if(options.size()){
+        return options[0];
+    }
+    for (auto it : app_options) {
+        if (p.is_type(it.first)) {
+            if(it.second.size()){
+                return it.second[0];
+            }
+        }
+    }
+    return nullptr;
 }
 
 std::string name_pkm(player &p)
@@ -135,7 +178,7 @@ std::string text_menu::to_string(const player &p) const
             cnt++;
         }
     }
-    else {
+    else if(!no_choice(p)){
         for (auto it : options) {
             ret += std::to_string(cnt) + ". " + it->choose_text + '\n';
             cnt++;
@@ -222,7 +265,7 @@ text_menu *root_menu;
 ////// Main menu(up), first pkm choose menu(down)
 
 text_menu *first_pkm_choose_menu;
-text_menu *first_pkm_specific_menu;
+text_menu *first_pkm_specific_menu; // TODO
 
 std::vector<std::string> get_init_pkm_list(const player &p)
 {
@@ -260,20 +303,24 @@ void pkm_ch_init(const text_menu *f)
     first_pkm_choose_menu->options[0]->options[0]->father = f;
 }
 
-text_menu *player_name_init_menu;
+text_menu *player_init_menu;
 
-void name_ch_action(player &p)
+void name_ch_action(player &p) { p.name = p.get_user_input(); }
+void birthday_ch_action(player &p)
 {
-    p.output2user("请输入名字：");
-    p.name = p.get_user_input();
+    // TODO
 }
 
-text_menu *choose_name_menu(const text_menu *f)
+void init_player_init_menu(const text_menu *f)
 {
-    text_menu *p = new text_menu("名字是 $u，这样可以吗？", "Next", {yes_confirm_menu(nullptr), no_confirm_menu()},
-                                 name_ch_action, false, nullptr, nullptr, false);
-    p->options[0]->father = f;
-    return p;
+    player_init_menu =
+        new text_menu("", "",
+                      {new text_menu("可以告诉我你的名字吗？", "",
+                                     {new text_menu("你的生日是：", "", {new text_menu("这样就行了", "", {})},
+                                                    birthday_ch_action, false, nullptr, nullptr, false)},
+                                     name_ch_action, false, nullptr, nullptr, false)},
+                      nullptr, false, nullptr, nullptr, false);
+    player_init_menu->options[0]->options[0]->options[0]->father = f;
 }
 
 text_menu *battle_menu;
@@ -355,6 +402,7 @@ void menu_init()
     //     init_main_menu(J);
     // }
     init_menus("./data/pkm/menu/");
+    init_player_init_menu(root_menu);
     pkm_ch_init(root_menu);
     // TODO: first_pkm_specific_menu
     init_battle_menu(root_menu);
@@ -381,6 +429,6 @@ void menu_remove()
     _menu_remove(root_menu);
     _menu_remove(first_pkm_choose_menu);
     _menu_remove(first_pkm_specific_menu);
-    _menu_remove(player_name_init_menu);
+    _menu_remove(player_init_menu);
     _menu_remove(battle_menu);
 }
