@@ -230,7 +230,7 @@ Json::Value pkm2J(const pkm &p)
 {
     Json::Value J;
     J["id"] = p.id;
-    J["name"] = p.get_name();
+    J["name"] = p.name;
     J["gender"] = static_cast<int>(p.gend);
     J["level"] = p.level;
     J["exp_curr"] = p.exp_curr;

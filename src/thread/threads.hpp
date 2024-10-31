@@ -2,6 +2,7 @@
 
 #include "menu.hpp"
 #include "utils.h"
+#include "myutils.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -47,7 +48,9 @@ public:
 
     void init_player()
     {
+        map_finder((std::string)"reset_all_menu_tmp", action_mapper)(p);
         player_init();
+        map_finder((std::string)"reset_all_menu_tmp", action_mapper)(p);
         choose_init_pkm();
     }
 

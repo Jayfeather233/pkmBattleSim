@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <jsoncpp/json/json.h>
 
 /**
  * Some meta info, like image, can-learn skills
@@ -116,6 +117,7 @@ public:
 
     static pkm create_pkm(const pkm_base &p, const std::string &nm, u_char level, const std::string &get_time,
                           const std::string &place_name);
+    friend Json::Value pkm2J(const pkm &p);
 };
 
 #define IS_FAINT(u) ((u)->hpreduced >= (u)->stat.hp)

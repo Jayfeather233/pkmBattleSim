@@ -59,6 +59,7 @@ extern text_menu *player_init_menu;
 extern text_menu *battle_menu;
 extern text_menu *battle_target_choose_menu;
 extern text_menu *subsitute_menu;
+extern text_menu *all_faint_goback_menu;
 extern std::vector<std::pair<text_menu *, std::string>> menu_fathers;
 extern std::vector<std::pair<text_menu *, std::string>> menu_options;
 

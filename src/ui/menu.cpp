@@ -9,22 +9,25 @@
 void run_text_menu(player &p, const text_menu *px, std::function<void()> save, const text_menu *stop)
 {
     while (px != stop && px != nullptr) {
-        while (px != stop && px != nullptr && px->no_choice(p)) {
+        if (px != stop && px != nullptr && px->no_choice(p)) {
             text_menu *pp = px->get_only_choice(p);
             if (pp != nullptr && pp->action != nullptr) {
                 pp->action(p);
             }
             p.output2user(px->to_string(p));
             px = pp;
+            continue;
         }
         if (px == stop || px == nullptr) {
             break;
         }
-        while (px != stop && px != nullptr && px->no_next_menu(p)) {
+        if (px != stop && px != nullptr && px->no_next_menu(p)) {
             if (px->father != nullptr && px->father->action != nullptr) {
                 px->father->action(p);
             }
+            // p.output2user(px->to_string(p));
             px = px->father;
+            continue;
         }
         if (px == stop || px == nullptr) {
             break;
@@ -288,7 +291,7 @@ text_menu *choose_confirm_menu(text_menu *f, void (*act)(player &p))
 void choose_first_pkm_action(player &p)
 {
     if (p.party_pkm.size() < 6) {
-        p.party_pkm.push_back(pkm::create_pkm(pkm_list[first_pkm_list[p.mt.menu_choose_pokemon]], name_pkm(p), 5,
+        p.party_pkm.push_back(pkm::create_pkm(pkm_list[first_pkm_list[p.mt.menu_choose_id]], name_pkm(p), 5,
                                               nowtime_string(), p.pls->name));
     }
 }
@@ -297,7 +300,7 @@ void pkm_ch_init(const text_menu *f)
 {
     first_pkm_choose_menu =
         new text_menu("选择初始伙伴", "", {}, nullptr, true,
-                      map_finder((std::string) "set_choose_pkm", choose_callback_mapper), get_init_pkm_list, false);
+                      map_finder((std::string) "set_choose_id", choose_callback_mapper), get_init_pkm_list, false);
     first_pkm_choose_menu->add_option(choose_confirm_menu(first_pkm_choose_menu, choose_first_pkm_action));
     first_pkm_choose_menu->father = f;
     first_pkm_choose_menu->options[0]->options[0]->father = f;
@@ -326,6 +329,7 @@ void init_player_init_menu(const text_menu *f)
 text_menu *battle_menu;
 text_menu *battle_target_choose_menu;
 text_menu *subsitute_menu;
+text_menu *all_faint_goback_menu;
 void init_battle_menu(const text_menu *f)
 {
     auto whatx = new text_menu();
@@ -349,6 +353,9 @@ void init_main_menu(const Json::Value &J)
     }
     else if (p->get_uid() == "battle_target_choose") {
         battle_target_choose_menu = p;
+    }
+    else if (p->get_uid() == "all_faint_goback_menu") {
+        all_faint_goback_menu = p;
     }
     else {
         if (!J.isMember("father") && p->father == nullptr) {

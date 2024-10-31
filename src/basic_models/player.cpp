@@ -167,8 +167,8 @@ std::vector<pkm *> player::get_available_pkm() const
 bool player::all_pkm_faint() const{
     for (auto u : this->party_pkm) {
         if (!IS_FAINT(&u)) {
-            return true;
+            return false;
         }
     }
-    return false;
+    return true;
 }

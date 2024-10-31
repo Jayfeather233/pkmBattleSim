@@ -123,66 +123,27 @@
                         "is_choose": false,
                         "need_back": true,
                         "options": []
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "title": "tamplete: 菜单标题",
-        "choose_text": "选项文字",
-        "uid": "唯一标识符2",
-        "action": "reset_all_menu_tmp",
-        "is_choose": false,
-        "choose_cb": null,
-        "get_choose_set": null,
-        "need_back": true,
-        "father": "father uid",
-        "options": [
-            {
-                "title": "子级菜单json"
-            },
-            "子级uid"
-        ]
-    },
-    {
-        "title": "",
-        "choose_text": "",
-        "uid": "battle_target_choose",
-        "is_choose": true,
-        "choose_cb": "set_choose_position",
-        "get_choose_set": "get_pkm_skill_target_list",
-        "need_back": true,
-        "father": "main_menu",
-        "options": [
-        ]
-    },
-    {
-        "title": "$1 要做什么",
-        "choose_text": "",
-        "uid": "main_battle_menu",
-        "is_choose": false,
-        "need_back": false,
-        "father": "main_menu",
-        "options": [
-            {
-                "title": "",
-                "choose_text": "战斗",
-                "action": "set_default_choose_position",
-                "uid": "battle_skill_choose_menu",
-                "is_choose": true,
-                "choose_cb": "set_choose_id",
-                "get_choose_set": "get_pkm_skill_list",
-                "need_back": true,
-                "options": [
+                    },
                     {
                         "title": "",
-                        "choose_text": "",
-                        "is_choose": false,
-                        "action": "battle_target_choose",
+                        "choose_text": "与他人交谈",
+                        "uid": "npc_choose_menu",
+                        "action": "reset_all_menu_tmp",
+                        "is_choose": true,
+                        "choose_cb": "set_choose_id",
+                        "get_choose_set": "get_npc_names_list",
                         "need_back": true,
-                        "father": "main_menu",
-                        "options": []
+                        "options": [
+                            {
+                                "title": "",
+                                "choose_text": "",
+                                "action": "run_npc_menu",
+                                "father": "main_menu",
+                                "is_choose": false,
+                                "need_back": true,
+                                "options": []
+                            }
+                        ]
                     }
                 ]
             }

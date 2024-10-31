@@ -25,6 +25,17 @@ bool ms_cmp_move_slow2fast(const move_struct &a, const move_struct &b)
 }
 bool ms_cmp_move_fast2slow(const move_struct &a, const move_struct &b) { return ms_cmp_move_slow2fast(b, a); }
 
+battle_main::battle_main(int bnum, std::array<player *, 2> px, std::array<std::vector<pkm *>, 2> pkmsx,
+                         weather_status ws)
+    : battle_num(bnum), is_escape(false), escape_times(0), p(px), pkms(pkmsx), field({NO_FIELD, NO_FIELD, NO_FIELD}),
+      weather(ws)
+{
+    for (size_t i = 0; i < battle_num; ++i) {
+        seened_pkms[0].push_back({});
+        seened_pkms[1].push_back({});
+    }
+}
+
 std::string battle_main::half_to_string(int side)
 {
     std::string u;
@@ -218,7 +229,7 @@ void battle_main::set_prior_fix()
 void battle_main::refresh_seened_pkm()
 {
     for (int i = 0; i < 2; i++) {
-        for (auto it : seened_pkms[i]) {
+        for (auto& it : seened_pkms[i]) {
             for (auto it2 = it.begin(); it2 != it.end();) {
                 if ((*it2) == nullptr || IS_FAINT(*it2)) {
                     it2 = it.erase(it2); // erase returns the iterator to
@@ -230,6 +241,31 @@ void battle_main::refresh_seened_pkm()
             }
             // in c++20: std::erase_if()
         }
+    }
+}
+
+void battle_main::output_seend_pkm() const
+{
+    for (int i = 0; i < 2; ++i) {
+        for (auto it : seened_pkms[i]) {
+            fmt::print("[");
+            for (auto it2 : it) {
+                fmt::print("{}, ", it2->get_name());
+            }
+            fmt::print("], ");
+        }
+        fmt::print("\n");
+    }
+}
+void battle_main::output_pkm_status() const
+{
+    for (int i = 0; i < 2; ++i) {
+        std::string u;
+        for (auto it : pkms[i]) {
+            u += fmt::format("[Lv.{} {}{} {}/{}] ", it->level, it->get_name(), gender2string(it->gend),
+                             it->stat.hp - it->hpreduced, it->stat.hp);
+        }
+        fmt::print("{}\n", u);
     }
 }
 
@@ -245,7 +281,7 @@ void battle_main::get_gained_exp(int side, int pos)
     int b = pkms[side][pos]->base_exp;
     int l = pkms[side][pos]->level;
     std::set<pkm *> to_gain = seened_pkms[side][pos];
-    for (auto it : p[side ^ 1]->party_pkm) {
+    for (auto& it : p[side ^ 1]->party_pkm) {
         if (it.carried_item == -1) { // TODO: learning machine here
             to_gain.insert(&it);
         }
@@ -271,10 +307,14 @@ void battle_main::get_gained_exp(int side, int pos)
 void battle_main::pkm_entry_proc(int side, int id, pkm *pkm, bool is_first_entry)
 {
     if (is_first_entry) {
-        for (auto it : seened_pkms[side ^ 1]) {
+        for (auto& it : seened_pkms[side ^ 1]) {
             it.insert(pkm);
+            fmt::print("first entry insert\n");
         }
         seened_pkms[side][id].clear();
+        for(auto it : pkms[side^1]){
+            seened_pkms[side][id].insert(it);
+        }
     }
     fmt::print("{}\n", get_entry_text(*pkm, is_first_entry));
     // 化学变化气体特性
@@ -648,17 +688,7 @@ int battle_start(player *p1, player *p2, int battle_num, weather_status weather)
         p2pkm.push_back(nullptr);
     }
 
-    std::vector<std::set<pkm *>> spks1;
-    std::vector<std::set<pkm *>> spks2;
-
-    for (size_t i = 0; i < battle_num; ++i) {
-        spks1.push_back({});
-        spks2.push_back({});
-    }
-    battle_main bm = (battle_main){
-        battle_num,     false,          0,  {p1, p2},
-        {p1pkm, p2pkm}, {spks1, spks2}, {}, {field_status::NO_FIELD, field_status::NO_FIELD, field_status::NO_FIELD},
-        weather};
+    battle_main bm = battle_main(battle_num, {p1, p2}, {p1pkm, p2pkm}, weather);
     int u;
 
     p1->bm = &bm;
@@ -672,6 +702,8 @@ int battle_start(player *p1, player *p2, int battle_num, weather_status weather)
         if (p2->output2user != nullptr)
             p2->output2user(bm.to_string(1));
         bm.moves.clear();
+        bm.output_seend_pkm();
+        bm.output_pkm_status();
         get_next_battle_move(0, &bm);
         get_next_battle_move(1, &bm);
         first_turn = false;

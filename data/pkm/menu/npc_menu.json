@@ -8,7 +8,7 @@
         "choose_cb": null,
         "get_choose_set": null,
         "need_back": true,
-        "father": null,
+        "father": "main_menu",
         "options": [
             {
                 "title": "",
@@ -40,14 +40,14 @@
                 "need_back": true,
                 "options": [
                     {
-                        "title": "",
+                        "title": "你的宝可梦已经休息好啦，欢迎下次光临",
                         "choose_text": "是",
                         "action": "restore_all_pkm",
                         "is_choose": false,
-                        "need_back": true,
+                        "need_back": false,
                         "options": [
                             {
-                                "title": "你的宝可梦已经休息好啦，欢迎下次光临",
+                                "title": "",
                                 "choose_text": "",
                                 "is_choose": false,
                                 "need_back": true,

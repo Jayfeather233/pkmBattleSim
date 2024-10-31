@@ -44,6 +44,13 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INSTALL_RPATH "./lib")
+
+SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+SET(CMAKE_INSTALL_RPATH "")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g")
@@ -59,7 +66,7 @@ endif()
 if(MODE STREQUAL "main")
     add_library(${PROJECT_NAME} SHARED ${BM_SOURCES} ${TH_SOURCES} ${UI_SOURCES} ${UTILS_SOURCES} ${MAIN_SOURCES})
 endif()
-target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/../src/shinxbot_api/libutils.so)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/../lib/libutils.so)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${ImageMagick_LIBRARIES})
 
@@ -78,3 +85,8 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -pthread)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -lm)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENSSL_LIBRARIES})
 endif()
+
+set_target_properties(pbs PROPERTIES
+    INSTALL_RPATH "./lib"
+)
+set_target_properties(pbs PROPERTIES LINK_FLAGS "-Wl,-rpath,./lib/")

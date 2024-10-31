@@ -112,7 +112,8 @@ void pkm::refresh_stat()
     stat.hp = (int)((species_points.hp * 2 + IV.hp + (float)base_points.hp / 4) * level / 100.0 + 10 + level);
     base6 nature_fix = get_nature_rate(nature);
 #define gst(a)                                                                                                         \
-    (int)(((species_points.a * 2 + IV.a + (float)base_points.a / 4.0) * level / 100.0 + 5) * nature_fix.a / 10.0)
+    (int)(((species_points.a * 2 + IV.a + (float)base_points.a / 4.0) * level / 100.0 + 5) *                           \
+          (1.0 + nature_fix.a / 10.0))
     stat.atk = gst(atk);
     stat.stk = gst(stk);
     stat.df = gst(df);

@@ -1,8 +1,8 @@
 #include "myutils.hpp"
 
 #include "battle.hpp"
-#include "skills.hpp"
 #include "menu.hpp"
+#include "skills.hpp"
 #include "texts.hpp"
 #include <fmt/core.h>
 
@@ -66,13 +66,14 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
          player *wp = new player(u);
          int result = battle_start(&p, wp, 1);
          delete wp;
-         p.sig_save = true;
          p.mt.move_point += 1;
-         if (p.mt.move_point >= p.pls->meet_points)
+         if (p.mt.move_point >= p.pls->meet_points) {
              p.st.user_enables.insert("enough_place_point");
-         if (p.all_pkm_faint()){
-            // TODO
          }
+         if (p.all_pkm_faint()) {
+             run_text_menu(p, all_faint_goback_menu, []() {}, root_menu);
+         }
+         p.sig_save = true;
      }},
     {"move_to_next_place",
      [](player &p) {
@@ -91,7 +92,8 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
          }
      }},
     {"set_is_goback_true", [](player &p) { p.mt.is_goback = true; }},
-    {"battle_target_choose", [](player &p) {
+    {"battle_target_choose",
+     [](player &p) {
          base_skill *bs = skill_list[p.party_pkm[p.mt.menu_choose_pokemon].skills[p.mt.menu_choose_id]];
          if ((p.bm->battle_num == 1 && is_1v1_hit_oppo_skill(bs->tgt)) || is_no_target_skill(bs->tgt)) {
              p.mt.menu_choose_position = 0;
@@ -100,27 +102,42 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
              run_text_menu(p, battle_target_choose_menu, nullptr, root_menu);
          }
      }},
-     {"restore_all_pkm", [](player &p) {
-        for(pkm &u : p.party_pkm){
-            u.hpreduced = 0;
-            for(size_t i=0;i<4;++i){
-                u.used_pp[i] = 0;
-            }
-        }
-        for(pkm &u : p.chest_pkm){
-            u.hpreduced = 0;
-            for(size_t i=0;i<4;++i){
-                u.used_pp[i] = 0;
-            }
-        }
-        p.las_store_place = p.pls;
+    {"restore_all_pkm",
+     [](player &p) {
+         for (pkm &u : p.party_pkm) {
+             u.hpreduced = 0;
+             for (size_t i = 0; i < 4; ++i) {
+                 u.used_pp[i] = 0;
+             }
+         }
+         for (pkm &u : p.chest_pkm) {
+             u.hpreduced = 0;
+             for (size_t i = 0; i < 4; ++i) {
+                 u.used_pp[i] = 0;
+             }
+         }
+         p.las_store_place = p.pls;
+         p.sig_save = true;
      }},
-     {"player_buy_item", [](player &p){
-        auto item = map_finder((std::string)"get_mart_sell_items", get_choose_set_mapper)(p)[p.mt.menu_choose_id];
-        // TODO
-     }}
-     
-     };
+    {"player_buy_item",
+     [](player &p) {
+         auto item = map_finder((std::string) "get_mart_sell_items", get_choose_set_mapper)(p)[p.mt.menu_choose_id];
+         // TODO
+     }},
+    {"run_npc_menu",
+     [](player &p) {
+         run_text_menu(p, p.pls->npcs[p.mt.menu_choose_id]->npc_menu, []() {}, root_menu);
+         p.sig_save = true;
+     }},
+    {"goback_last_pls", [](player &p) {
+         p.pls = p.las_store_place;
+         p.mt.move_point = 0;
+
+         if (p.mt.move_point >= p.pls->meet_points) {
+             p.st.user_enables.insert("enough_place_point");
+         }
+         map_finder((std::string) "restore_all_pkm", action_mapper)(p);
+     }}};
 
 std::map<std::string, std::function<std::vector<std::string>(const player &)>> get_choose_set_mapper = {
     {"get_player_party_pkm_name_list",
@@ -168,7 +185,8 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
          }
          return ret;
      }},
-    {"get_pkm_skill_target_list", [](const player &p) -> std::vector<std::string> {
+    {"get_pkm_skill_target_list",
+     [](const player &p) -> std::vector<std::string> {
          std::vector<std::string> ret;
          base_skill *bs = skill_list[p.party_pkm[p.mt.menu_choose_pokemon].skills[p.mt.menu_choose_id]];
          if (is_no_target_skill(bs->tgt)) {
@@ -269,6 +287,14 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
          }
          return ret;
      }},
-     {"get_mart_sell_items", [](const player &p) -> std::vector<std::string> {
-        // TODO: 
+    {"get_mart_sell_items",
+     [](const player &p) -> std::vector<std::string> {
+         // TODO:
+     }},
+    {"get_npc_names_list", [](const player &p) -> std::vector<std::string> {
+         std::vector<std::string> names;
+         for (auto np : p.pls->npcs) {
+             names.push_back(np->name);
+         }
+         return names;
      }}};

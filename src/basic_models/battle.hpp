@@ -44,13 +44,15 @@ public:
     int battle_num;
     bool is_escape;
     unsigned int escape_times;
-    player *p[2];
-    std::vector<pkm *> pkms[2];
-    std::vector<std::set<pkm *>> seened_pkms[2];
+    std::array<player *, 2> p;
+    std::array<std::vector<pkm *>, 2> pkms;
+    std::array<std::vector<std::set<pkm *>>, 2> seened_pkms;
     std::vector<move_struct> moves; // moves in one turn
 
-    field_status field[3]; // 0/1 player field, 2 overall field
+    std::array<field_status, 3> field; // 0/1 player field, 2 overall field
     weather_status weather;
+
+    battle_main(int bnum, std::array<player *, 2> px, std::array<std::vector<pkm *>, 2> pkmsx, weather_status ws);
 
     enum sort_method { BY_PKM_SPEED, BY_MOVES };
 
@@ -68,6 +70,8 @@ public:
     void set_prior_fix();
 
     void refresh_seened_pkm();
+    void output_seend_pkm() const;
+    void output_pkm_status() const;
 
     /**
      * If the pkm[side][pos] is faint, get the exp gained
