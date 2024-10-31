@@ -16,10 +16,10 @@ public:
     void process(std::string message, const msg_meta &conf)
     {
         auto it = th_mapper.find(conf.user_id);
-        if (it == th_mapper.end()) {
+        if (it == th_mapper.end() && message == "pkm.start") {
             th_mapper.insert(std::pair<const uint64_t, singleplayerthread *>(
                 conf.user_id, new singleplayerthread(conf.user_id, conf.p)));
-            th_mapper[conf.user_id]->add_input(message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
+            // th_mapper[conf.user_id]->add_input(message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
         }
         else {
             th_mapper[conf.user_id]->add_input(message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
