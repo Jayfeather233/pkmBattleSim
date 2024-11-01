@@ -34,7 +34,18 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
          std::string s3 =
              fmt::format("No. {}, type: {}, 现有经验值: {}, 距下一级经验值: {}", u->id, eletype2string(u->typ),
                          u->exp_curr, get_next_level_exp(u->exp_acc_speed, u->level) - u->exp_curr);
-         p.output2user(fmt::format("{}\n\n{}\n\n{}", s1, s2, s3));
+
+         std::string s4 =
+             fmt::format("{}: {}/{}\n"
+                         "{}: {}\n"
+                         "{}: {}\n"
+                         "{}: {}\n"
+                         "{}: {}\n"
+                         "{}: {}",
+                         base6str[0], u->stat.hp - u->hpreduced, u->stat.hp, base6str[1], u->stat.atk, base6str[2],
+                         u->stat.df, base6str[3], u->stat.stk, base6str[4], u->stat.sdf, base6str[5], u->stat.spd);
+
+         p.output2user(fmt::format("{}\n\n{}\n\n{}\n\n{}", s1, s2, s3, s4));
      }},
     {"output_place_point",
      [](player &p) {

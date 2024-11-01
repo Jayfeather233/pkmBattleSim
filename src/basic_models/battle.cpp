@@ -39,9 +39,9 @@ battle_main::battle_main(int bnum, std::array<player *, 2> px, std::array<std::v
 std::string battle_main::half_to_string(int side)
 {
     std::string u;
-    for (size_t i = 0; i < pkms[side].size(); ++i) {
-        u += fmt::format("[Lv.{} {}{}] ", pkms[side][i]->level, pkms[side][i]->get_name(),
-                         gender2string(pkms[side][i]->gend));
+    for (auto it : pkms[side]) {
+        u += fmt::format("[Lv.{} {}{} {}/{}] ", it->level, it->get_name(), gender2string(it->gend),
+                         it->stat.hp - it->hpreduced, it->stat.hp);
     }
     return u;
 }
@@ -229,7 +229,7 @@ void battle_main::set_prior_fix()
 void battle_main::refresh_seened_pkm()
 {
     for (int i = 0; i < 2; i++) {
-        for (auto& it : seened_pkms[i]) {
+        for (auto &it : seened_pkms[i]) {
             for (auto it2 = it.begin(); it2 != it.end();) {
                 if ((*it2) == nullptr || IS_FAINT(*it2)) {
                     it2 = it.erase(it2); // erase returns the iterator to
@@ -281,7 +281,7 @@ void battle_main::get_gained_exp(int side, int pos)
     int b = pkms[side][pos]->base_exp;
     int l = pkms[side][pos]->level;
     std::set<pkm *> to_gain = seened_pkms[side][pos];
-    for (auto& it : p[side ^ 1]->party_pkm) {
+    for (auto &it : p[side ^ 1]->party_pkm) {
         if (it.carried_item == -1) { // TODO: learning machine here
             to_gain.insert(&it);
         }
@@ -307,12 +307,12 @@ void battle_main::get_gained_exp(int side, int pos)
 void battle_main::pkm_entry_proc(int side, int id, pkm *pkm, bool is_first_entry)
 {
     if (is_first_entry) {
-        for (auto& it : seened_pkms[side ^ 1]) {
+        for (auto &it : seened_pkms[side ^ 1]) {
             it.insert(pkm);
             fmt::print("first entry insert\n");
         }
         seened_pkms[side][id].clear();
-        for(auto it : pkms[side^1]){
+        for (auto it : pkms[side ^ 1]) {
             seened_pkms[side][id].insert(it);
         }
     }
