@@ -70,6 +70,10 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
     {"set_default_choose_position", [](player &p) { p.mt.menu_choose_position = 0; }},
     {"battle_wild_pkm",
      [](player &p) {
+         if (p.pls->pkms.size() == 0) {
+             p.output2user("No wild pkm here");
+             return;
+         }
          auto cmp = [](const pkm &a, const pkm &b) { return a.level < b.level; };
          pkm u = pkm::create_pkm(
              pkm_list[get_possi_random(p.pls->pkms)], "",
