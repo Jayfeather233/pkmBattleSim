@@ -10,12 +10,11 @@ void run_text_menu(player &p, const text_menu *px, std::function<void()> save, c
 {
     while (px != stop && px != nullptr) {
         if (px != stop && px != nullptr && px->no_choice(p)) {
-            text_menu *pp = px->get_only_choice(p);
-            if (pp != nullptr && pp->action != nullptr) {
-                pp->action(p);
-            }
             p.output2user(px->to_string(p));
-            px = pp;
+            px = px->get_only_choice(p);
+            if (px != nullptr && px->action != nullptr) {
+                px->action(p);
+            }
             continue;
         }
         if (px == stop || px == nullptr) {

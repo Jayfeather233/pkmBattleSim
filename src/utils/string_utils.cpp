@@ -85,5 +85,5 @@ std::string nowtime_string()
 {
     std::time_t nt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     tm tt = *localtime(&nt);
-    return fmt::format("{}年{}月{}日", tt.tm_year, tt.tm_mon + 1, tt.tm_mday);
+    return fmt::format("{}年{}月{}日", tt.tm_year+1900, tt.tm_mon + 1, tt.tm_mday);
 }
