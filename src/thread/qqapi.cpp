@@ -7,7 +7,7 @@ void pkmbattle::process(std::string message, const msg_meta &conf)
         if (message != "pkm.start")
             return;
         th_mapper.insert(
-            std::pair<uint64_t, singleplayerthread *>(conf.user_id, new singleplayerthread(conf.user_id, conf.p)));
+            std::pair<userid_t, singleplayerthread *>(conf.user_id, new singleplayerthread(conf.user_id, conf.p)));
         th_mapper[conf.user_id]->init_player();
         th_mapper[conf.user_id]->run();
     }

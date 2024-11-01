@@ -8,10 +8,9 @@
 #include <map>
 #include <thread>
 
-std::map<uint64_t, singleplayerthread *> th_mapper;
-
 class pkmbattle : public processable {
 private:
+    std::map<userid_t, singleplayerthread *> th_mapper;
 public:
     void process(std::string message, const msg_meta &conf);
     bool check(std::string message, const msg_meta &conf);

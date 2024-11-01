@@ -24,7 +24,7 @@ singleplayerthread::singleplayerthread(userid_t user_id, bot *ptr)
     this->p.is_op = [user_id, ptr]() { return is_op(ptr, user_id); };
     this->sig_ipt.store(false);
     this->last_sent = "";
-    in_group_event = false;
+    this->in_group_event = false;
 }
 
 void singleplayerthread::init_player()
@@ -75,7 +75,7 @@ std::string singleplayerthread::get_user_input(bool is_wait)
         if (is_wait) {
             while (!sig_ipt.load() || in_group_event) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                if (sig_ipt.load()) {
+                if (sig_ipt.load() && in_group_event) {
                     output2user("Cannot interactive during group event.");
                     sig_ipt.store(false);
                 }
