@@ -8,7 +8,7 @@ void pkmbattle::process(std::string message, const msg_meta &conf)
             return;
         th_mapper.insert(
             std::pair<uint64_t, singleplayerthread *>(conf.user_id, new singleplayerthread(conf.user_id, conf.p)));
-        // th_mapper[conf.user_id]->add_input(message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
+        th_mapper[conf.user_id]->init_player();
         th_mapper[conf.user_id]->run();
     }
     else {

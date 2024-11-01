@@ -18,6 +18,8 @@ public:
     bool in_group_event; // only enable if player agree
 
     void add_input(const std::string &ipt, const uint64_t group_id = 0);
+
+    // please run init_player after each initialization
     singleplayerthread(userid_t user_id, bot *ptr = nullptr);
 
     void init_player();

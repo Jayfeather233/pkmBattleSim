@@ -25,22 +25,21 @@ singleplayerthread::singleplayerthread(userid_t user_id, bot *ptr)
     this->sig_ipt.store(false);
     this->last_sent = "";
     in_group_event = false;
+}
+
+void singleplayerthread::init_player()
+{
     if (this->p.party_pkm.size() == 0) {
         fmt::print("new player: {}, run init\n", user_id);
-        init_player();
+        map_finder((std::string) "reset_all_menu_tmp", action_mapper)(p);
+        player_init();
+        map_finder((std::string) "reset_all_menu_tmp", action_mapper)(p);
+        choose_init_pkm();
     }
     if (p.mt.move_point >= p.pls->meet_points)
         p.st.user_enables.insert("enough_place_point");
     else
         p.st.user_enables.erase("enough_place_point");
-}
-
-void singleplayerthread::init_player()
-{
-    map_finder((std::string) "reset_all_menu_tmp", action_mapper)(p);
-    player_init();
-    map_finder((std::string) "reset_all_menu_tmp", action_mapper)(p);
-    choose_init_pkm();
 }
 
 void singleplayerthread::player_init()
