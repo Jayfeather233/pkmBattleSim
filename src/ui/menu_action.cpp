@@ -304,6 +304,7 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
      }},
     {"get_mart_sell_items",
      [](const player &p) -> std::vector<std::string> {
+        return std::vector<std::string>();
          // TODO:
      }},
     {"get_npc_names_list", [](const player &p) -> std::vector<std::string> {
