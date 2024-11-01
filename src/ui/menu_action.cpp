@@ -196,7 +196,8 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
      [](const player &p) -> std::vector<std::string> {
          std::vector<std::string> ret;
          for (auto it : p.party_pkm[p.mt.menu_choose_pokemon].skills) {
-             ret.push_back(skill_list[it]->name);
+             if (it)
+                 ret.push_back(skill_list[it]->name);
          }
          return ret;
      }},
@@ -304,7 +305,7 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
      }},
     {"get_mart_sell_items",
      [](const player &p) -> std::vector<std::string> {
-        return std::vector<std::string>();
+         return std::vector<std::string>();
          // TODO:
      }},
     {"get_npc_names_list", [](const player &p) -> std::vector<std::string> {
