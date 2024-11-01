@@ -22,6 +22,8 @@ singleplayerthread::singleplayerthread(userid_t user_id, bot *ptr)
     this->p.get_user_input_no_wait = [this]() { return this->get_user_input(false); };
     this->p.output2user = [this](std::string s) { return this->output2user(s); };
     this->p.is_op = [user_id, ptr]() { return is_op(ptr, user_id); };
+    this->sig_ipt.store(false);
+    this->last_sent = "";
     in_group_event = false;
     if (this->p.party_pkm.size() == 0) {
         fmt::print("new player: {}, run init\n", user_id);
@@ -111,6 +113,8 @@ void singleplayerthread::output2user(const std::string &s)
     }
 }
 void singleplayerthread::resend() const {
+    if (last_sent.length() == 0)
+        return;
     if (botp == nullptr) {
         std::cout << last_sent << std::endl;
     }

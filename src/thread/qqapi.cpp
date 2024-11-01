@@ -19,7 +19,7 @@ void pkmbattle::process(std::string message, const msg_meta &conf)
     }
 }
 bool pkmbattle::check(std::string message, const msg_meta &conf) { return message.find("pkm.") == 0; }
-std::string pkmbattle::help() {}
+std::string pkmbattle::help() {return "Online pkm game. start with pkm.[start|number]";}
 pkmbattle::~pkmbattle()
 {
     for (auto it : th_mapper) {
