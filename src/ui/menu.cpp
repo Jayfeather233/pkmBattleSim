@@ -85,14 +85,15 @@ bool text_menu::no_choice(const player &p) const
         return u == 1;
     }
 }
-text_menu* text_menu::get_only_choice(const player &p) const{
-    
-    if(options.size()){
+text_menu *text_menu::get_only_choice(const player &p) const
+{
+
+    if (options.size()) {
         return options[0];
     }
     for (auto it : app_options) {
         if (p.is_type(it.first)) {
-            if(it.second.size()){
+            if (it.second.size()) {
                 return it.second[0];
             }
         }
@@ -181,7 +182,7 @@ std::string text_menu::to_string(const player &p) const
             cnt++;
         }
     }
-    else if(!no_choice(p)){
+    else if (!no_choice(p)) {
         for (auto it : options) {
             ret += std::to_string(cnt) + ". " + it->choose_text + '\n';
             cnt++;
@@ -316,14 +317,13 @@ void birthday_ch_action(player &p)
 
 void init_player_init_menu(const text_menu *f)
 {
-    player_init_menu =
-        new text_menu("", "",
-                      {new text_menu("可以告诉我你的名字吗？", "",
-                                     {new text_menu("你的生日是：", "", {new text_menu("这样就行了", "", {})},
-                                                    birthday_ch_action, false, nullptr, nullptr, false)},
-                                     name_ch_action, false, nullptr, nullptr, false)},
-                      nullptr, false, nullptr, nullptr, false);
-    player_init_menu->options[0]->options[0]->options[0]->father = f;
+    player_init_menu = new text_menu(
+        "可以告诉我你的名字吗？", "",
+        {new text_menu("你的生日是：", "",
+                       {new text_menu("这样就行了", "", {}, birthday_ch_action, false, nullptr, nullptr, false)},
+                       name_ch_action, false, nullptr, nullptr, false)},
+        nullptr, false, nullptr, nullptr, false);
+    player_init_menu->options[0]->options[0]->father = f;
 }
 
 text_menu *battle_menu;

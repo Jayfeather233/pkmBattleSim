@@ -67,8 +67,8 @@ endif()
 if(MODE STREQUAL "main")
     add_library(${PROJECT_NAME} SHARED ${BM_SOURCES} ${TH_SOURCES} ${UI_SOURCES} ${UTILS_SOURCES} ${MAIN_SOURCES})
 endif()
-target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/../lib/libutils.so)
 
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/../lib/libutils.so)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${ImageMagick_LIBRARIES})
 
 find_package(jsoncpp REQUIRED)
@@ -76,18 +76,14 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${JSONCPP_LIBRARIES})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -lcurl)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -ljsoncpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
-
-
-if(MODE STREQUAL "test")
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC zip)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -pthread)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC -lm)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENSSL_LIBRARIES})
-endif()
 
-set_target_properties(pbs PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
     INSTALL_RPATH "./lib"
 )
-set_target_properties(pbs PROPERTIES LINK_FLAGS "-Wl,-rpath,./lib/")
+set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath,./lib/")
