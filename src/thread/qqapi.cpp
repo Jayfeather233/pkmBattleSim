@@ -46,7 +46,7 @@ void pkmbattle::process(std::string message, const msg_meta &conf)
             th_mapper[conf.user_id]->resend();
             return;
         }
-        th_mapper[conf.user_id]->add_input(message.substr(4), conf.message_type == "group" ? conf.group_id : 0);
+        th_mapper[conf.user_id]->add_input(message, conf.message_type == "group" ? conf.group_id : 0);
     }
 }
 bool pkmbattle::check(std::string message, const msg_meta &conf)
