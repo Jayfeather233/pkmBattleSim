@@ -11,6 +11,7 @@
 class pkmbattle : public processable {
 private:
     std::map<userid_t, singleplayerthread *> th_mapper;
+    std::map<userid_t, bool> user_continues_input;
 public:
     void process(std::string message, const msg_meta &conf);
     bool check(std::string message, const msg_meta &conf);
