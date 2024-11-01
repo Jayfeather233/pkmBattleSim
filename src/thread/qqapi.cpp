@@ -13,7 +13,8 @@ static std::string help_msg =
 "  pkm.begin to start input\n"
 "  pkm.end   to end input\n"
 "  pkm.resend to resend last message\n"
-"Notice this is in early development.";
+"Notice this is in early development.\n"
+"See: https://github.com/Jayfeather233/pkmBattleSim/";
 
 void pkmbattle::process(std::string message, const msg_meta &conf)
 {
@@ -36,6 +37,8 @@ void pkmbattle::process(std::string message, const msg_meta &conf)
     if (it == th_mapper.end()) {
         if (message != start_)
             return;
+        user_continues_input[conf.user_id] = true;
+        conf.p->cq_send("进入连续输入模式，pkm.end来结束", conf);
         th_mapper.insert(
             std::pair<userid_t, singleplayerthread *>(conf.user_id, new singleplayerthread(conf.user_id, conf.p)));
         th_mapper[conf.user_id]->init_player();

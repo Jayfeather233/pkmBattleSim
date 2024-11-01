@@ -356,6 +356,9 @@ void init_main_menu(const Json::Value &J)
     else if (p->get_uid() == "all_faint_goback_menu") {
         all_faint_goback_menu = p;
     }
+    else if (p->get_uid() == "first_pkm_specific_menu") {
+        first_pkm_specific_menu = p;
+    }
     else {
         if (!J.isMember("father") && p->father == nullptr) {
             fmt::print("Warning: No father for menu:{}, it maybe a NPC menu", J.toStyledString());

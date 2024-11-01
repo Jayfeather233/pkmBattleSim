@@ -1,0 +1,29 @@
+[
+    {
+        "title": "tamplete: 菜单标题",
+        "choose_text": "选项文字",
+        "uid": "唯一标识符3",
+        "action": "reset_all_menu_tmp",
+        "is_choose": false,
+        "choose_cb": null,
+        "get_choose_set": null,
+        "need_back": true,
+        "father": "father uid",
+        "options": [
+            {
+                "title": "子级菜单json"
+            },
+            "子级uid"
+        ]
+    },
+    {
+        "title": "",
+        "choose_text": "",
+        "uid": "first_pkm_specific_menu",
+        "is_choose": false,
+        "need_back": false,
+        "options": [
+            
+        ]
+    }
+]
