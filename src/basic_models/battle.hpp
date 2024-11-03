@@ -41,7 +41,7 @@ inline bool pli_cmp_fast2slow(const pkm_list_item &a, const pkm_list_item &b) { 
 
 class battle_main {
 public:
-    int battle_num;
+    size_t battle_num;
     bool is_escape;
     unsigned int escape_times;
     std::array<player *, 2> p;
@@ -52,7 +52,7 @@ public:
     std::array<field_status, 3> field; // 0/1 player field, 2 overall field
     weather_status weather;
 
-    battle_main(int bnum, std::array<player *, 2> px, std::array<std::vector<pkm *>, 2> pkmsx, weather_status ws);
+    battle_main(size_t bnum, std::array<player *, 2> px, std::array<std::vector<pkm *>, 2> pkmsx, weather_status ws);
 
     enum sort_method { BY_PKM_SPEED, BY_MOVES };
 
@@ -62,8 +62,10 @@ public:
 
     void sort_moves(sort_method method);
 
-    inline bool check_valid_pos(int side, int id) { return side < 2 && 0 <= side && 0 <= id && id < pkms[side].size(); }
+    inline bool check_valid_pos(int side, int id) { return side < 2 && 0 <= side && 0 <= id && static_cast<size_t>(id) < pkms[side].size(); }
     inline bool check_valid_pkm(int side, int id) { return check_valid_pos(side, id) && pkms[side][id] != nullptr; }
+    inline bool check_valid_pos(int side, size_t id) { return side < 2 && id < pkms[side].size(); }
+    inline bool check_valid_pkm(int side, size_t id) { return check_valid_pos(side, id) && pkms[side][id] != nullptr; }
 
     std::vector<std::pair<int, int>> aff_pkms(const move_struct &ms);
 
@@ -97,4 +99,4 @@ extern text_menu *battle_menu;
 void get_next_battle_move(int side, battle_main *bm);
 
 // battle_num: n vs n
-int battle_start(player *p1, player *p2, int battle_num, weather_status weather = weather_status::CLEAR);
+int battle_start(player *p1, player *p2, size_t battle_num, weather_status weather = weather_status::CLEAR);

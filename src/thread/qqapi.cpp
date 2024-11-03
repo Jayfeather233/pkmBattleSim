@@ -13,7 +13,7 @@ static std::string help_msg =
 "  pkm.begin to start input\n"
 "  pkm.end   to end input\n"
 "  pkm.resend to resend last message\n"
-"Notice this is in early development.\n"
+"Notice that this is in early development.\n"
 "See: https://github.com/Jayfeather233/pkmBattleSim/";
 
 void pkmbattle::process(std::string message, const msg_meta &conf)
@@ -45,6 +45,10 @@ void pkmbattle::process(std::string message, const msg_meta &conf)
         th_mapper[conf.user_id]->run();
     }
     else {
+        if(message == start_){
+            conf.p->cq_send("已经开始过了，请检查历史记录或使用pkm.resend", conf);
+            return;
+        }
         if (message == resend) {
             th_mapper[conf.user_id]->resend();
             return;

@@ -25,7 +25,7 @@ bool ms_cmp_move_slow2fast(const move_struct &a, const move_struct &b)
 }
 bool ms_cmp_move_fast2slow(const move_struct &a, const move_struct &b) { return ms_cmp_move_slow2fast(b, a); }
 
-battle_main::battle_main(int bnum, std::array<player *, 2> px, std::array<std::vector<pkm *>, 2> pkmsx,
+battle_main::battle_main(size_t bnum, std::array<player *, 2> px, std::array<std::vector<pkm *>, 2> pkmsx,
                          weather_status ws)
     : battle_num(bnum), is_escape(false), escape_times(0), p(px), pkms(pkmsx), field({NO_FIELD, NO_FIELD, NO_FIELD}),
       weather(ws)
@@ -133,7 +133,7 @@ std::vector<std::pair<int, int>> battle_main::aff_pkms(const move_struct &ms)
                 ret.push_back(std::make_pair(ms.from_side, j));
     }
     else if (tgt == move_target::ANY) {
-        if (ms.to >= pkms[ms.from_side ^ 1].size()) {
+        if (ms.to>=0 && static_cast<size_t>(ms.to) >= pkms[ms.from_side ^ 1].size()) {
             int msto = ms.to - pkms[ms.from_side ^ 1].size();
             if (msto >= ms.from_pos)
                 msto += 1;
@@ -146,7 +146,7 @@ std::vector<std::pair<int, int>> battle_main::aff_pkms(const move_struct &ms)
             while (!check_valid_pkm(l1, l2) || l2 == ms.from_pos) {
                 l2 += off;
                 off = (off < 0 ? -off + 1 : -off - 1);
-                if (off > pkms[l1].size() + 2) {
+                if (off>=0 && static_cast<size_t>(off) > pkms[l1].size() + 2) {
                     l2 = ms.to;
                     break;
                 }
@@ -173,7 +173,7 @@ std::vector<std::pair<int, int>> battle_main::aff_pkms(const move_struct &ms)
     }
     else if (tgt == move_target::ALL_ALLY) {
         for (size_t j = 0; j < pkms[ms.from_side].size(); ++j)
-            if (pkms[ms.from_side][j] != nullptr && ms.from_pos != j)
+            if (pkms[ms.from_side][j] != nullptr && ms.from_pos >= 0 && static_cast<size_t>(ms.from_pos) != j)
                 ret.push_back(std::make_pair(ms.from_side, j));
     }
     else if (tgt == move_target::USER_OR_AROUND_ALLY) {
@@ -200,7 +200,7 @@ std::vector<std::pair<int, int>> battle_main::aff_pkms(const move_struct &ms)
         while (!check_valid_pkm(l1, l2)) {
             l2 += off;
             off = (off < 0 ? -off + 1 : -off - 1);
-            if (off > pkms[l1].size() + 2) {
+            if (off >= 0 && static_cast<size_t>(off) > pkms[l1].size() + 2) {
                 l2 = 0;
                 break;
             }
@@ -477,7 +477,7 @@ void battle_main::end_turn_proc()
                 continue;
             if (IS_FAINT(pkms[sd][i])) {
                 int pid = p[sd]->get_subsitute_pkm(pkms[sd]);
-                if (pid >= 0 && pid < p[sd]->party_pkm.size()) {
+                if (pid >= 0 && static_cast<size_t>(pid) < p[sd]->party_pkm.size()) {
                     pkm *subs = &(p[sd]->party_pkm[pid]);
                     if (IS_FAINT(subs)) {
                         throw "subsitute pkm is fainting.";
@@ -620,7 +620,7 @@ void get_next_battle_move(int side, battle_main *bm)
         }
     }
     else {
-        for (int j = 0; j < bm->pkms[side].size(); ++j) {
+        for (size_t j = 0; j < bm->pkms[side].size(); ++j) {
             auto u = bm->pkms[side][j];
             if (u == nullptr)
                 continue;
@@ -660,10 +660,10 @@ void get_next_battle_move(int side, battle_main *bm)
 }
 
 // battle_num: n vs n
-int battle_start(player *p1, player *p2, int battle_num, weather_status weather)
+int battle_start(player *p1, player *p2, size_t battle_num, weather_status weather)
 {
     std::vector<pkm *> p1pkm, p2pkm;
-    int cnt = 0;
+    size_t cnt = 0;
     for (size_t i = 0; cnt < battle_num && i < p1->party_pkm.size(); i++) {
         if (!IS_FAINT(&(p1->party_pkm[i]))) {
             p1->party_pkm[i].refresh_stat();

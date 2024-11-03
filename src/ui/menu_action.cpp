@@ -71,7 +71,7 @@ std::map<std::string, std::function<void(player &)>> action_mapper = {
     {"battle_wild_pkm",
      [](player &p) {
          if (p.pls->pkms.size() == 0) {
-             p.output2user("No wild pkm here");
+             p.output2user("这里没有野生宝可梦！");
              return;
          }
          auto cmp = [](const pkm &a, const pkm &b) { return a.level < b.level; };
@@ -211,13 +211,13 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
          }
          else {
              int side = (&p == p.bm->p[1] ? 1 : 0);
-             int position;
+             size_t position;
              for (position = 0; position < p.bm->pkms[side].size() &&
                                 p.bm->pkms[side][position] != &p.party_pkm[p.mt.menu_choose_pokemon];
                   ++position)
                  ;
              if (bs->tgt == move_target::AROUND_USER) {
-                 if (p.bm->check_valid_pos(side, position - 1)) {
+                 if (position >= 1 && p.bm->check_valid_pos(side, position - 1)) {
                      if (p.bm->check_valid_pkm(side, position - 1)) {
                          ret.push_back(pkm_choosing_name(p.bm->pkms[side][position - 1], true));
                      }
@@ -225,7 +225,8 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
                          ret.push_back(get_side_text(true) + " empty");
                      }
                  }
-                 for (int i = position - 1; i <= position + 1; i++) {
+                 size_t min_val = ((position >= 1) ? (position - 1) : 0);
+                 for (size_t i = min_val; i <= position + 1; i++) {
                      if (p.bm->check_valid_pos(side ^ 1, i)) {
                          if (p.bm->check_valid_pkm(side ^ 1, i)) {
                              ret.push_back(pkm_choosing_name(p.bm->pkms[side ^ 1][i], false));
@@ -245,10 +246,11 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
                  }
              }
              else if (bs->tgt == move_target::ANY_OPPO) {
-                 for (int i = -1; i <= 1; ++i) {
-                     if (p.bm->check_valid_pos(side ^ 1, i + position)) {
-                         if (p.bm->check_valid_pkm(side ^ 1, i + position)) {
-                             ret.push_back(pkm_choosing_name(p.bm->pkms[side ^ 1][i + position], false));
+                 size_t min_val = ((position >= 1) ? (position - 1) : 0);
+                 for (size_t i = min_val; i <= position + 1; i++) {
+                     if (p.bm->check_valid_pos(side ^ 1, i)) {
+                         if (p.bm->check_valid_pkm(side ^ 1, i)) {
+                             ret.push_back(pkm_choosing_name(p.bm->pkms[side ^ 1][i], false));
                          }
                          else {
                              ret.push_back(get_side_text(false) + " empty");
@@ -275,12 +277,13 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
                  }
              }
              else if (bs->tgt == move_target::ANY_ALLY) {
-                 for (int i = -1; i <= 1; ++i) {
-                     if (i == 0)
+                 size_t min_val = ((position >= 1) ? (position - 1) : 0);
+                 for (size_t i = min_val; i <= position + 1; i++) {
+                     if (i == position)
                          continue;
-                     if (p.bm->check_valid_pos(side, i + position)) {
-                         if (p.bm->check_valid_pkm(side, i + position)) {
-                             ret.push_back(pkm_choosing_name(p.bm->pkms[side][i + position], true));
+                     if (p.bm->check_valid_pos(side, i)) {
+                         if (p.bm->check_valid_pkm(side, i)) {
+                             ret.push_back(pkm_choosing_name(p.bm->pkms[side][i], true));
                          }
                          else {
                              ret.push_back(get_side_text(true) + "empty");
@@ -289,10 +292,11 @@ std::map<std::string, std::function<std::vector<std::string>(const player &)>> g
                  }
              }
              else if (bs->tgt == move_target::USER_OR_AROUND_ALLY) {
-                 for (int i = -1; i <= 1; ++i) {
-                     if (p.bm->check_valid_pos(side, i + position)) {
-                         if (p.bm->check_valid_pkm(side, i + position)) {
-                             ret.push_back(pkm_choosing_name(p.bm->pkms[side][i + position], true));
+                 size_t min_val = ((position >= 1) ? (position - 1) : 0);
+                 for (size_t i = min_val; i <= position + 1; i++) {
+                     if (p.bm->check_valid_pos(side, i)) {
+                         if (p.bm->check_valid_pkm(side, i)) {
+                             ret.push_back(pkm_choosing_name(p.bm->pkms[side][i], true));
                          }
                          else {
                              ret.push_back(get_side_text(true) + "empty");

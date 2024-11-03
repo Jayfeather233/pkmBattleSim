@@ -47,8 +47,8 @@ void init_pkm(std::string filepath)
 
 void init_places(std::string filepath)
 {
-    Json::Value J = string_to_json(readfile(filepath, "{}"));
-    for (const Json::Value &re : J["regions"]) {
+    Json::Value J = string_to_json(readfile(filepath, "[]"));
+    for (const Json::Value &re : J) {
         regis.push_back((region){re["name"].asString(), re["desc"].asString()});
         region *f = &regis[regis.size() - 1];
         size_t st_pos = placs.size();

@@ -33,7 +33,7 @@
         "action": "",
         "is_choose": false,
         "need_back": true,
-        "father": "player_pkm_ch_main",
+        "father": "main_menu",
         "options": [
             {
                 "title": "",
@@ -55,49 +55,29 @@
         "need_back": false,
         "options": [
             {
-                "title": "玩家菜单",
-                "choose_text": "玩家菜单",
-                "uid": "player_main_menu",
+                "title": "",
+                "choose_text": "同行宝可梦菜单",
+                "uid": "",
                 "action": "reset_all_menu_tmp",
-                "is_choose": false,
+                "is_choose": true,
+                "choose_cb": "set_choose_pkm",
+                "get_choose_set": "get_player_party_pkm_name_list",
                 "need_back": true,
                 "options": [
-                    {
-                        "title": "",
-                        "choose_text": "宝可梦菜单",
-                        "uid": "player_pkm_ch_main",
-                        "action": "reset_all_menu_tmp",
-                        "is_choose": false,
-                        "need_back": true,
-                        "options": [
-                            {
-                                "title": "",
-                                "choose_text": "选择同行宝可梦",
-                                "uid": "",
-                                "action": "reset_all_menu_tmp",
-                                "is_choose": true,
-                                "choose_cb": "set_choose_pkm",
-                                "get_choose_set": "get_player_party_pkm_name_list",
-                                "need_back": true,
-                                "options": [
-                                    "pkm_interactive_menu"
-                                ]
-                            },
-                            {
-                                "title": "",
-                                "choose_text": "选择箱子宝可梦",
-                                "uid": "",
-                                "action": "reset_all_menu_tmp",
-                                "is_choose": true,
-                                "choose_cb": "menu_choose_pokemon_chest_pkm",
-                                "get_choose_set": "get_player_chest_pkm_name_list",
-                                "need_back": true,
-                                "options": [
-                                    "pkm_interactive_menu"
-                                ]
-                            }
-                        ]
-                    }
+                    "pkm_interactive_menu"
+                ]
+            },
+            {
+                "title": "",
+                "choose_text": "箱子宝可梦菜单",
+                "uid": "",
+                "action": "reset_all_menu_tmp",
+                "is_choose": true,
+                "choose_cb": "menu_choose_pokemon_chest_pkm",
+                "get_choose_set": "get_player_chest_pkm_name_list",
+                "need_back": true,
+                "options": [
+                    "pkm_interactive_menu"
                 ]
             },
             {
@@ -118,7 +98,7 @@
                     },
                     {
                         "title": "",
-                        "choose_text": "踩草丛",
+                        "choose_text": "踩草丛(战斗)",
                         "action": "battle_wild_pkm",
                         "is_choose": false,
                         "need_back": true,

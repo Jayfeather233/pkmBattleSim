@@ -406,10 +406,6 @@ void init_menus(const std::string &rt_dir)
 
 void menu_init()
 {
-    // Json::Value Ja = string_to_json(readfile("./data/pkm/menu.json"));
-    // for (Json::Value J : Ja) {
-    //     init_main_menu(J);
-    // }
     init_menus("./data/pkm/menu/");
     init_player_init_menu(root_menu);
     pkm_ch_init(root_menu);

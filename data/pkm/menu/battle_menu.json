@@ -1,6 +1,6 @@
 [
     {
-        "title": "$u手上已经没有可以",
+        "title": "$u手上已经没有可以.TODO.",
         "choose_text": "",
         "uid": "all_faint_goback_menu",
         "action": "reset_all_menu_tmp",
@@ -10,7 +10,7 @@
         "need_back": false,
         "options": [
             {
-                "title": "一片漆黑",
+                "title": "一片漆黑.TODO.",
                 "choose_text": "",
                 "action": "goback_last_pls",
                 "is_choose": false,

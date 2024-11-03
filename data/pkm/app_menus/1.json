@@ -4,7 +4,7 @@
             {
                 "title": "",
                 "choose_text": "宝可清爽乐",
-                "father": "player_pkm_ch_main",
+                "father": "main_menu",
                 "options": [
                 ],
                 "action": "refresh_choosed_pkm",
