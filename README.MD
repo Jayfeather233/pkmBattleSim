@@ -1,3 +1,5 @@
+Before compile, put `libutils.so` under `./lib/`
+
 places add trainer
 
 Need everything

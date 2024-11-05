@@ -7,3 +7,4 @@
 !/data/pkm/texts/1.json
 main.cpp
 test.cpp
+/lib/libutils.so
