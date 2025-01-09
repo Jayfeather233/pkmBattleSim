@@ -40,7 +40,7 @@ element_types str2et(const std::string &s);
 
 // from, to, types Compatibility
 extern float eff_table[20][20];
-extern base6 nature_table6[25];
+extern base6 nature_table6[25]; //TODO: nature text desc
 
 enum battle_status {
     NORMAL,
